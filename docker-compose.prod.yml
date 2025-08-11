@@ -9,14 +9,14 @@ services:
     env_file:
       - .env
     ports:
-      - "3306:3306"
+      - '3306:3306'
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql/init:/docker-entrypoint-initdb.d
     networks:
       - kitrpc-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost']
       timeout: 20s
       retries: 10
 
@@ -28,7 +28,7 @@ services:
     container_name: kitrpc-app
     restart: unless-stopped
     ports:
-      - "${PORT}:${PORT}"
+      - '${PORT}:${PORT}'
     env_file:
       - .env
     depends_on:
@@ -41,6 +41,7 @@ services:
     command: >
       sh -c "bunx prisma migrate deploy &&
              bunx prisma generate &&
+             bun run prisma/seed.ts &&
              bun run build/index.js"
 
 volumes:
