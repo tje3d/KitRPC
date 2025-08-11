@@ -41,7 +41,7 @@ export const todosRouter = t.router({
 				where: isAdmin ? {} : { userId: ctx.user.id },
 				orderBy: { createdAt: 'desc' },
 				include: {
-					user: isAdmin ? { select: { id: true, email: true, mobile: true } } : false
+					user: isAdmin ? { select: { id: true, username: true } } : false
 				}
 			});
 

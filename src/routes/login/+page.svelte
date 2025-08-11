@@ -228,6 +228,7 @@
 							<a
 								href="/forgot-password"
 								class="text-sm text-blue-600 transition-colors hover:text-blue-700"
+								tabindex="-1"
 							>
 								Forgot password?
 							</a>
@@ -276,10 +277,11 @@
 									</svg>
 								{/if}
 							</button>
-							{#if passwordTouched && !passwordValid}
-								<p class="mt-1 text-sm text-red-600">Password is required</p>
-							{/if}
 						</div>
+
+						{#if passwordTouched && !passwordValid}
+							<p class="mt-1 text-sm text-red-600">Password is required</p>
+						{/if}
 					</div>
 
 					<!-- Remember Me -->

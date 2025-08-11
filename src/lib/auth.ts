@@ -1,14 +1,13 @@
-import bcrypt from 'bcryptjs';
 import { randomBytes } from 'crypto';
 import { prisma } from './prisma';
 
 // Password utilities
 export async function hashPassword(password: string): Promise<string> {
-	return bcrypt.hash(password, 12);
+	return Bun.password.hash(password);
 }
 
 export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-	return bcrypt.compare(password, hashedPassword);
+	return Bun.password.verify(password, hashedPassword);
 }
 
 // Token utilities

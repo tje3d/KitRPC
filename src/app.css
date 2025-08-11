@@ -1,1 +1,9 @@
 @import 'tailwindcss';
+
+input,
+button,
+textarea,
+select,
+button {
+	@apply outline-none;
+}
