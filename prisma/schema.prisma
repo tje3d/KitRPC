@@ -15,8 +15,8 @@ datasource db {
 
 model User {
   id        String   @id @default(cuid())
-  email     String?  @unique
-  mobile    String?  @unique
+  username  String   @unique
+  email     String?
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -28,8 +28,8 @@ model User {
   permissions UserPermission[]
   todos       Todo[]
 
+  @@index([username])
   @@index([email])
-  @@index([mobile])
 }
 
 model Role {

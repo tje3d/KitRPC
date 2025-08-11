@@ -25,7 +25,7 @@ declare global {
 		type Role = Omit<PrismaRole, 'createdAt' | 'updatedAt'>;
 
 		// Auth-related types
-		type AuthUser = Pick<PrismaUser, 'id' | 'email' | 'mobile'> & {
+		type AuthUser = Pick<PrismaUser, 'id' | 'username'> & {
 			role?: Role & {
 				permissions: Array<{
 					permission: Permission;

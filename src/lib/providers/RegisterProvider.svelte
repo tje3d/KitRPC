@@ -7,7 +7,7 @@
 	export let onRegistered: (user: App.AuthUser, token: string) => void;
 
 	const { clearError, errorMessage, loading, request, responseSuccess } = useTrpcRequest(
-		createTrpcRequestFn((input: { email?: string; mobile?: string; password: string }) => {
+		createTrpcRequestFn((input: { username: string; password: string }) => {
 			return trpc(page).auth.register.mutate(input);
 		})
 	);
@@ -18,7 +18,7 @@
 		onRegistered(result.user, result.token);
 	});
 
-	function register(input: { email?: string; mobile?: string; password: string }) {
+	function register(input: { username: string; password: string }) {
 		request(input);
 	}
 </script>

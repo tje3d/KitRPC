@@ -11,26 +11,16 @@ import { z } from 'zod';
 import { t } from './trpc';
 
 // Input validation schemas
-const loginSchema = z
-	.object({
-		email: z.string().email().optional(),
-		mobile: z.string().optional(),
-		password: z.string().min(6)
-	})
-	.refine((data) => data.email || data.mobile, {
-		message: 'Either email or mobile is required'
-	});
+const loginSchema = z.object({
+	username: z.string().min(1, 'Username is required'),
+	password: z.string().min(6)
+});
 
-const registerSchema = z
-	.object({
-		email: z.string().email().optional(),
-		mobile: z.string().optional(),
-		password: z.string().min(6),
-		roleId: z.string().optional() // Optional, will default to a basic role
-	})
-	.refine((data) => data.email || data.mobile, {
-		message: 'Either email or mobile is required'
-	});
+const registerSchema = z.object({
+	username: z.string().min(1, 'Username is required'),
+	password: z.string().min(6),
+	roleId: z.string().optional() // Optional, will default to a basic role
+});
 
 // Middleware for authenticated users
 const isAuthenticated = t.middleware(async ({ ctx, next }) => {
@@ -56,19 +46,16 @@ export const authRouter = t.router({
 	register: t.procedure.input(registerSchema).mutation(async ({ input, ctx }) => {
 		try {
 			// Check if user already exists
-			const existingUser = await prisma.user.findFirst({
+			const existingUser = await prisma.user.findUnique({
 				where: {
-					OR: [
-						...(input.email ? [{ email: input.email }] : []),
-						...(input.mobile ? [{ mobile: input.mobile }] : [])
-					]
+					username: input.username
 				}
 			});
 
 			if (existingUser) {
 				throw new TRPCError({
 					code: 'CONFLICT',
-					message: 'User with this email or mobile already exists'
+					message: 'User with this username already exists'
 				});
 			}
 
@@ -92,8 +79,7 @@ export const authRouter = t.router({
 			// Create user
 			const user = await prisma.user.create({
 				data: {
-					email: input.email,
-					mobile: input.mobile,
+					username: input.username,
 					password: hashedPassword,
 					roleId: input.roleId || defaultRole.id
 				},
@@ -131,8 +117,7 @@ export const authRouter = t.router({
 				success: true,
 				user: {
 					id: user.id,
-					email: user.email,
-					mobile: user.mobile,
+					username: user.username,
 					role: user.role,
 					permissions: user.permissions
 				},
@@ -154,12 +139,9 @@ export const authRouter = t.router({
 	login: t.procedure.input(loginSchema).mutation(async ({ input, ctx }) => {
 		try {
 			// Find user
-			const user = await prisma.user.findFirst({
+			const user = await prisma.user.findUnique({
 				where: {
-					OR: [
-						...(input.email ? [{ email: input.email }] : []),
-						...(input.mobile ? [{ mobile: input.mobile }] : [])
-					]
+					username: input.username
 				},
 				include: {
 					role: {
@@ -211,8 +193,7 @@ export const authRouter = t.router({
 				success: true,
 				user: {
 					id: user.id,
-					email: user.email,
-					mobile: user.mobile,
+					username: user.username,
 					role: user.role,
 					permissions: user.permissions
 				},
@@ -256,8 +237,7 @@ export const authRouter = t.router({
 	me: protectedProcedure.query(async ({ ctx }) => {
 		return {
 			id: ctx.user.id,
-			email: ctx.user.email,
-			mobile: ctx.user.mobile,
+			username: ctx.user.username,
 			role: ctx.user.role,
 			permissions: ctx.user.permissions
 		};

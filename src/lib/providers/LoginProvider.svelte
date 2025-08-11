@@ -7,7 +7,7 @@
 	export let onLoggedIn: (user: App.AuthUser, token: string) => void;
 
 	const { clearError, errorMessage, loading, trigger, responseSuccess } = useTrpcRequest(
-		createTrpcRequestFn((input: { email?: string; mobile?: string; password: string }) => {
+		createTrpcRequestFn((input: { username: string; password: string }) => {
 			return trpc(page).auth.login.mutate(input);
 		})
 	);
@@ -18,7 +18,7 @@
 		onLoggedIn(result.user, result.token);
 	});
 
-	function login(input: { email?: string; mobile?: string; password: string }) {
+	function login(input: { username: string; password: string }) {
 		trigger.next(input);
 	}
 </script>

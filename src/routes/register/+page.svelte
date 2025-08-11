@@ -8,27 +8,24 @@
 	import { fade, fly } from 'svelte/transition';
 
 	// Form state
-	const useEmail$ = new SvelteSubject<boolean>(true);
-	const email$ = new SvelteSubject<string>('');
-	const mobile$ = new SvelteSubject<string>('');
+	const username$ = new SvelteSubject<string>('');
 	const password$ = new SvelteSubject<string>('');
 	const confirmPassword$ = new SvelteSubject<string>('');
 
 	// Validation state
-	let emailTouched = false;
-	let mobileTouched = false;
+	let usernameTouched = false;
 	let passwordTouched = false;
 	let confirmPasswordTouched = false;
 
 	// Computed validation
-	$: emailValid = !emailTouched || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($email$);
-	$: mobileValid = !mobileTouched || /^[\+]?[1-9][\d]{0,15}$/.test($mobile$);
-	$: passwordValid = !passwordTouched || $password$.length >= 8;
+	$: usernameValid = !usernameTouched || $username$.length >= 1;
+	$: passwordValid = !passwordTouched || $password$.length >= 6;
 	$: passwordsMatch = !confirmPasswordTouched || $password$ === $confirmPassword$;
 	$: formValid =
-		($useEmail$ ? emailValid && $email$ : mobileValid && $mobile$) &&
+		usernameValid &&
 		passwordValid &&
 		passwordsMatch &&
+		$username$ &&
 		$password$ &&
 		$confirmPassword$;
 
@@ -41,7 +38,7 @@
 		color: string;
 	} {
 		let score = 0;
-		if (password.length >= 8) score++;
+		if (password.length >= 6) score++;
 		if (/[a-z]/.test(password)) score++;
 		if (/[A-Z]/.test(password)) score++;
 		if (/\d/.test(password)) score++;
@@ -70,20 +67,11 @@
 		if (!formValid) return;
 
 		const registerData = {
-			password: $password$,
-			...($useEmail$ ? { email: $email$ } : { mobile: $mobile$ })
+			username: $username$,
+			password: $password$
 		};
 
 		register(registerData);
-	}
-
-	function toggleRegistrationMethod(clearError: Function) {
-		useEmail$.next(!$useEmail$);
-		email$.next('');
-		mobile$.next('');
-		emailTouched = false;
-		mobileTouched = false;
-		clearError();
 	}
 
 	function onRegistered(user: App.AuthUser, token: string) {
@@ -100,11 +88,8 @@
 
 	function handleInputBlur(field: string) {
 		switch (field) {
-			case 'email':
-				emailTouched = true;
-				break;
-			case 'mobile':
-				mobileTouched = true;
+			case 'username':
+				usernameTouched = true;
 				break;
 			case 'password':
 				passwordTouched = true;
@@ -170,56 +155,6 @@
 				class="space-y-6 rounded-3xl border border-white/20 bg-white/80 p-8 shadow-2xl backdrop-blur-xl"
 			>
 				<form on:submit={(e) => handleRegister(e, register)} class="space-y-6" novalidate>
-					<!-- Registration Method Toggle -->
-					<div class="flex justify-center">
-						<div class="inline-flex rounded-2xl bg-gray-100/80 p-1 shadow-inner backdrop-blur-sm">
-							<button
-								type="button"
-								on:click={() => toggleRegistrationMethod(clearError)}
-								class="rounded-xl px-6 py-2.5 text-sm font-medium transition-all duration-200 {$useEmail$
-									? 'bg-white text-gray-900 shadow-md'
-									: 'text-gray-500 hover:text-gray-700'}"
-							>
-								<svg
-									class="mr-2 inline h-4 w-4"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"
-									/>
-								</svg>
-								Email
-							</button>
-							<button
-								type="button"
-								on:click={() => toggleRegistrationMethod(clearError)}
-								class="rounded-xl px-6 py-2.5 text-sm font-medium transition-all duration-200 {!$useEmail$
-									? 'bg-white text-gray-900 shadow-md'
-									: 'text-gray-500 hover:text-gray-700'}"
-							>
-								<svg
-									class="mr-2 inline h-4 w-4"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"
-									/>
-								</svg>
-								Mobile
-							</button>
-						</div>
-					</div>
-
 					<!-- Error Display -->
 					{#if errorMessage}
 						<div
@@ -260,53 +195,29 @@
 						</div>
 					{/if}
 
-					<!-- Email/Mobile Input -->
+					<!-- Username Input -->
 					<div class="space-y-2">
-						{#if $useEmail$}
-							<label for="email" class="block text-sm font-semibold text-gray-700">
-								Email address
-							</label>
-							<div class="relative">
-								<input
-									id="email"
-									name="email"
-									type="email"
-									autocomplete="email"
-									required
-									bind:value={$email$}
-									on:blur={() => handleInputBlur('email')}
-									class="w-full rounded-2xl border border-gray-200 bg-white/50 px-4 py-3 placeholder-gray-400
-										backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2
-										focus:ring-blue-500 {emailTouched && !emailValid ? 'border-red-300 bg-red-50/50' : ''}"
-									placeholder="Enter your email address"
-								/>
-								{#if emailTouched && !emailValid}
-									<p class="mt-1 text-sm text-red-600">Please enter a valid email address</p>
-								{/if}
-							</div>
-						{:else}
-							<label for="mobile" class="block text-sm font-semibold text-gray-700">
-								Mobile number
-							</label>
-							<div class="relative">
-								<input
-									id="mobile"
-									name="mobile"
-									type="tel"
-									autocomplete="tel"
-									required
-									bind:value={$mobile$}
-									on:blur={() => handleInputBlur('mobile')}
-									class="w-full rounded-2xl border border-gray-200 bg-white/50 px-4 py-3 placeholder-gray-400
-										backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2
-										focus:ring-blue-500 {mobileTouched && !mobileValid ? 'border-red-300 bg-red-50/50' : ''}"
-									placeholder="Enter your mobile number"
-								/>
-								{#if mobileTouched && !mobileValid}
-									<p class="mt-1 text-sm text-red-600">Please enter a valid mobile number</p>
-								{/if}
-							</div>
-						{/if}
+						<label for="username" class="block text-sm font-semibold text-gray-700">
+							Username
+						</label>
+						<div class="relative">
+							<input
+								id="username"
+								name="username"
+								type="text"
+								autocomplete="username"
+								required
+								bind:value={$username$}
+								on:blur={() => handleInputBlur('username')}
+								class="w-full rounded-2xl border border-gray-200 bg-white/50 px-4 py-3 placeholder-gray-400
+									backdrop-blur-sm transition-all duration-200 focus:border-transparent focus:ring-2
+									focus:ring-blue-500 {usernameTouched && !usernameValid ? 'border-red-300 bg-red-50/50' : ''}"
+								placeholder="Enter your username"
+							/>
+							{#if usernameTouched && !usernameValid}
+								<p class="mt-1 text-sm text-red-600">Username is required</p>
+							{/if}
+						</div>
 					</div>
 
 					<!-- Password Input -->
@@ -361,7 +272,7 @@
 						{/if}
 
 						{#if passwordTouched && !passwordValid}
-							<p class="text-sm text-red-600">Password must be at least 8 characters long</p>
+							<p class="text-sm text-red-600">Password must be at least 6 characters long</p>
 						{/if}
 					</div>
 

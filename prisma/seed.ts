@@ -126,7 +126,7 @@ async function main() {
 		// Create sample users
 		const regularUser = await prisma.user.create({
 			data: {
-				email: 'user@example.com',
+				username: 'user',
 				password: hashedPassword,
 				roleId: userRole.id
 			}
@@ -134,15 +134,15 @@ async function main() {
 
 		const adminUser = await prisma.user.create({
 			data: {
-				email: 'admin@example.com',
+				username: 'admin',
 				password: hashedPassword,
 				roleId: adminRole.id
 			}
 		});
 
 		console.log('✅ Sample users created and assigned roles!');
-		console.log(`   📧 Regular user: ${regularUser.email} (password: 123456)`);
-		console.log(`   📧 Admin user: ${adminUser.email} (password: 123456)`);
+		console.log(`   👤 Regular user: ${regularUser.username} (password: 123456)`);
+		console.log(`   👤 Admin user: ${adminUser.username} (password: 123456)`);
 	} else {
 		console.log('👤 Users already exist, skipping user creation.');
 	}

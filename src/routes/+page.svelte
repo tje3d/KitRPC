@@ -173,7 +173,7 @@
 				<!-- auth links -->
 				<div class="flex items-center gap-4">
 					{#if $isLoggedIn}
-						<span class="text-sm text-gray-600">Welcome, {$authUser?.email || 'User'}</span>
+						<span class="text-sm text-gray-600">Welcome, {$authUser?.username || 'User'}</span>
 						<LogoutProvider {onLoggedOut}>
 							<svelte:fragment
 								slot="default"

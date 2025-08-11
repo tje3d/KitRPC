@@ -8,14 +8,11 @@
 	import { fade, fly } from 'svelte/transition';
 
 	// Form state
-	const useEmail$ = new SvelteSubject<boolean>(true);
-	const email$ = new SvelteSubject<string>('');
-	const mobile$ = new SvelteSubject<string>('');
+	const username$ = new SvelteSubject<string>('');
 	const password$ = new SvelteSubject<string>('');
 
 	// Validation state
-	let emailTouched = false;
-	let mobileTouched = false;
+	let usernameTouched = false;
 	let passwordTouched = false;
 	let showPassword = false;
 
@@ -55,32 +52,10 @@
 		}
 	];
 
-	// Login method toggle options
-	const loginMethods = [
-		{
-			key: 'email',
-			label: 'Email',
-			icon: `<svg class="mr-2 inline h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
-			</svg>`,
-			isActive: true
-		},
-		{
-			key: 'mobile',
-			label: 'Mobile',
-			icon: `<svg class="mr-2 inline h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-				<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-			</svg>`,
-			isActive: false
-		}
-	];
-
 	// Computed validation
-	$: emailValid = !emailTouched || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($email$);
-	$: mobileValid = !mobileTouched || /^[\+]?[1-9][\d]{0,15}$/.test($mobile$);
+	$: usernameValid = !usernameTouched || $username$.length > 0;
 	$: passwordValid = !passwordTouched || $password$.length > 0;
-	$: formValid =
-		($useEmail$ ? emailValid && $email$ : mobileValid && $mobile$) && passwordValid && $password$;
+	$: formValid = usernameValid && $username$ && passwordValid && $password$;
 
 	// Actions
 	function onLoggedIn(user: App.AuthUser, token: string) {
@@ -100,28 +75,16 @@
 		if (!formValid) return;
 
 		const loginData = {
-			password: $password$,
-			...($useEmail$ ? { email: $email$ } : { mobile: $mobile$ })
+			username: $username$,
+			password: $password$
 		};
 		loginFn(loginData);
 	}
 
-	function handleToggleLoginMethod(clearErrorFn: () => void) {
-		useEmail$.next(!$useEmail$);
-		email$.next('');
-		mobile$.next('');
-		emailTouched = false;
-		mobileTouched = false;
-		clearErrorFn();
-	}
-
 	function handleInputBlur(field: string) {
 		switch (field) {
-			case 'email':
-				emailTouched = true;
-				break;
-			case 'mobile':
-				mobileTouched = true;
+			case 'username':
+				usernameTouched = true;
 				break;
 			case 'password':
 				passwordTouched = true;
@@ -193,26 +156,6 @@
 				class="space-y-6 rounded-3xl border border-white/20 bg-white/80 p-8 shadow-2xl backdrop-blur-xl"
 			>
 				<form on:submit={(e) => handleFormSubmit(e, login)} class="space-y-6" novalidate>
-					<!-- Login Method Toggle -->
-					<div class="flex justify-center">
-						<div class="inline-flex rounded-2xl bg-gray-100/80 p-1 shadow-inner backdrop-blur-sm">
-							{#each loginMethods as method}
-								<button
-									type="button"
-									on:click={() => handleToggleLoginMethod(clearError)}
-									class="{toggleButtonBaseClasses} {(
-										method.key === 'email' ? $useEmail$ : !$useEmail$
-									)
-										? toggleButtonActiveClasses
-										: toggleButtonInactiveClasses}"
-								>
-									{@html method.icon}
-									{method.label}
-								</button>
-							{/each}
-						</div>
-					</div>
-
 					<!-- Error Display -->
 					{#if errorMessage}
 						<div
@@ -253,49 +196,27 @@
 						</div>
 					{/if}
 
-					<!-- Email/Mobile Input -->
+					<!-- Username Input -->
 					<div class="space-y-2">
-						{#if $useEmail$}
-							<label for="email" class="block text-sm font-semibold text-gray-700">
-								Email address
-							</label>
-							<div class="relative">
-								<input
-									id="email"
-									name="email"
-									type="email"
-									autocomplete="email"
-									required
-									bind:value={$email$}
-									on:blur={() => handleInputBlur('email')}
-									class={getInputClasses(emailTouched && !emailValid)}
-									placeholder="Enter your email address"
-								/>
-								{#if emailTouched && !emailValid}
-									<p class="mt-1 text-sm text-red-600">Please enter a valid email address</p>
-								{/if}
-							</div>
-						{:else}
-							<label for="mobile" class="block text-sm font-semibold text-gray-700">
-								Mobile number
-							</label>
-							<div class="relative">
-								<input
-									id="mobile"
-									name="mobile"
-									type="tel"
-									autocomplete="tel"
-									required
-									bind:value={$mobile$}
-									on:blur={() => handleInputBlur('mobile')}
-									class={getInputClasses(mobileTouched && !mobileValid)}
-									placeholder="Enter your mobile number"
-								/>
-								{#if mobileTouched && !mobileValid}
-									<p class="mt-1 text-sm text-red-600">Please enter a valid mobile number</p>
-								{/if}
-							</div>
-						{/if}
+						<label for="username" class="block text-sm font-semibold text-gray-700">
+							Username
+						</label>
+						<div class="relative">
+							<input
+								id="username"
+								name="username"
+								type="text"
+								autocomplete="username"
+								required
+								bind:value={$username$}
+								on:blur={() => handleInputBlur('username')}
+								class={getInputClasses(usernameTouched && !usernameValid)}
+								placeholder="Enter your username"
+							/>
+							{#if usernameTouched && !usernameValid}
+								<p class="mt-1 text-sm text-red-600">Username is required</p>
+							{/if}
+						</div>
 					</div>
 
 					<!-- Password Input -->
