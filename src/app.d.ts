@@ -76,6 +76,15 @@ declare global {
 		interface DialogState {
 			dialogs: DialogConfig[];
 		}
+
+		interface BankDetail {
+			code: string;
+			icon: string;
+			id: number;
+			name: string;
+			swift: string;
+			color: string;
+		}
 	}
 }
 

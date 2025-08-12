@@ -1,15 +1,16 @@
 <script lang="ts">
-	import { onMount, tick } from 'svelte';
-	import { toast } from '$lib/toast/store';
-	import { dialogStore } from '$lib/dialog/store';
 	import ConfirmDialog from '$lib/dialog/ConfirmDialog.svelte';
-	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
+	import { dialogStore } from '$lib/dialog/store';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
-	import Input from '$lib/kit/Input.svelte';
 	import FormGroup from '$lib/kit/FormGroup.svelte';
+	import Input from '$lib/kit/Input.svelte';
+	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
+	import GetBankProvider from '$lib/providers/GetBankProvider.svelte';
+	import { toast } from '$lib/toast/store';
 	import { trpc } from '$lib/trpc/client';
 	import type { BankCard } from '@prisma/client';
+	import { onMount, tick } from 'svelte';
 
 	// State
 	let cards: BankCard[] = [];
@@ -218,36 +219,49 @@
 				{editingCard ? 'Edit Card' : 'Add New Card'}
 			</h2>
 
-			<form on:submit|preventDefault={handleSubmit} class="space-y-4">
-				<FormGroup label="Card Number" error={cardNumberError} showError={!!cardNumberError}>
-					<Input
-						type="text"
-						placeholder="1234 5678 9012 3456"
-						bind:value={cardNumber}
-						on:input={handleCardNumberInput}
-						on:paste={handleCardNumberInput}
-						disabled={saving}
-						id="cardNumber"
-						name="cardNumber"
-					/>
-					<p class="mt-1 text-sm text-gray-500">Enter a 16-digit card number</p>
-				</FormGroup>
+			<GetBankProvider cardNumber={cardNumber.replace(/\s/g, '')} let:bank>
+				<form on:submit|preventDefault={handleSubmit} class="space-y-4">
+					<FormGroup label="Card Number" error={cardNumberError} showError={!!cardNumberError}>
+						<Input
+							type="text"
+							placeholder="1234 5678 9012 3456"
+							bind:value={cardNumber}
+							on:input={handleCardNumberInput}
+							on:paste={handleCardNumberInput}
+							disabled={saving}
+							id="cardNumber"
+							name="cardNumber"
+						/>
+						<p class="mt-1 text-sm text-gray-500">Enter a 16-digit card number</p>
 
-				<div class="flex justify-end space-x-3 pt-2">
-					<Button variant="secondary" onClick={resetForm} disabled={saving}>Cancel</Button>
-					<Button type="submit" disabled={saving}>
-						{#if saving}
-							<span class="flex items-center justify-center gap-2">
-								<span class="iconify h-4 w-4 animate-spin" data-icon="svg-spinners:bars-scale-fade"
-								></span>
-								Saving...
-							</span>
-						{:else}
-							{editingCard ? 'Update Card' : 'Add Card'}
+						{#if bank}
+							<div class="mt-2 flex items-center gap-2 rounded-md bg-green-50 p-2">
+								<span class="icon-[heroicons--check-circle] h-4 w-4 text-green-600"></span>
+								<span class="text-sm text-green-800">
+									Detected: {bank.name}
+								</span>
+							</div>
 						{/if}
-					</Button>
-				</div>
-			</form>
+					</FormGroup>
+
+					<div class="flex justify-end space-x-3 pt-2">
+						<Button variant="secondary" onClick={resetForm} disabled={saving}>Cancel</Button>
+						<Button type="submit" disabled={saving}>
+							{#if saving}
+								<span class="flex items-center justify-center gap-2">
+									<span
+										class="iconify h-4 w-4 animate-spin"
+										data-icon="svg-spinners:bars-scale-fade"
+									></span>
+									Saving...
+								</span>
+							{:else}
+								{editingCard ? 'Update Card' : 'Add Card'}
+							{/if}
+						</Button>
+					</div>
+				</form>
+			</GetBankProvider>
 		</Card>
 	{/if}
 
@@ -282,58 +296,69 @@
 		{:else}
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				{#each cards as card (card.id)}
-					<Card variant="flat" className="border rounded-lg p-4">
-						<div class="flex items-start justify-between">
-							<div>
-								<div class="flex items-center">
-									<span class="iconify h-8 w-8 text-gray-400" data-icon="heroicons:credit-card"
-									></span>
-									{#if card.isDefault}
-										<span
-											class="ml-2 inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800"
-										>
-											Default
-										</span>
+					<GetBankProvider cardNumber={card.cardNumber} let:bank>
+						<Card variant="flat" className="border rounded-lg p-4">
+							<div class="flex items-start justify-between">
+								<div>
+									<div class="flex items-center">
+										{#if bank}
+											<img src="/img/banks/{bank.id}.svg" alt={bank.name} class="h-8 w-8" />
+										{:else}
+											<span class="iconify h-8 w-8 text-gray-400" data-icon="heroicons:credit-card"
+											></span>
+										{/if}
+										{#if card.isDefault}
+											<span
+												class="ml-2 inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800"
+											>
+												Default
+											</span>
+										{/if}
+									</div>
+									<p class="mt-2 text-lg font-medium text-gray-900">
+										{formatCardNumber(card.cardNumber)}
+									</p>
+									{#if bank}
+										<p class="text-sm text-gray-600">
+											{bank.name}
+										</p>
 									{/if}
+									<p class="text-sm text-gray-500">
+										Added {new Date(card.createdAt).toLocaleDateString()}
+									</p>
 								</div>
-								<p class="mt-2 text-lg font-medium text-gray-900">
-									{formatCardNumber(card.cardNumber)}
-								</p>
-								<p class="text-sm text-gray-500">
-									Added {new Date(card.createdAt).toLocaleDateString()}
-								</p>
 							</div>
-						</div>
 
-						<div class="mt-4 flex space-x-2">
-							{#if !card.isDefault}
+							<div class="mt-4 flex space-x-2">
+								{#if !card.isDefault}
+									<Button
+										variant="secondary"
+										size="sm"
+										onClick={() => setDefaultCard(card.id)}
+										className="flex-1"
+									>
+										Set Default
+									</Button>
+								{/if}
 								<Button
 									variant="secondary"
 									size="sm"
-									onClick={() => setDefaultCard(card.id)}
+									onClick={() => editCard(card)}
 									className="flex-1"
 								>
-									Set Default
+									Edit
 								</Button>
-							{/if}
-							<Button
-								variant="secondary"
-								size="sm"
-								onClick={() => editCard(card)}
-								className="flex-1"
-							>
-								Edit
-							</Button>
-							<Button
-								variant="secondary"
-								size="sm"
-								onClick={() => confirmDelete(card)}
-								className="flex-1 text-red-600 hover:bg-red-50"
-							>
-								Delete
-							</Button>
-						</div>
-					</Card>
+								<Button
+									variant="secondary"
+									size="sm"
+									onClick={() => confirmDelete(card)}
+									className="flex-1 text-red-600 hover:bg-red-50"
+								>
+									Delete
+								</Button>
+							</div>
+						</Card>
+					</GetBankProvider>
 				{/each}
 			</div>
 		{/if}

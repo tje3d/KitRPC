@@ -198,7 +198,7 @@ async function main() {
 					{
 						cardNumber: '6274121234567890',
 						userId: users.length > 1 ? users[1].id : users[1].id,
-						isDefault: true
+						isDefault: false
 					}
 				]
 			});
