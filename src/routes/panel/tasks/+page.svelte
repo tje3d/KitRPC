@@ -9,12 +9,7 @@
 	</svelte:fragment>
 
 	<div class="rounded-lg bg-white p-6 shadow">
-		<div class="flex items-center justify-between">
-			<h2 class="text-lg font-semibold text-gray-700">My Tasks</h2>
-			<button class="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700">
-				Add New Task
-			</button>
-		</div>
+		<h2 class="mb-4 text-lg font-semibold text-gray-700">My Tasks</h2>
 
 		<div class="mt-6 space-y-4">
 			<div class="flex items-center rounded-lg border border-gray-200 p-4 hover:shadow-md">
