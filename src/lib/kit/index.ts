@@ -13,3 +13,5 @@ export { default as PasswordStrengthIndicator } from './PasswordStrengthIndicato
 export { default as SocialButton } from './SocialButton.svelte';
 export { default as BackgroundDecoration } from './BackgroundDecoration.svelte';
 export { default as Popover } from './Popover.svelte';
+export { default as StatusBadge } from './StatusBadge.svelte';
+export { default as DataTable } from './DataTable.svelte';

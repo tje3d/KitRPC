@@ -40,6 +40,12 @@
 	$: contentClasses = `${baseContentClasses} ${contentClassName}`;
 </script>
 
+<svelte:head>
+	{#if title}
+		<title>{title}</title>
+	{/if}
+</svelte:head>
+
 <div class={wrapperClasses}>
 	{#if showHeader && (title || description || $$slots.header)}
 		<header class={headerClasses}>

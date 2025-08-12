@@ -87,6 +87,10 @@ export const getTransactions = async (
 		type?: TransactionType;
 		currency?: CurrencyType;
 		status?: TransactionStatus;
+		createdAt?: {
+			gte?: Date;
+			lte?: Date;
+		};
 	},
 	limit: number = 10,
 	offset: number = 0
@@ -96,7 +100,13 @@ export const getTransactions = async (
 			userId,
 			...(filters?.type && { type: filters.type }),
 			...(filters?.currency && { currency: filters.currency }),
-			...(filters?.status && { status: filters.status })
+			...(filters?.status && { status: filters.status }),
+			...(filters?.createdAt && {
+				createdAt: {
+					...(filters.createdAt.gte && { gte: filters.createdAt.gte }),
+					...(filters.createdAt.lte && { lte: filters.createdAt.lte })
+				}
+			})
 		},
 		orderBy: {
 			createdAt: 'desc'
