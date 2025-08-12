@@ -218,7 +218,7 @@
 			</FormGroup>
 
 			<!-- Submit Button -->
-			<Button type="submit" {loading} disabled={!formValid} variant="gradient">
+			<Button type="submit" {loading} disabled={!formValid} variant="gradient" fullWidth size="lg">
 				{#if loading}
 					<slot name="loading-text">Creating your account...</slot>
 				{:else}

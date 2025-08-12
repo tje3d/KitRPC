@@ -22,22 +22,47 @@
 		| 'gradient-secondary'
 		| 'gradient-success' = 'primary';
 
+	/** @type {string} - Button size (default, sm, lg) */
+	export let size: 'default' | 'sm' | 'lg' = 'default';
+
+	/** @type {boolean} - Whether the button should take full width */
+	export let fullWidth: boolean = false;
+
 	// Base button classes
 	const baseButtonClasses =
-		'w-full transform rounded-2xl px-6 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl focus:ring-2 focus:ring-offset-2 disabled:transform-none disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-lg';
+		'inline-flex items-center justify-center transform rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+
+	// Size classes
+	$: sizeClasses =
+		{
+			default: 'px-4 py-2 text-sm shadow',
+			sm: 'px-3 py-1.5 text-xs shadow-sm',
+			lg: 'px-6 py-3 text-base shadow-md'
+		}[size] || 'px-4 py-2 text-sm shadow';
+
+	// Full width class
+	$: fullWidthClass = fullWidth ? 'w-full' : '';
 
 	// Variant classes
 	$: variantClasses =
 		{
-			primary: 'bg-blue-600 focus:ring-blue-500',
-			secondary: 'bg-gray-600 focus:ring-gray-500',
-			gradient: 'bg-gradient-to-r from-blue-600 to-indigo-600 focus:ring-blue-500',
-			'gradient-secondary': 'bg-gradient-to-r from-gray-600 to-gray-800 focus:ring-gray-500',
-			'gradient-success': 'bg-gradient-to-r from-green-500 to-emerald-600 focus:ring-green-500'
-		}[variant] || 'bg-blue-600 focus:ring-blue-500';
+			primary:
+				'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 hover:-translate-y-0.5 hover:shadow-md',
+			secondary:
+				'text-gray-700 bg-gray-100 hover:bg-gray-200 focus:ring-gray-500 hover:-translate-y-0.5 hover:shadow-sm',
+			gradient:
+				'text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500 hover:-translate-y-0.5 hover:shadow-md',
+			'gradient-secondary':
+				'text-white bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 focus:ring-gray-500 hover:-translate-y-0.5 hover:shadow-md',
+			'gradient-success':
+				'text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:ring-green-500 hover:-translate-y-0.5 hover:shadow-md'
+		}[variant] || 'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
+
+	// Disabled classes
+	$: disabledClasses = disabled || loading ? 'transform-none shadow' : '';
 
 	// Combined classes
-	$: buttonClasses = `${baseButtonClasses} ${variantClasses} ${className}`;
+	$: buttonClasses = `${baseButtonClasses} ${sizeClasses} ${variantClasses} ${disabledClasses} ${fullWidthClass} ${className}`;
 
 	// Effective disabled state (disabled when explicitly disabled or when loading)
 	$: isDisabled = disabled || loading;
@@ -59,9 +84,8 @@
 	aria-disabled={isDisabled}
 >
 	{#if loading}
-		<div class="flex items-center justify-center">
-			<span class="icon-[svg-spinners--bars-scale-fade] mr-3 -ml-1 h-5 w-5 animate-spin text-white"
-			></span>
+		<div class="flex items-center">
+			<span class="icon-[svg-spinners--bars-scale-fade] mr-2 h-4 w-4 animate-spin"></span>
 			<slot name="loading-text">Loading...</slot>
 		</div>
 	{:else}

@@ -173,7 +173,14 @@
 			</div>
 
 			<!-- Submit Button -->
-			<Button type="submit" disabled={loading || !formValid} {loading}>
+			<Button
+				type="submit"
+				disabled={loading || !formValid}
+				{loading}
+				fullWidth
+				size="lg"
+				variant="gradient"
+			>
 				{#if loading}
 					<slot name="loading-text">Signing you in...</slot>
 				{:else}

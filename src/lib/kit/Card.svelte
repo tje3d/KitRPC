@@ -6,18 +6,22 @@
 	export let compact: boolean = false;
 
 	/** @type {string} - Background color variant */
-	export let variant: 'default' | 'light' | 'dark' = 'default';
+	export let variant: 'glass' | 'flat' | 'light' | 'dark' = 'glass';
 
-	// Base card classes
-	const baseCardClasses = 'space-y-6 rounded-3xl border p-8 shadow-2xl backdrop-blur-xl';
+	// Base card classes based on variant
+	$: baseCardClasses =
+		variant === 'glass'
+			? 'space-y-6 rounded-3xl border p-8 shadow-2xl backdrop-blur-xl'
+			: 'rounded-lg shadow-xl shadow-[#e2e6ee] bg-white';
 
 	// Padding classes
-	$: paddingClasses = compact ? 'p-6' : 'p-8';
+	$: paddingClasses = variant === 'glass' ? (compact ? 'p-6' : 'p-8') : compact ? 'p-4' : 'p-6';
 
 	// Variant classes
 	$: variantClasses =
 		{
-			default: 'border-white/20 bg-white/80',
+			glass: 'border-white/20 bg-white/80',
+			flat: 'border-gray-200',
 			light: 'border-gray-200 bg-white',
 			dark: 'border-gray-800 bg-gray-900/90 text-white'
 		}[variant] || 'border-white/20 bg-white/80';
