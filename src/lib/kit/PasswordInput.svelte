@@ -37,7 +37,7 @@
 
 	// Base input classes with modern styling
 	const baseInputClasses =
-		'w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pr-12 text-gray-700 placeholder-gray-400 shadow-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:shadow-md disabled:opacity-50 disabled:cursor-not-allowed';
+		'w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pe-12 text-gray-700 placeholder-gray-400 shadow-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:shadow-md disabled:opacity-50 disabled:cursor-not-allowed';
 
 	// Error input classes with enhanced visual feedback
 	const errorInputClasses = 'border-red-500 bg-red-50 focus:ring-red-500 focus:shadow-red-100';
@@ -79,7 +79,7 @@
 	<button
 		type="button"
 		on:click={togglePassword}
-		class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 transition-all duration-200 ease-in-out hover:text-gray-600 focus:text-gray-700 focus:outline-none"
+		class="absolute inset-y-0 end-0 flex items-center pe-3 text-gray-400 transition-all duration-200 ease-in-out hover:text-gray-600 focus:text-gray-700 focus:outline-none"
 		aria-label={showPassword ? 'Hide password' : 'Show password'}
 	>
 		{#if showPassword}

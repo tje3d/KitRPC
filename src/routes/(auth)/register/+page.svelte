@@ -13,8 +13,7 @@
 	import PasswordStrengthIndicator from '$lib/kit/PasswordStrengthIndicator.svelte';
 	import RegisterProvider from '$lib/providers/RegisterProvider.svelte';
 	import { toast } from '$lib/toast/store';
-	import { quintOut } from 'svelte/easing';
-	import { fade, fly } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 
 	// Form state
 	const username$ = new SvelteSubject<string>('');

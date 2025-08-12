@@ -11,7 +11,7 @@
 
 	<!-- Task Overview Cards -->
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-		<Card variant="flat" className="border-l-4 border-blue-500">
+		<Card variant="flat" className="border-s-4 border-blue-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-blue-100 p-3 text-blue-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,14 +23,14 @@
 						></path>
 					</svg>
 				</div>
-				<div class="ml-4">
+				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">Total Tasks</p>
 					<p class="text-2xl font-bold text-gray-900">29</p>
 				</div>
 			</div>
 		</Card>
 
-		<Card variant="flat" className="border-l-4 border-green-500">
+		<Card variant="flat" className="border-s-4 border-green-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-green-100 p-3 text-green-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,14 +42,14 @@
 						></path>
 					</svg>
 				</div>
-				<div class="ml-4">
+				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">Completed</p>
 					<p class="text-2xl font-bold text-gray-900">12</p>
 				</div>
 			</div>
 		</Card>
 
-		<Card variant="flat" className="border-l-4 border-amber-500">
+		<Card variant="flat" className="border-s-4 border-amber-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-amber-100 p-3 text-amber-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,14 +61,14 @@
 						></path>
 					</svg>
 				</div>
-				<div class="ml-4">
+				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">Pending</p>
 					<p class="text-2xl font-bold text-gray-900">17</p>
 				</div>
 			</div>
 		</Card>
 
-		<Card variant="flat" className="border-l-4 border-purple-500">
+		<Card variant="flat" className="border-s-4 border-purple-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-purple-100 p-3 text-purple-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,7 +80,7 @@
 						></path>
 					</svg>
 				</div>
-				<div class="ml-4">
+				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">High Priority</p>
 					<p class="text-2xl font-bold text-gray-900">8</p>
 				</div>
@@ -164,7 +164,7 @@
 									type="checkbox"
 									class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 								/>
-								<div class="ml-4">
+								<div class="ms-4">
 									<div class="text-sm font-medium text-gray-900">
 										Create wireframes for mobile app
 									</div>
@@ -187,7 +187,7 @@
 									src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
 									alt="Assignee"
 								/>
-								<span class="ml-2">Sarah Williams</span>
+								<span class="ms-2">Sarah Williams</span>
 							</div>
 						</td>
 						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Jun 10, 2023</td>
@@ -210,7 +210,7 @@
 									class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 									checked
 								/>
-								<div class="ml-4">
+								<div class="ms-4">
 									<div class="text-sm font-medium text-gray-900 line-through">
 										Review project requirements
 									</div>
@@ -233,7 +233,7 @@
 									src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
 									alt="Assignee"
 								/>
-								<span class="ml-2">John Doe</span>
+								<span class="ms-2">John Doe</span>
 							</div>
 						</td>
 						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Jun 5, 2023</td>
@@ -255,7 +255,7 @@
 									type="checkbox"
 									class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 								/>
-								<div class="ml-4">
+								<div class="ms-4">
 									<div class="text-sm font-medium text-gray-900">
 										Update documentation for API endpoints
 									</div>
@@ -278,7 +278,7 @@
 									src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
 									alt="Assignee"
 								/>
-								<span class="ml-2">Alex Johnson</span>
+								<span class="ms-2">Alex Johnson</span>
 							</div>
 						</td>
 						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Jun 15, 2023</td>
@@ -300,7 +300,7 @@
 									type="checkbox"
 									class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 								/>
-								<div class="ml-4">
+								<div class="ms-4">
 									<div class="text-sm font-medium text-gray-900">
 										Fix responsive issues on dashboard
 									</div>
@@ -323,7 +323,7 @@
 									src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
 									alt="Assignee"
 								/>
-								<span class="ml-2">Michael Chen</span>
+								<span class="ms-2">Michael Chen</span>
 							</div>
 						</td>
 						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Jun 12, 2023</td>

@@ -145,7 +145,7 @@
 						<div class="flex items-center">
 							{column.label}
 							{#if column.sortable}
-								<span class="ml-1 h-4 w-4 text-gray-400 icon-[{getSortIcon(column.key)}]"></span>
+								<span class="ms-1 h-4 w-4 text-gray-400 icon-[{getSortIcon(column.key)}]"></span>
 							{/if}
 						</div>
 					</th>
@@ -180,7 +180,7 @@
 					Previous
 				</button>
 				<button
-					class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+					class="relative ms-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
 					on:click={() => goToPage(currentPage + 1)}
 					disabled={currentPage === totalPages}
 				>
@@ -204,12 +204,12 @@
 				<div>
 					<nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
 						<button
-							class="relative inline-flex items-center rounded-l-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
+							class="relative inline-flex items-center rounded-s-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
 							on:click={() => goToPage(currentPage - 1)}
 							disabled={currentPage === 1}
 						>
 							<span class="sr-only">Previous</span>
-							<span class="icon-[heroicons--chevron-left] h-5 w-5"></span>
+							<span class="icon-[heroicons--chevron-right] h-5 w-5"></span>
 						</button>
 
 						{#each paginationItems as item}
@@ -239,12 +239,12 @@
 						{/each}
 
 						<button
-							class="relative inline-flex items-center rounded-r-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
+							class="relative inline-flex items-center rounded-e-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
 							on:click={() => goToPage(currentPage + 1)}
 							disabled={currentPage === totalPages}
 						>
 							<span class="sr-only">Next</span>
-							<span class="icon-[heroicons--chevron-right] h-5 w-5"></span>
+							<span class="icon-[heroicons--chevron-left] h-5 w-5"></span>
 						</button>
 					</nav>
 				</div>

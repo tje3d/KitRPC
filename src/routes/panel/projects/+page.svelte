@@ -1,7 +1,7 @@
 <script lang="ts">
-	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
+	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 </script>
 
 <PanelPageWrapper title="Projects" description="Manage all your projects and track their progress.">
@@ -11,7 +11,7 @@
 
 	<!-- Project Overview Cards -->
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-		<Card variant="flat" className="border-l-4 border-blue-500">
+		<Card variant="flat" className="border-s-4 border-blue-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-blue-100 p-3 text-blue-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -23,14 +23,14 @@
 						></path>
 					</svg>
 				</div>
-				<div class="ml-4">
+				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">Total Projects</p>
 					<p class="text-2xl font-bold text-gray-900">12</p>
 				</div>
 			</div>
 		</Card>
 
-		<Card variant="flat" className="border-l-4 border-green-500">
+		<Card variant="flat" className="border-s-4 border-green-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-green-100 p-3 text-green-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,14 +42,14 @@
 						></path>
 					</svg>
 				</div>
-				<div class="ml-4">
+				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">Completed</p>
 					<p class="text-2xl font-bold text-gray-900">5</p>
 				</div>
 			</div>
 		</Card>
 
-		<Card variant="flat" className="border-l-4 border-amber-500">
+		<Card variant="flat" className="border-s-4 border-amber-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-amber-100 p-3 text-amber-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,14 +61,14 @@
 						></path>
 					</svg>
 				</div>
-				<div class="ml-4">
+				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">In Progress</p>
 					<p class="text-2xl font-bold text-gray-900">7</p>
 				</div>
 			</div>
 		</Card>
 
-		<Card variant="flat" className="border-l-4 border-purple-500">
+		<Card variant="flat" className="border-s-4 border-purple-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-purple-100 p-3 text-purple-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,7 +80,7 @@
 						></path>
 					</svg>
 				</div>
-				<div class="ml-4">
+				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">Team Members</p>
 					<p class="text-2xl font-bold text-gray-900">24</p>
 				</div>
@@ -167,7 +167,7 @@
 										></path>
 									</svg>
 								</div>
-								<div class="ml-4">
+								<div class="ms-4">
 									<div class="text-sm font-medium text-gray-900">Website Redesign</div>
 									<div class="text-sm text-gray-500">Redesign the company website</div>
 								</div>
@@ -182,7 +182,7 @@
 						</td>
 						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
-								<div class="mr-2 h-2 w-32 rounded-full bg-gray-200">
+								<div class="me-2 h-2 w-32 rounded-full bg-gray-200">
 									<div class="h-2 rounded-full bg-blue-600" style="width: 42%"></div>
 								</div>
 								<span class="text-sm text-gray-600">42%</span>
@@ -227,7 +227,7 @@
 										></path>
 									</svg>
 								</div>
-								<div class="ml-4">
+								<div class="ms-4">
 									<div class="text-sm font-medium text-gray-900">Mobile App</div>
 									<div class="text-sm text-gray-500">Develop iOS and Android app</div>
 								</div>
@@ -242,7 +242,7 @@
 						</td>
 						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
-								<div class="mr-2 h-2 w-32 rounded-full bg-gray-200">
+								<div class="me-2 h-2 w-32 rounded-full bg-gray-200">
 									<div class="h-2 rounded-full bg-green-600" style="width: 100%"></div>
 								</div>
 								<span class="text-sm text-gray-600">100%</span>
@@ -287,7 +287,7 @@
 										></path>
 									</svg>
 								</div>
-								<div class="ml-4">
+								<div class="ms-4">
 									<div class="text-sm font-medium text-gray-900">Analytics Dashboard</div>
 									<div class="text-sm text-gray-500">Build data visualization dashboard</div>
 								</div>
@@ -302,7 +302,7 @@
 						</td>
 						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
-								<div class="mr-2 h-2 w-32 rounded-full bg-gray-200">
+								<div class="me-2 h-2 w-32 rounded-full bg-gray-200">
 									<div class="h-2 rounded-full bg-purple-600" style="width: 13%"></div>
 								</div>
 								<span class="text-sm text-gray-600">13%</span>

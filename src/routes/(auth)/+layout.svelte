@@ -6,7 +6,7 @@
 	import { quintOut } from 'svelte/easing';
 	import { fly } from 'svelte/transition';
 
-	$: if (!$isLoggedIn && browser) {
+	$: if ($isLoggedIn && browser) {
 		goto('/panel');
 	}
 </script>

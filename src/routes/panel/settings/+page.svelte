@@ -119,7 +119,7 @@
 							checked
 						/>
 					</div>
-					<div class="ml-3">
+					<div class="ms-3">
 						<label for="email-notifications" class="block text-sm font-medium text-gray-700"
 							>Email Notifications</label
 						>
@@ -136,7 +136,7 @@
 							class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 						/>
 					</div>
-					<div class="ml-3">
+					<div class="ms-3">
 						<label for="push-notifications" class="block text-sm font-medium text-gray-700"
 							>Push Notifications</label
 						>
@@ -154,7 +154,7 @@
 							checked
 						/>
 					</div>
-					<div class="ml-3">
+					<div class="ms-3">
 						<label for="sms-notifications" class="block text-sm font-medium text-gray-700"
 							>SMS Notifications</label
 						>
@@ -165,7 +165,7 @@
 		</Card>
 
 		<!-- Danger Zone -->
-		<Card variant="flat" className="border-l-4 border-red-500">
+		<Card variant="flat" className="border-s-4 border-red-500">
 			<h2 class="text-lg font-bold text-gray-800">Danger Zone</h2>
 			<p class="mt-1 text-sm text-gray-600">
 				Permanently delete your account and all associated data.

@@ -45,7 +45,7 @@
 	{#if label}
 		<label
 			for={id}
-			class="ml-3 block text-sm font-medium text-gray-700 transition-colors duration-200 ease-in-out select-none peer-hover:text-gray-900 peer-focus:text-gray-900"
+			class="ms-3 block text-sm font-medium text-gray-700 transition-colors duration-200 ease-in-out select-none peer-hover:text-gray-900 peer-focus:text-gray-900"
 		>
 			{label}
 		</label>

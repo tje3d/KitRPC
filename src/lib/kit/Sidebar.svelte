@@ -98,8 +98,8 @@
 
 <!-- Sidebar -->
 <aside
-	class={`fixed inset-y-0 left-0 z-50 w-64 transform bg-white shadow-xl transition-all duration-300 ease-in-out lg:static lg:z-auto lg:translate-x-0
-		${isOpen ? 'translate-x-0' : '-translate-x-full'}
+	class={`fixed inset-y-0 start-0 z-50 w-64 transform bg-white shadow-xl transition-all duration-300 ease-in-out lg:static lg:z-auto lg:translate-x-0
+		${isOpen ? 'translate-x-0' : 'translate-x-full'}
 		${isMobile ? 'h-full' : 'h-screen'}`}
 >
 	<div class="flex h-full flex-col">
@@ -180,7 +180,7 @@
 										}`}
 								>
 									<span class={getIcon(item.icon) + ' h-5 w-5'}></span>
-									<span class="ml-3">{item.name}</span>
+									<span class="ms-3">{item.name}</span>
 								</a>
 							</li>
 						{/each}

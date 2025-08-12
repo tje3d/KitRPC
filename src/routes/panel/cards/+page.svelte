@@ -231,6 +231,7 @@
 							disabled={saving}
 							id="cardNumber"
 							name="cardNumber"
+							dir="ltr"
 						/>
 						<p class="mt-1 text-sm text-gray-500">Enter a 16-digit card number</p>
 
@@ -309,13 +310,13 @@
 										{/if}
 										{#if card.isDefault}
 											<span
-												class="ml-2 inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800"
+												class="ms-2 inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800"
 											>
 												Default
 											</span>
 										{/if}
 									</div>
-									<p class="mt-2 text-lg font-medium text-gray-900">
+									<p class="mt-2 text-lg font-medium text-gray-900" dir="ltr">
 										{formatCardNumber(card.cardNumber)}
 									</p>
 									{#if bank}

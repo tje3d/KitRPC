@@ -70,6 +70,16 @@
 		}
 	}
 
+	// Check if document is RTL
+	function isRTL(): boolean {
+		return (
+			document.documentElement.dir === 'rtl' ||
+			document.body.dir === 'rtl' ||
+			getComputedStyle(document.documentElement).direction === 'rtl' ||
+			getComputedStyle(document.body).direction === 'rtl'
+		);
+	}
+
 	// Update popover position
 	function updatePosition() {
 		if (!triggerElement || !popoverElement) return;
@@ -78,9 +88,11 @@
 		const popoverRect = popoverElement.getBoundingClientRect();
 		const viewportWidth = window.innerWidth;
 		const viewportHeight = window.innerHeight;
+		const rtl = isRTL();
 
 		let top = 0;
 		let left = 0;
+		let right = '';
 
 		// Determine position based on available space if auto
 		let finalPosition = position;
@@ -103,30 +115,56 @@
 		switch (finalPosition) {
 			case 'top':
 				top = triggerRect.top - popoverRect.height - offset;
-				left = triggerRect.left + triggerRect.width / 2 - popoverRect.width / 2;
+				if (rtl) {
+					right = `${viewportWidth - (triggerRect.left + triggerRect.width / 2) - popoverRect.width / 2}px`;
+				} else {
+					left = triggerRect.left + triggerRect.width / 2 - popoverRect.width / 2;
+				}
 				break;
 			case 'bottom':
 				top = triggerRect.bottom + offset;
-				left = triggerRect.left + triggerRect.width / 2 - popoverRect.width / 2;
+				if (rtl) {
+					right = `${viewportWidth - (triggerRect.left + triggerRect.width / 2) - popoverRect.width / 2}px`;
+				} else {
+					left = triggerRect.left + triggerRect.width / 2 - popoverRect.width / 2;
+				}
 				break;
 			case 'left':
 				top = triggerRect.top + triggerRect.height / 2 - popoverRect.height / 2;
-				left = triggerRect.left - popoverRect.width - offset;
+				if (rtl) {
+					right = `${viewportWidth - (triggerRect.left - popoverRect.width - offset)}px`;
+				} else {
+					left = triggerRect.left - popoverRect.width - offset;
+				}
 				break;
 			case 'right':
 				top = triggerRect.top + triggerRect.height / 2 - popoverRect.height / 2;
-				left = triggerRect.right + offset;
+				if (rtl) {
+					right = `${viewportWidth - (triggerRect.right + offset)}px`;
+				} else {
+					left = triggerRect.right + offset;
+				}
 				break;
 		}
 
 		// Ensure popover stays within viewport
 		top = Math.max(0, Math.min(top, viewportHeight - popoverRect.height));
-		left = Math.max(0, Math.min(left, viewportWidth - popoverRect.width));
 
-		popoverStyles = {
-			top: `${top}px`,
-			left: `${left}px`
-		};
+		if (rtl) {
+			// For RTL, we calculate right position and ensure it stays within viewport
+			const rightValue = parseFloat(right) || 0;
+			const adjustedRight = Math.max(0, Math.min(rightValue, viewportWidth - popoverRect.width));
+			popoverStyles = {
+				top: `${top}px`,
+				right: `${adjustedRight}px`
+			};
+		} else {
+			left = Math.max(0, Math.min(left, viewportWidth - popoverRect.width));
+			popoverStyles = {
+				top: `${top}px`,
+				left: `${left}px`
+			};
+		}
 	}
 
 	// Lifecycle: Add event listeners
@@ -168,7 +206,7 @@
 		<div
 			class={`fixed z-50 origin-center scale-100 transform rounded-lg border border-white/20 bg-white opacity-100 shadow-xl backdrop-blur-xl transition-all duration-200 ease-in-out ${className}`}
 			bind:this={popoverElement}
-			style={`top: ${popoverStyles.top}; left: ${popoverStyles.left};`}
+			style={`top: ${popoverStyles.top}; ${popoverStyles.right ? `right: ${popoverStyles.right};` : `left: ${popoverStyles.left};`}`}
 		>
 			<slot />
 		</div>

@@ -38,6 +38,9 @@
 	/** @type {string} - Additional CSS classes */
 	export let className: string = '';
 
+	/** @type {"ltr" | "rtl" | "auto" | null | undefined} */
+	export let dir: 'ltr' | 'rtl' | 'auto' | null | undefined = undefined;
+
 	// Base input classes with modern styling
 	const baseInputClasses =
 		'w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 placeholder-gray-400 shadow-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:shadow-md disabled:opacity-50 disabled:cursor-not-allowed';
@@ -78,6 +81,7 @@
 		class={inputClasses}
 		aria-invalid={error}
 		aria-describedby={error && errorMessage ? `${id}-error` : undefined}
+		{dir}
 		on:blur={onBlur}
 		on:change={onChange}
 		on:input={handleInput}

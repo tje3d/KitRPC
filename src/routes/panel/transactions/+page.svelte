@@ -95,7 +95,7 @@
 			fromDateObj.setHours(0, 0, 0, 0);
 			filters.fromDate = fromDateObj;
 		}
-		
+
 		// Set toDate to end of day (23:59:59.999)
 		if (toDate) {
 			const toDateObj = new Date(toDate);
@@ -147,7 +147,7 @@
 			render: (value: string, row: any) => `
 				<div class="flex items-center">
 					<span class="${getTypeIcon(value)} h-5 w-5 text-gray-500"></span>
-					<span class="ml-2 text-sm font-medium text-gray-900">${value}</span>
+					<span class="ms-2 text-sm font-medium text-gray-900">${value}</span>
 				</div>
 			`
 		},
@@ -180,7 +180,7 @@
 						${statusVariant === 'pending' ? 'bg-gray-100 text-gray-800 border-gray-200' : ''}
 						${statusVariant === 'error' ? 'bg-red-100 text-red-800 border-red-200' : ''}
 						${statusVariant === 'info' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}">
-						<span class="mr-1.5 h-3 w-3
+						<span class="me-1.5 h-3 w-3
 						${statusVariant === 'success' ? 'text-green-600' : ''}
 						${statusVariant === 'pending' ? 'text-gray-600' : ''}
 						${statusVariant === 'error' ? 'text-red-600' : ''}
@@ -249,11 +249,11 @@
 				</div>
 				<div class="flex items-center space-x-3">
 					<Button size="sm" variant="secondary" onClick={resetFilters}>
-						<span class="icon-[heroicons--arrow-path] mr-1 h-4 w-4"></span>
+						<span class="icon-[heroicons--arrow-path] me-1 h-4 w-4"></span>
 						Reset
 					</Button>
 					<Button size="sm" onClick={applyFilters}>
-						<span class="icon-[heroicons--magnifying-glass] mr-1 h-4 w-4"></span>
+						<span class="icon-[heroicons--magnifying-glass] me-1 h-4 w-4"></span>
 						Apply
 					</Button>
 				</div>
@@ -279,7 +279,7 @@
 										}
 									}}
 								>
-									<span class="{getTypeIcon(type.value)} mr-1 h-3 w-3"></span>
+									<span class="{getTypeIcon(type.value)} me-1 h-3 w-3"></span>
 									{type.label}
 								</button>
 							{/each}
@@ -303,7 +303,7 @@
 										}
 									}}
 								>
-									<span class="icon-[heroicons--currency-dollar] mr-1 h-3 w-3"></span>
+									<span class="icon-[heroicons--currency-dollar] me-1 h-3 w-3"></span>
 									{currency.label}
 								</button>
 							{/each}
@@ -334,7 +334,7 @@
 									}}
 								>
 									<span
-										class="mr-1 h-3 w-3 {status.value === 'COMPLETED'
+										class="me-1 h-3 w-3 {status.value === 'COMPLETED'
 											? 'icon-[heroicons--check-circle]'
 											: status.value === 'PENDING'
 												? 'icon-[heroicons--clock]'
@@ -356,7 +356,7 @@
 					<!-- Date Range -->
 					<div class="flex-1">
 						<label class="mb-2 block text-sm font-medium text-gray-700">
-							<span class="icon-[heroicons--calendar-days] mr-1 h-4 w-4"></span>
+							<span class="icon-[heroicons--calendar-days] me-1 h-4 w-4"></span>
 							Date Range
 						</label>
 						<div class="flex space-x-2">
@@ -439,7 +439,7 @@
 						<div class="flex-shrink-0">
 							<span class="icon-[heroicons--x-circle] h-5 w-5 text-red-400"></span>
 						</div>
-						<div class="ml-3">
+						<div class="ms-3">
 							<h3 class="text-sm font-medium text-red-800">Error loading transactions</h3>
 							<div class="mt-2 text-sm text-red-700">
 								<p>{error}</p>

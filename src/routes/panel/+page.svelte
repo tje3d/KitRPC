@@ -15,7 +15,7 @@
 
 	<!-- Summary Cards -->
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-		<Card variant="flat" className="border-l-4 !border-blue-500">
+		<Card variant="flat" className="border-s-4 !border-blue-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-blue-100 p-3 text-blue-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -27,14 +27,14 @@
 						></path>
 					</svg>
 				</div>
-				<div class="ml-4">
+				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">Total Projects</p>
 					<p class="text-2xl font-bold text-gray-900">12</p>
 				</div>
 			</div>
 			<div class="mt-4">
 				<span class="inline-flex items-center text-sm text-green-600">
-					<svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg class="me-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"
 						></path>
 					</svg>
@@ -43,7 +43,7 @@
 			</div>
 		</Card>
 
-		<Card variant="flat" className="border-l-4 !border-amber-500">
+		<Card variant="flat" className="border-s-4 !border-amber-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-amber-100 p-3 text-amber-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -55,14 +55,14 @@
 						></path>
 					</svg>
 				</div>
-				<div class="ml-4">
+				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">Pending Tasks</p>
 					<p class="text-2xl font-bold text-gray-900">29</p>
 				</div>
 			</div>
 			<div class="mt-4">
 				<span class="inline-flex items-center text-sm text-amber-600">
-					<svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg class="me-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"
 						></path>
 					</svg>
@@ -71,7 +71,7 @@
 			</div>
 		</Card>
 
-		<Card variant="flat" className="border-l-4 !border-green-500">
+		<Card variant="flat" className="border-s-4 !border-green-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-green-100 p-3 text-green-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -83,14 +83,14 @@
 						></path>
 					</svg>
 				</div>
-				<div class="ml-4">
+				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">Completed</p>
 					<p class="text-2xl font-bold text-gray-900">24</p>
 				</div>
 			</div>
 			<div class="mt-4">
 				<span class="inline-flex items-center text-sm text-green-600">
-					<svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg class="me-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"
 						></path>
 					</svg>
@@ -99,7 +99,7 @@
 			</div>
 		</Card>
 
-		<Card variant="flat" className="border-l-4 !border-purple-500">
+		<Card variant="flat" className="border-s-4 !border-purple-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-purple-100 p-3 text-purple-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -111,14 +111,14 @@
 						></path>
 					</svg>
 				</div>
-				<div class="ml-4">
+				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">Team Members</p>
 					<p class="text-2xl font-bold text-gray-900">8</p>
 				</div>
 			</div>
 			<div class="mt-4">
 				<span class="inline-flex items-center text-sm text-blue-600">
-					<svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg class="me-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
@@ -199,7 +199,7 @@
 							></path>
 						</svg>
 					</div>
-					<div class="ml-3 min-w-0 flex-1">
+					<div class="ms-3 min-w-0 flex-1">
 						<p class="truncate text-sm font-medium text-gray-900">
 							Project "Website Redesign" updated
 						</p>
@@ -220,7 +220,7 @@
 							></path>
 						</svg>
 					</div>
-					<div class="ml-3 min-w-0 flex-1">
+					<div class="ms-3 min-w-0 flex-1">
 						<p class="truncate text-sm font-medium text-gray-900">
 							Task "Create wireframes" completed
 						</p>
@@ -241,7 +241,7 @@
 							></path>
 						</svg>
 					</div>
-					<div class="ml-3 min-w-0 flex-1">
+					<div class="ms-3 min-w-0 flex-1">
 						<p class="truncate text-sm font-medium text-gray-900">New task assigned</p>
 						<p class="mt-1 text-xs text-gray-500">by Michael Chen • 1 day ago</p>
 					</div>
@@ -260,7 +260,7 @@
 							></path>
 						</svg>
 					</div>
-					<div class="ml-3 min-w-0 flex-1">
+					<div class="ms-3 min-w-0 flex-1">
 						<p class="truncate text-sm font-medium text-gray-900">Team meeting scheduled</p>
 						<p class="mt-1 text-xs text-gray-500">by Team Admin • 2 days ago</p>
 					</div>
@@ -292,13 +292,13 @@
 								></path>
 							</svg>
 						</div>
-						<div class="ml-4">
+						<div class="ms-4">
 							<h3 class="font-medium text-gray-900">Website Redesign</h3>
 							<p class="text-sm text-gray-500">5/12 tasks completed</p>
 						</div>
 					</div>
 					<div class="flex items-center">
-						<div class="mr-2 h-2 w-32 rounded-full bg-gray-200">
+						<div class="me-2 h-2 w-32 rounded-full bg-gray-200">
 							<div class="h-2 rounded-full bg-blue-600" style="width: 42%"></div>
 						</div>
 						<span class="text-sm font-medium text-gray-700">42%</span>
@@ -319,13 +319,13 @@
 								></path>
 							</svg>
 						</div>
-						<div class="ml-4">
+						<div class="ms-4">
 							<h3 class="font-medium text-gray-900">Mobile App</h3>
 							<p class="text-sm text-gray-500">8/10 tasks completed</p>
 						</div>
 					</div>
 					<div class="flex items-center">
-						<div class="mr-2 h-2 w-32 rounded-full bg-gray-200">
+						<div class="me-2 h-2 w-32 rounded-full bg-gray-200">
 							<div class="h-2 rounded-full bg-green-600" style="width: 80%"></div>
 						</div>
 						<span class="text-sm font-medium text-gray-700">80%</span>
@@ -346,13 +346,13 @@
 								></path>
 							</svg>
 						</div>
-						<div class="ml-4">
+						<div class="ms-4">
 							<h3 class="font-medium text-gray-900">Analytics Dashboard</h3>
 							<p class="text-sm text-gray-500">2/15 tasks completed</p>
 						</div>
 					</div>
 					<div class="flex items-center">
-						<div class="mr-2 h-2 w-32 rounded-full bg-gray-200">
+						<div class="me-2 h-2 w-32 rounded-full bg-gray-200">
 							<div class="h-2 rounded-full bg-purple-600" style="width: 13%"></div>
 						</div>
 						<span class="text-sm font-medium text-gray-700">13%</span>
@@ -374,11 +374,11 @@
 							type="checkbox"
 							class="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 						/>
-						<div class="ml-3">
+						<div class="ms-3">
 							<h3 class="font-medium text-gray-900">Create wireframes for mobile app</h3>
 							<div class="mt-1 flex items-center">
 								<span class="inline-flex items-center text-xs text-amber-600">
-									<svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<svg class="me-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
 											stroke-linecap="round"
 											stroke-linejoin="round"
@@ -401,11 +401,11 @@
 							type="checkbox"
 							class="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 						/>
-						<div class="ml-3">
+						<div class="ms-3">
 							<h3 class="font-medium text-gray-900">Update documentation for API endpoints</h3>
 							<div class="mt-1 flex items-center">
 								<span class="inline-flex items-center text-xs text-blue-600">
-									<svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<svg class="me-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
 											stroke-linecap="round"
 											stroke-linejoin="round"
@@ -428,11 +428,11 @@
 							type="checkbox"
 							class="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 						/>
-						<div class="ml-3">
+						<div class="ms-3">
 							<h3 class="font-medium text-gray-900">Fix responsive issues on dashboard</h3>
 							<div class="mt-1 flex items-center">
 								<span class="inline-flex items-center text-xs text-amber-600">
-									<svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<svg class="me-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
 											stroke-linecap="round"
 											stroke-linejoin="round"
