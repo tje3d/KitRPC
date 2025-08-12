@@ -82,15 +82,14 @@
 			const result = await trpc().transactions.getHistory.query(apiFilters);
 
 			// Convert string dates to Date objects
-			transactions = result.map((transaction) => ({
+			transactions = result.transactions.map((transaction) => ({
 				...transaction,
 				createdAt: new Date(transaction.createdAt),
 				updatedAt: new Date(transaction.updatedAt)
 			}));
 
-			// For now, we'll assume we have 50 total items for pagination demo
-			// In a real implementation, the API would return the total count
-			totalItems = 50;
+			// Set total items from API response
+			totalItems = result.totalCount;
 		} catch (err: any) {
 			error = err.message || 'Failed to fetch transactions';
 			toast.error(error || 'Failed to fetch transactions');
@@ -138,10 +137,17 @@
 	}
 
 	// Handle pagination
-	function goToPage(page: number) {
+	function handlePageChange(page: number) {
 		if (page < 1 || page > Math.ceil(totalItems / itemsPerPage)) return;
 		currentPage = page;
 		fetchTransactions();
+	}
+
+	// Handle sorting (for future implementation)
+	function handleSortChange(key: string, direction: 'asc' | 'desc') {
+		// For now, we'll just log the sort change
+		// In the future, this can be implemented to send sort parameters to the API
+		console.log('Sort changed:', key, direction);
 	}
 
 	// Get type icon
@@ -486,7 +492,11 @@
 					data={transactions}
 					{columns}
 					{itemsPerPage}
+					{totalItems}
+					{currentPage}
 					showPagination={totalItems > itemsPerPage}
+					onPageChange={handlePageChange}
+					onSortChange={handleSortChange}
 				/>
 			{/if}
 		</Card>

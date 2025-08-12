@@ -30,7 +30,7 @@
 
 	// Base button classes
 	const baseButtonClasses =
-		'inline-flex items-center justify-center transform rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+		'cursor-pointer inline-flex items-center justify-center transform rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
 
 	// Size classes
 	$: sizeClasses =

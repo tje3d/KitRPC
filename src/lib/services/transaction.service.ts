@@ -80,7 +80,7 @@ export const getTransactionById = async (transactionId: string, userId: string) 
 	return transaction;
 };
 
-// Get all transactions for a user
+// Get all transactions for a user with pagination support
 export const getTransactions = async (
 	userId: string,
 	filters?: {
@@ -95,27 +95,38 @@ export const getTransactions = async (
 	limit: number = 10,
 	offset: number = 0
 ) => {
-	const transactions = await defaultPrisma.transaction.findMany({
-		where: {
-			userId,
-			...(filters?.type && { type: filters.type }),
-			...(filters?.currency && { currency: filters.currency }),
-			...(filters?.status && { status: filters.status }),
-			...(filters?.createdAt && {
-				createdAt: {
-					...(filters.createdAt.gte && { gte: filters.createdAt.gte }),
-					...(filters.createdAt.lte && { lte: filters.createdAt.lte })
-				}
-			})
-		},
-		orderBy: {
-			createdAt: 'desc'
-		},
-		take: limit,
-		skip: offset
-	});
+	const whereClause = {
+		userId,
+		...(filters?.type && { type: filters.type }),
+		...(filters?.currency && { currency: filters.currency }),
+		...(filters?.status && { status: filters.status }),
+		...(filters?.createdAt && {
+			createdAt: {
+				...(filters.createdAt.gte && { gte: filters.createdAt.gte }),
+				...(filters.createdAt.lte && { lte: filters.createdAt.lte })
+			}
+		})
+	};
 
-	return transactions;
+	// Get transactions and total count in parallel
+	const [transactions, totalCount] = await Promise.all([
+		defaultPrisma.transaction.findMany({
+			where: whereClause,
+			orderBy: {
+				createdAt: 'desc'
+			},
+			take: limit,
+			skip: offset
+		}),
+		defaultPrisma.transaction.count({
+			where: whereClause
+		})
+	]);
+
+	return {
+		transactions,
+		totalCount
+	};
 };
 
 // Update transaction status

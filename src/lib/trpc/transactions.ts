@@ -47,14 +47,17 @@ export const transactionsRouter = t.router({
 			}
 
 			// Get transactions using the service
-			const transactions = await getTransactions(ctx.user.id, filters, input.limit, input.offset);
+			const result = await getTransactions(ctx.user.id, filters, input.limit, input.offset);
 
 			// Format dates for client
-			return transactions.map((transaction) => ({
-				...transaction,
-				createdAt: transaction.createdAt.toISOString(),
-				updatedAt: transaction.updatedAt.toISOString()
-			}));
+			return {
+				transactions: result.transactions.map((transaction) => ({
+					...transaction,
+					createdAt: transaction.createdAt.toISOString(),
+					updatedAt: transaction.updatedAt.toISOString()
+				})),
+				totalCount: result.totalCount
+			};
 		} catch (error: any) {
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',

@@ -19,40 +19,69 @@
 	/** @type {boolean} - Whether to show pagination controls */
 	export let showPagination: boolean = true;
 
-	// State
-	let currentPage = 1;
+	/** @type {number} - Total number of items (for server-side pagination) */
+	export let totalItems: number = 0;
+
+	/** @type {number} - Current page (for server-side pagination) */
+	export let currentPage: number = 1;
+
+	/** @type {function} - Callback when page changes (for server-side pagination) */
+	export let onPageChange: ((page: number) => void) | null = null;
+
+	/** @type {function} - Callback when sort changes (for server-side pagination) */
+	export let onSortChange: ((key: string, direction: 'asc' | 'desc') => void) | null = null;
+
+	// State for client-side sorting (when server-side callbacks are not provided)
 	let sortKey: string | null = null;
 	let sortDirection: 'asc' | 'desc' = 'asc';
 
 	// Computed properties
-	$: totalPages = Math.ceil(data.length / itemsPerPage);
+	$: isServerSide = onPageChange !== null;
+	$: totalPages = isServerSide
+		? Math.ceil(totalItems / itemsPerPage)
+		: Math.ceil(data.length / itemsPerPage);
 
-	$: sortedData = data.slice().sort((a, b) => {
-		if (!sortKey) return 0;
+	$: sortedData = isServerSide
+		? data
+		: data.slice().sort((a, b) => {
+				if (!sortKey) return 0;
 
-		const aValue = a[sortKey];
-		const bValue = b[sortKey];
+				const aValue = a[sortKey];
+				const bValue = b[sortKey];
 
-		if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-		if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-		return 0;
-	});
+				if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+				if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+				return 0;
+			});
 
-	$: paginatedData = sortedData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+	$: paginatedData = isServerSide
+		? sortedData
+		: sortedData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
 	// Functions
 	function handleSort(key: string) {
-		if (sortKey === key) {
-			sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-		} else {
+		if (isServerSide && onSortChange) {
+			const newDirection = sortKey === key && sortDirection === 'asc' ? 'desc' : 'asc';
 			sortKey = key;
-			sortDirection = 'asc';
+			sortDirection = newDirection;
+			onSortChange(key, newDirection);
+		} else {
+			if (sortKey === key) {
+				sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+			} else {
+				sortKey = key;
+				sortDirection = 'asc';
+			}
 		}
 	}
 
 	function goToPage(page: number) {
 		if (page >= 1 && page <= totalPages) {
-			currentPage = page;
+			if (isServerSide && onPageChange) {
+				onPageChange(page);
+			} else {
+				currentPage = page;
+			}
 		}
 	}
 
@@ -60,6 +89,46 @@
 		if (sortKey !== key) return 'heroicons--chevron-up-down';
 		return sortDirection === 'asc' ? 'heroicons--chevron-up' : 'heroicons--chevron-down';
 	}
+
+	function getPaginationItems() {
+		const items = [];
+		const delta = 2; // Number of pages to show around current page
+
+		if (totalPages <= 7) {
+			// Show all pages if total is small
+			for (let i = 1; i <= totalPages; i++) {
+				items.push({ type: 'page', value: i });
+			}
+		} else {
+			// Always show first page
+			items.push({ type: 'page', value: 1 });
+
+			// Add ellipsis if there's a gap after first page
+			if (currentPage > delta + 2) {
+				items.push({ type: 'ellipsis', value: '...' });
+			}
+
+			// Add pages around current page
+			const start = Math.max(2, currentPage - delta);
+			const end = Math.min(totalPages - 1, currentPage + delta);
+
+			for (let i = start; i <= end; i++) {
+				items.push({ type: 'page', value: i });
+			}
+
+			// Add ellipsis if there's a gap before last page
+			if (currentPage < totalPages - delta - 1) {
+				items.push({ type: 'ellipsis', value: '...' });
+			}
+
+			// Always show last page
+			items.push({ type: 'page', value: totalPages });
+		}
+
+		return items;
+	}
+
+	$: paginationItems = getPaginationItems();
 </script>
 
 <div class={`overflow-x-auto ${className}`}>
@@ -76,7 +145,7 @@
 						<div class="flex items-center">
 							{column.label}
 							{#if column.sortable}
-								<span class="ml-1 h-4 w-4 text-gray-400" data-icon={getSortIcon(column.key)}></span>
+								<span class="ml-1 h-4 w-4 text-gray-400 icon-[{getSortIcon(column.key)}]"></span>
 							{/if}
 						</div>
 					</th>
@@ -124,9 +193,11 @@
 						Showing
 						<span class="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span>
 						to
-						<span class="font-medium">{Math.min(currentPage * itemsPerPage, data.length)}</span>
+						<span class="font-medium"
+							>{Math.min(currentPage * itemsPerPage, isServerSide ? totalItems : data.length)}</span
+						>
 						of
-						<span class="font-medium">{data.length}</span>
+						<span class="font-medium">{isServerSide ? totalItems : data.length}</span>
 						results
 					</p>
 				</div>
@@ -138,24 +209,32 @@
 							disabled={currentPage === 1}
 						>
 							<span class="sr-only">Previous</span>
-							<span class="h-5 w-5" data-icon="heroicons--chevron-left"></span>
+							<span class="icon-[heroicons--chevron-left] h-5 w-5"></span>
 						</button>
 
-						{#each Array(totalPages) as _, i}
-							{#if i + 1 === currentPage}
-								<button
-									class="relative z-10 inline-flex items-center border border-blue-500 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600"
-									aria-current="page"
+						{#each paginationItems as item}
+							{#if item.type === 'page'}
+								{#if item.value === currentPage}
+									<button
+										class="relative z-10 inline-flex items-center border border-blue-500 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600"
+										aria-current="page"
+									>
+										{item.value}
+									</button>
+								{:else}
+									<button
+										class="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
+										on:click={() => goToPage(Number(item.value))}
+									>
+										{item.value}
+									</button>
+								{/if}
+							{:else if item.type === 'ellipsis'}
+								<span
+									class="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700"
 								>
-									{i + 1}
-								</button>
-							{:else if i + 1 >= currentPage - 1 && i + 1 <= currentPage + 1}
-								<button
-									class="relative inline-flex items-center border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
-									on:click={() => goToPage(i + 1)}
-								>
-									{i + 1}
-								</button>
+									{item.value}
+								</span>
 							{/if}
 						{/each}
 
@@ -165,7 +244,7 @@
 							disabled={currentPage === totalPages}
 						>
 							<span class="sr-only">Next</span>
-							<span class="h-5 w-5" data-icon="heroicons--chevron-right"></span>
+							<span class="icon-[heroicons--chevron-right] h-5 w-5"></span>
 						</button>
 					</nav>
 				</div>
