@@ -147,11 +147,12 @@
 						class={`mt-1 space-y-1 ${category !== 'General' && collapsedSections[category] ? 'hidden' : ''}`}
 					>
 						{#each items as item}
+							{@const active = isActive(item.href)}
 							<li>
 								<a
 									href={item.href}
 									class={`flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors duration-200
-										${isActive(item.href) ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}`}
+										${active ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}`}
 								>
 									<span class={getIcon(item.icon) + ' h-5 w-5'}></span>
 									<span class="ml-3">{item.name}</span>

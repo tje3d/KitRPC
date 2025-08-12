@@ -41,10 +41,23 @@
 		{ name: 'Settings', href: '/panel/settings', icon: 'cog', category: 'General' }
 	];
 
-	// Check if current route matches nav item
-	function isActive(href: string) {
-		return $page.url.pathname === href || $page.url.pathname.startsWith(href + '/');
-	}
+	// Check if current route matches nav item (reactive)
+	$: isActive = (href: string) => {
+		// Use route.id for more reliable matching
+		const routeId = $page.route.id || '/';
+		
+		// Handle special case for dashboard
+		if (href === '/panel') {
+			return routeId === '/panel' || routeId === '/';
+		}
+		
+		// Normalize paths for comparison
+		const normalizedRouteId = routeId.endsWith('/') ? routeId.slice(0, -1) : routeId;
+		const normalizedHref = href.endsWith('/') ? href.slice(0, -1) : href;
+		
+		// For other routes, check for exact match or prefix match
+		return normalizedRouteId === normalizedHref || normalizedRouteId.startsWith(normalizedHref + '/');
+	};
 </script>
 
 <div class="flex h-screen bg-gray-50">
