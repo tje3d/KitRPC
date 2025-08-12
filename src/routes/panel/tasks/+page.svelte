@@ -11,7 +11,7 @@
 
 	<!-- Task Overview Cards -->
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-		<Card className="border-l-4 border-blue-500">
+		<Card variant="flat" className="border-l-4 border-blue-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-blue-100 p-3 text-blue-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,7 +30,7 @@
 			</div>
 		</Card>
 
-		<Card className="border-l-4 border-green-500">
+		<Card variant="flat" className="border-l-4 border-green-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-green-100 p-3 text-green-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,7 +49,7 @@
 			</div>
 		</Card>
 
-		<Card className="border-l-4 border-amber-500">
+		<Card variant="flat" className="border-l-4 border-amber-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-amber-100 p-3 text-amber-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,7 +68,7 @@
 			</div>
 		</Card>
 
-		<Card className="border-l-4 border-purple-500">
+		<Card variant="flat" className="border-l-4 border-purple-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-purple-100 p-3 text-purple-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,20 +89,24 @@
 	</div>
 
 	<!-- Tasks List -->
-	<Card className="mt-6">
+	<Card variant="flat" className="mt-6">
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
 			<div>
 				<h2 class="text-lg font-bold text-gray-800">All Tasks</h2>
 				<p class="mt-1 text-sm text-gray-600">List of all your pending and completed tasks</p>
 			</div>
 			<div class="mt-4 flex space-x-3 sm:mt-0">
-				<select class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500">
+				<select
+					class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+				>
 					<option>All Statuses</option>
 					<option>Pending</option>
 					<option>In Progress</option>
 					<option>Completed</option>
 				</select>
-				<select class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500">
+				<select
+					class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+				>
 					<option>All Priorities</option>
 					<option>Low</option>
 					<option>Medium</option>
@@ -115,53 +119,91 @@
 			<table class="min-w-full divide-y divide-gray-200">
 				<thead class="bg-gray-50">
 					<tr>
-						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Task</th>
-						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Project</th>
-						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Priority</th>
-						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Assignee</th>
-						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Due Date</th>
-						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-						<th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Task</th
+						>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Project</th
+						>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Priority</th
+						>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Assignee</th
+						>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Due Date</th
+						>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Status</th
+						>
+						<th
+							scope="col"
+							class="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Actions</th
+						>
 					</tr>
 				</thead>
 				<tbody class="divide-y divide-gray-200 bg-white">
 					<tr class="hover:bg-gray-50">
-						<td class="whitespace-nowrap px-6 py-4">
+						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
 								<input
 									type="checkbox"
 									class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 								/>
 								<div class="ml-4">
-									<div class="text-sm font-medium text-gray-900">Create wireframes for mobile app</div>
+									<div class="text-sm font-medium text-gray-900">
+										Create wireframes for mobile app
+									</div>
 									<div class="text-sm text-gray-500">Design team</div>
 								</div>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Mobile App</td>
-						<td class="whitespace-nowrap px-6 py-4">
-							<span class="inline-flex rounded-full bg-amber-100 px-2 text-xs font-semibold leading-5 text-amber-800">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Mobile App</td>
+						<td class="px-6 py-4 whitespace-nowrap">
+							<span
+								class="inline-flex rounded-full bg-amber-100 px-2 text-xs leading-5 font-semibold text-amber-800"
+							>
 								High
 							</span>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
 							<div class="flex items-center">
-								<img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Assignee" />
+								<img
+									class="h-8 w-8 rounded-full"
+									src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+									alt="Assignee"
+								/>
 								<span class="ml-2">Sarah Williams</span>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Jun 10, 2023</td>
-						<td class="whitespace-nowrap px-6 py-4">
-							<span class="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Jun 10, 2023</td>
+						<td class="px-6 py-4 whitespace-nowrap">
+							<span
+								class="inline-flex rounded-full bg-blue-100 px-2 text-xs leading-5 font-semibold text-blue-800"
+							>
 								In Progress
 							</span>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+						<td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
 							<Button variant="secondary" size="sm">Edit</Button>
 						</td>
 					</tr>
 					<tr class="hover:bg-gray-50">
-						<td class="whitespace-nowrap px-6 py-4">
+						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
 								<input
 									type="checkbox"
@@ -169,100 +211,130 @@
 									checked
 								/>
 								<div class="ml-4">
-									<div class="text-sm font-medium text-gray-900 line-through">Review project requirements</div>
+									<div class="text-sm font-medium text-gray-900 line-through">
+										Review project requirements
+									</div>
 									<div class="text-sm text-gray-500">Documentation</div>
 								</div>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Website Redesign</td>
-						<td class="whitespace-nowrap px-6 py-4">
-							<span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Website Redesign</td>
+						<td class="px-6 py-4 whitespace-nowrap">
+							<span
+								class="inline-flex rounded-full bg-green-100 px-2 text-xs leading-5 font-semibold text-green-800"
+							>
 								Low
 							</span>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
 							<div class="flex items-center">
-								<img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Assignee" />
+								<img
+									class="h-8 w-8 rounded-full"
+									src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+									alt="Assignee"
+								/>
 								<span class="ml-2">John Doe</span>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Jun 5, 2023</td>
-						<td class="whitespace-nowrap px-6 py-4">
-							<span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Jun 5, 2023</td>
+						<td class="px-6 py-4 whitespace-nowrap">
+							<span
+								class="inline-flex rounded-full bg-green-100 px-2 text-xs leading-5 font-semibold text-green-800"
+							>
 								Completed
 							</span>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+						<td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
 							<Button variant="secondary" size="sm">Edit</Button>
 						</td>
 					</tr>
 					<tr class="hover:bg-gray-50">
-						<td class="whitespace-nowrap px-6 py-4">
+						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
 								<input
 									type="checkbox"
 									class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 								/>
 								<div class="ml-4">
-									<div class="text-sm font-medium text-gray-900">Update documentation for API endpoints</div>
+									<div class="text-sm font-medium text-gray-900">
+										Update documentation for API endpoints
+									</div>
 									<div class="text-sm text-gray-500">API Development</div>
 								</div>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Analytics Dashboard</td>
-						<td class="whitespace-nowrap px-6 py-4">
-							<span class="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Analytics Dashboard</td>
+						<td class="px-6 py-4 whitespace-nowrap">
+							<span
+								class="inline-flex rounded-full bg-blue-100 px-2 text-xs leading-5 font-semibold text-blue-800"
+							>
 								Medium
 							</span>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
 							<div class="flex items-center">
-								<img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Assignee" />
+								<img
+									class="h-8 w-8 rounded-full"
+									src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+									alt="Assignee"
+								/>
 								<span class="ml-2">Alex Johnson</span>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Jun 15, 2023</td>
-						<td class="whitespace-nowrap px-6 py-4">
-							<span class="inline-flex rounded-full bg-amber-100 px-2 text-xs font-semibold leading-5 text-amber-800">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Jun 15, 2023</td>
+						<td class="px-6 py-4 whitespace-nowrap">
+							<span
+								class="inline-flex rounded-full bg-amber-100 px-2 text-xs leading-5 font-semibold text-amber-800"
+							>
 								Pending
 							</span>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+						<td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
 							<Button variant="secondary" size="sm">Edit</Button>
 						</td>
 					</tr>
 					<tr class="hover:bg-gray-50">
-						<td class="whitespace-nowrap px-6 py-4">
+						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
 								<input
 									type="checkbox"
 									class="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 								/>
 								<div class="ml-4">
-									<div class="text-sm font-medium text-gray-900">Fix responsive issues on dashboard</div>
+									<div class="text-sm font-medium text-gray-900">
+										Fix responsive issues on dashboard
+									</div>
 									<div class="text-sm text-gray-500">Frontend Development</div>
 								</div>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Analytics Dashboard</td>
-						<td class="whitespace-nowrap px-6 py-4">
-							<span class="inline-flex rounded-full bg-amber-100 px-2 text-xs font-semibold leading-5 text-amber-800">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Analytics Dashboard</td>
+						<td class="px-6 py-4 whitespace-nowrap">
+							<span
+								class="inline-flex rounded-full bg-amber-100 px-2 text-xs leading-5 font-semibold text-amber-800"
+							>
 								High
 							</span>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
 							<div class="flex items-center">
-								<img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Assignee" />
+								<img
+									class="h-8 w-8 rounded-full"
+									src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+									alt="Assignee"
+								/>
 								<span class="ml-2">Michael Chen</span>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Jun 12, 2023</td>
-						<td class="whitespace-nowrap px-6 py-4">
-							<span class="inline-flex rounded-full bg-amber-100 px-2 text-xs font-semibold leading-5 text-amber-800">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Jun 12, 2023</td>
+						<td class="px-6 py-4 whitespace-nowrap">
+							<span
+								class="inline-flex rounded-full bg-amber-100 px-2 text-xs leading-5 font-semibold text-amber-800"
+							>
 								Pending
 							</span>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+						<td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
 							<Button variant="secondary" size="sm">Edit</Button>
 						</td>
 					</tr>

@@ -12,3 +12,4 @@ export { default as PasswordInput } from './PasswordInput.svelte';
 export { default as PasswordStrengthIndicator } from './PasswordStrengthIndicator.svelte';
 export { default as SocialButton } from './SocialButton.svelte';
 export { default as BackgroundDecoration } from './BackgroundDecoration.svelte';
+export { default as Popover } from './Popover.svelte';

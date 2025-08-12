@@ -130,7 +130,7 @@
 			{#if showClose}
 				<button
 					type="button"
-					class="absolute top-4 left-4 z-10 flex size-10 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-black/5 active:bg-black/10 dark:text-gray-400 dark:hover:bg-white/5 dark:active:bg-white/10"
+					class="absolute end-4 top-4 z-10 flex size-10 items-center justify-center rounded-full text-gray-500 transition-colors hover:bg-black/5 active:bg-black/10 dark:text-gray-400 dark:hover:bg-white/5 dark:active:bg-white/10"
 					use:Click
 					on:click={closeDialog}
 					aria-label="Close dialog"

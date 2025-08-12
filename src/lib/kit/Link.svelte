@@ -21,6 +21,6 @@
 	$: externalAttrs = external ? { target: '_blank', rel: 'noopener' } : {};
 </script>
 
-<a {href} class={linkClasses} {...externalAttrs} aria-label={ariaLabel}>
+<a {href} class={linkClasses} {...externalAttrs} aria-label={ariaLabel} tabindex="-1">
 	<slot />
 </a>

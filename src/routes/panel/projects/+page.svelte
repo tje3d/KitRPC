@@ -11,7 +11,7 @@
 
 	<!-- Project Overview Cards -->
 	<div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-		<Card className="border-l-4 border-blue-500">
+		<Card variant="flat" className="border-l-4 border-blue-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-blue-100 p-3 text-blue-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -30,7 +30,7 @@
 			</div>
 		</Card>
 
-		<Card className="border-l-4 border-green-500">
+		<Card variant="flat" className="border-l-4 border-green-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-green-100 p-3 text-green-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,7 +49,7 @@
 			</div>
 		</Card>
 
-		<Card className="border-l-4 border-amber-500">
+		<Card variant="flat" className="border-l-4 border-amber-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-amber-100 p-3 text-amber-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -68,7 +68,7 @@
 			</div>
 		</Card>
 
-		<Card className="border-l-4 border-purple-500">
+		<Card variant="flat" className="border-l-4 border-purple-500">
 			<div class="flex items-center">
 				<div class="rounded-full bg-purple-100 p-3 text-purple-600">
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -89,20 +89,24 @@
 	</div>
 
 	<!-- Projects List -->
-	<Card className="mt-6">
+	<Card variant="flat" className="mt-6">
 		<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
 			<div>
 				<h2 class="text-lg font-bold text-gray-800">All Projects</h2>
 				<p class="mt-1 text-sm text-gray-600">List of all your active and archived projects</p>
 			</div>
 			<div class="mt-4 flex space-x-3 sm:mt-0">
-				<select class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500">
+				<select
+					class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+				>
 					<option>All Statuses</option>
 					<option>Planning</option>
 					<option>In Progress</option>
 					<option>Completed</option>
 				</select>
-				<select class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-blue-500">
+				<select
+					class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:outline-none"
+				>
 					<option>All Teams</option>
 					<option>Design</option>
 					<option>Development</option>
@@ -115,19 +119,45 @@
 			<table class="min-w-full divide-y divide-gray-200">
 				<thead class="bg-gray-50">
 					<tr>
-						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Project</th>
-						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
-						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Progress</th>
-						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Team</th>
-						<th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Due Date</th>
-						<th scope="col" class="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Project</th
+						>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Status</th
+						>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Progress</th
+						>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Team</th
+						>
+						<th
+							scope="col"
+							class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Due Date</th
+						>
+						<th
+							scope="col"
+							class="px-6 py-3 text-right text-xs font-medium tracking-wider text-gray-500 uppercase"
+							>Actions</th
+						>
 					</tr>
 				</thead>
 				<tbody class="divide-y divide-gray-200 bg-white">
 					<tr class="hover:bg-gray-50">
-						<td class="whitespace-nowrap px-6 py-4">
+						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
-								<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600">
+								<div
+									class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-600"
+								>
 									<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
 											stroke-linecap="round"
@@ -143,12 +173,14 @@
 								</div>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4">
-							<span class="inline-flex rounded-full bg-amber-100 px-2 text-xs font-semibold leading-5 text-amber-800">
+						<td class="px-6 py-4 whitespace-nowrap">
+							<span
+								class="inline-flex rounded-full bg-amber-100 px-2 text-xs leading-5 font-semibold text-amber-800"
+							>
 								In Progress
 							</span>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4">
+						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
 								<div class="mr-2 h-2 w-32 rounded-full bg-gray-200">
 									<div class="h-2 rounded-full bg-blue-600" style="width: 42%"></div>
@@ -156,24 +188,36 @@
 								<span class="text-sm text-gray-600">42%</span>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
 							<div class="flex -space-x-2">
-								<img class="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Team member" />
-								<img class="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Team member" />
-								<span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-500 ring-2 ring-white">
+								<img
+									class="inline-block h-8 w-8 rounded-full ring-2 ring-white"
+									src="https://images.unsplash.com/photo-1491528323818-fdd1faba62cc?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+									alt="Team member"
+								/>
+								<img
+									class="inline-block h-8 w-8 rounded-full ring-2 ring-white"
+									src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+									alt="Team member"
+								/>
+								<span
+									class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-500 ring-2 ring-white"
+								>
 									+3
 								</span>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Jun 15, 2023</td>
-						<td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Jun 15, 2023</td>
+						<td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
 							<Button variant="secondary" size="sm">View</Button>
 						</td>
 					</tr>
 					<tr class="hover:bg-gray-50">
-						<td class="whitespace-nowrap px-6 py-4">
+						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
-								<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600">
+								<div
+									class="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 text-green-600"
+								>
 									<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
 											stroke-linecap="round"
@@ -189,12 +233,14 @@
 								</div>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4">
-							<span class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
+						<td class="px-6 py-4 whitespace-nowrap">
+							<span
+								class="inline-flex rounded-full bg-green-100 px-2 text-xs leading-5 font-semibold text-green-800"
+							>
 								Completed
 							</span>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4">
+						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
 								<div class="mr-2 h-2 w-32 rounded-full bg-gray-200">
 									<div class="h-2 rounded-full bg-green-600" style="width: 100%"></div>
@@ -202,24 +248,36 @@
 								<span class="text-sm text-gray-600">100%</span>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
 							<div class="flex -space-x-2">
-								<img class="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Team member" />
-								<img class="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Team member" />
-								<span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-500 ring-2 ring-white">
+								<img
+									class="inline-block h-8 w-8 rounded-full ring-2 ring-white"
+									src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+									alt="Team member"
+								/>
+								<img
+									class="inline-block h-8 w-8 rounded-full ring-2 ring-white"
+									src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+									alt="Team member"
+								/>
+								<span
+									class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-500 ring-2 ring-white"
+								>
 									+5
 								</span>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">May 28, 2023</td>
-						<td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">May 28, 2023</td>
+						<td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
 							<Button variant="secondary" size="sm">View</Button>
 						</td>
 					</tr>
 					<tr class="hover:bg-gray-50">
-						<td class="whitespace-nowrap px-6 py-4">
+						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
-								<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600">
+								<div
+									class="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 text-purple-600"
+								>
 									<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 										<path
 											stroke-linecap="round"
@@ -235,12 +293,14 @@
 								</div>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4">
-							<span class="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800">
+						<td class="px-6 py-4 whitespace-nowrap">
+							<span
+								class="inline-flex rounded-full bg-blue-100 px-2 text-xs leading-5 font-semibold text-blue-800"
+							>
 								Planning
 							</span>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4">
+						<td class="px-6 py-4 whitespace-nowrap">
 							<div class="flex items-center">
 								<div class="mr-2 h-2 w-32 rounded-full bg-gray-200">
 									<div class="h-2 rounded-full bg-purple-600" style="width: 13%"></div>
@@ -248,16 +308,22 @@
 								<span class="text-sm text-gray-600">13%</span>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
 							<div class="flex -space-x-2">
-								<img class="inline-block h-8 w-8 rounded-full ring-2 ring-white" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="Team member" />
-								<span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-500 ring-2 ring-white">
+								<img
+									class="inline-block h-8 w-8 rounded-full ring-2 ring-white"
+									src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+									alt="Team member"
+								/>
+								<span
+									class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-xs font-medium text-gray-500 ring-2 ring-white"
+								>
 									+2
 								</span>
 							</div>
 						</td>
-						<td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Jul 22, 2023</td>
-						<td class="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
+						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">Jul 22, 2023</td>
+						<td class="px-6 py-4 text-right text-sm font-medium whitespace-nowrap">
 							<Button variant="secondary" size="sm">View</Button>
 						</td>
 					</tr>

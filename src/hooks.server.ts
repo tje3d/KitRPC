@@ -1,6 +1,34 @@
 import { createContext } from '$lib/trpc/context';
 import { router } from '$lib/trpc/router';
+import { validateSession } from '$lib/auth';
 import type { Handle } from '@sveltejs/kit';
 import { createTRPCHandle } from 'trpc-sveltekit';
+import { redirect } from '@sveltejs/kit';
 
-export const handle: Handle = createTRPCHandle({ router, createContext, url: '/api' });
+export const handle: Handle = async ({ event, resolve }) => {
+	// Check if the route starts with /panel
+	if (event.url.pathname.startsWith('/panel')) {
+		// Extract token from cookies
+		const token = event.cookies.get('session_token');
+
+		// Validate session if token exists
+		let user = null;
+		if (token) {
+			const session = await validateSession(token);
+			if (session) {
+				user = session.user;
+			}
+		}
+
+		// If no valid user, redirect to login
+		if (!user) {
+			throw redirect(302, '/login');
+		}
+	}
+
+	// Continue with TRPC handle
+	return createTRPCHandle({ router, createContext, url: '/api' })({
+		event,
+		resolve
+	});
+};

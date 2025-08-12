@@ -1,5 +1,11 @@
 <script lang="ts">
-	import { createEventDispatcher } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
+	import ConfirmDialog from '$lib/dialog/ConfirmDialog.svelte';
+	import { dialogStore } from '$lib/dialog/store';
+	import { authUser } from '$lib/flow/auth.flow';
+	import Popover from '$lib/kit/Popover.svelte';
+	import LogoutProvider from '$lib/providers/LogoutProvider.svelte';
+	import { createEventDispatcher, tick } from 'svelte';
 
 	// Props
 	export let isOpen: boolean = true;
@@ -10,6 +16,32 @@
 	// Dispatch events
 	const dispatch = createEventDispatcher();
 
+	// Handle logout with confirmation dialog
+	async function handleLogout(logout: () => void) {
+		dialogStore.open({
+			component: ConfirmDialog,
+			props: {
+				title: 'Confirm Logout',
+				message:
+					'Are you sure you want to log out? You will need to sign in again to access your tasks.',
+				confirm: 'Logout',
+				cancel: 'Cancel',
+				color: 'red',
+				onConfirm() {
+					history.back();
+
+					tick().then(() => {
+						logout();
+					});
+				}
+			}
+		});
+	}
+
+	function onLoggedOut() {
+		invalidateAll();
+	}
+
 	// Handle toggle event
 	function handleToggle() {
 		dispatch('toggle');
@@ -18,22 +50,22 @@
 	// Get icon component based on icon name
 	function getIcon(iconName: string) {
 		const icons: Record<string, string> = {
-			dashboard: 'icon-[heroicons--home-20-solid]',
-			folder: 'icon-[heroicons--folder-20-solid]',
-			'check-circle': 'icon-[heroicons--check-circle-20-solid]',
-			calendar: 'icon-[heroicons--calendar-20-solid]',
-			cog: 'icon-[heroicons--cog-20-solid]',
-			user: 'icon-[heroicons--user-circle-20-solid]'
+			dashboard: 'icon-[heroicons--home]',
+			folder: 'icon-[heroicons--folder]',
+			'check-circle': 'icon-[heroicons--check-circle]',
+			calendar: 'icon-[heroicons--calendar]',
+			cog: 'icon-[heroicons--cog]',
+			user: 'icon-[heroicons--user-circle]',
+			'chevron-down': 'icon-[heroicons--chevron-down]',
+			'chevron-up': 'icon-[heroicons--chevron-up]',
+			profile: 'icon-[heroicons--user]',
+			account: 'icon-[heroicons--identification]',
+			help: 'icon-[heroicons--question-mark-circle]',
+			theme: 'icon-[heroicons--moon]',
+			logout: 'icon-[heroicons--arrow-left-on-rectangle]'
 		};
 		return icons[iconName] || icons.dashboard;
 	}
-
-	// User profile data (in a real app, this would come from a store or context)
-	let userProfile = {
-		name: 'John Doe',
-		email: 'john@example.com',
-		avatar: ''
-	};
 
 	// Collapsible sections state
 	let collapsedSections: Record<string, boolean> = {};
@@ -59,20 +91,22 @@
 
 <!-- Sidebar backdrop (mobile only) -->
 {#if isMobile && isOpen}
-	<div class="bg-opacity-50 fixed inset-0 z-40 bg-black lg:hidden" on:click={handleToggle}></div>
+	<div class="bg-opacity-50 fixed inset-0 z-40 bg-black/25 lg:hidden" on:click={handleToggle}></div>
 {/if}
 
 <!-- Sidebar -->
 <aside
-	class={`fixed inset-y-0 left-0 z-50 w-64 transform bg-white shadow-lg transition-all duration-300 ease-in-out lg:static lg:z-auto lg:translate-x-0 lg:shadow-none
-		${isOpen ? 'translate-x-0' : '-translate-x-full'} 
+	class={`fixed inset-y-0 left-0 z-50 w-64 transform bg-white shadow-xl transition-all duration-300 ease-in-out lg:static lg:z-auto lg:translate-x-0
+		${isOpen ? 'translate-x-0' : '-translate-x-full'}
 		${isMobile ? 'h-full' : 'h-screen'}`}
 >
 	<div class="flex h-full flex-col">
 		<!-- Sidebar header -->
-		<div class="flex items-center justify-between border-b border-gray-200 p-4">
+		<div class="flex items-center justify-between border-b border-gray-100 p-5">
 			<div class="flex items-center space-x-3">
-				<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-white">
+				<div
+					class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-md"
+				>
 					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"
@@ -82,16 +116,16 @@
 						></path>
 					</svg>
 				</div>
-				<h1 class="text-xl font-bold text-gray-800">KitRPC</h1>
+				<h1 class="text-xl font-bold text-gray-900">KitRPC</h1>
 			</div>
 
 			<!-- Close button (mobile only) -->
 			{#if isMobile}
 				<button
 					on:click={handleToggle}
-					class="rounded-md p-1 text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus:outline-none"
+					class="rounded-lg p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 				>
-					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 						<path
 							stroke-linecap="round"
 							stroke-linejoin="round"
@@ -103,29 +137,14 @@
 			{/if}
 		</div>
 
-		<!-- User profile section -->
-		<div class="border-b border-gray-200 p-4">
-			<div class="flex items-center space-x-3">
-				<div
-					class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-gray-500"
-				>
-					<span class={getIcon('user') + ' h-6 w-6'}></span>
-				</div>
-				<div class="min-w-0 flex-1">
-					<p class="truncate text-sm font-medium text-gray-800">{userProfile.name}</p>
-					<p class="truncate text-sm text-gray-500">{userProfile.email}</p>
-				</div>
-			</div>
-		</div>
-
 		<!-- Navigation -->
 		<nav class="flex-1 overflow-y-auto p-4">
 			{#each Object.entries(groupedNavItems) as [category, items]}
-				<div class="mb-4">
+				<div class="mb-2">
 					{#if category !== 'General'}
 						<button
 							on:click={() => toggleSection(category)}
-							class="flex w-full items-center justify-between rounded-lg px-4 py-2 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase hover:bg-gray-100"
+							class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold tracking-wider text-gray-500 transition-colors duration-200 hover:bg-gray-100"
 						>
 							<span>{category}</span>
 							<svg
@@ -144,15 +163,19 @@
 						</button>
 					{/if}
 					<ul
-						class={`mt-1 space-y-1 ${category !== 'General' && collapsedSections[category] ? 'hidden' : ''}`}
+						class={`mt-1 space-y-0.5 ${category !== 'General' && collapsedSections[category] ? 'hidden' : ''}`}
 					>
 						{#each items as item}
 							{@const active = isActive(item.href)}
 							<li>
 								<a
 									href={item.href}
-									class={`flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors duration-200
-										${active ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}`}
+									class={`flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200
+										${
+											active
+												? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
+												: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+										}`}
 								>
 									<span class={getIcon(item.icon) + ' h-5 w-5'}></span>
 									<span class="ml-3">{item.name}</span>
@@ -164,23 +187,115 @@
 			{/each}
 		</nav>
 
-		<!-- Sidebar footer -->
-		<div class="border-t border-gray-200 p-4">
-			<button
-				on:click={handleToggle}
-				class="flex w-full items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
-			>
-				<svg
-					class={`h-5 w-5 transition-transform duration-300 ${isOpen ? '' : 'rotate-180'}`}
-					fill="none"
-					stroke="currentColor"
-					viewBox="0 0 24 24"
-				>
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"
-					></path>
-				</svg>
-				<span class="ml-2">{isOpen ? 'Collapse' : 'Expand'}</span>
-			</button>
+		<!-- User profile section -->
+		<div class="border-t border-gray-100 p-4">
+			<LogoutProvider {onLoggedOut} let:loading let:errorMessage let:clearError let:logout>
+				<Popover position="top" offset={10} showOnHover={false}>
+					<div
+						slot="trigger"
+						class="flex cursor-pointer items-center space-x-3 rounded-lg p-2 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+					>
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gray-200 to-gray-300 text-gray-600 shadow-sm dark:from-gray-700 dark:to-gray-800 dark:text-gray-300"
+						>
+							<span class={getIcon('user') + ' h-5 w-5'}></span>
+						</div>
+						<div class="min-w-0 flex-1">
+							<p class="truncate text-sm font-semibold text-gray-900 dark:text-white">
+								{$authUser?.username || 'User'}
+							</p>
+						</div>
+					</div>
+
+					<div class="w-72 p-2">
+						<!-- User info header -->
+						<div
+							class="flex items-center space-x-3 rounded-lg p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50"
+						>
+							<div
+								class="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-gray-200 to-gray-300 text-gray-600 shadow-sm dark:from-gray-700 dark:to-gray-800 dark:text-gray-300"
+							>
+								<span class={getIcon('user') + ' h-6 w-6'}></span>
+							</div>
+							<div class="min-w-0 flex-1">
+								<p class="truncate text-sm font-semibold text-gray-900 dark:text-white">
+									{$authUser?.username || 'User'}
+								</p>
+							</div>
+						</div>
+
+						<!-- Divider -->
+						<div class="my-2 border-t border-gray-100 dark:border-gray-700"></div>
+
+						<!-- Menu items -->
+						<div class="py-1">
+							<a
+								href="/panel/settings"
+								class="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700/50"
+							>
+								<span class={getIcon('profile') + ' h-5 w-5'}></span>
+								<span>Profile & Settings</span>
+							</a>
+
+							<a
+								href="/panel/settings"
+								class="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700/50"
+							>
+								<span class={getIcon('account') + ' h-5 w-5'}></span>
+								<span>Account Management</span>
+							</a>
+
+							<a
+								href="/panel/help"
+								class="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700/50"
+							>
+								<span class={getIcon('help') + ' h-5 w-5'}></span>
+								<span>Help & Support</span>
+							</a>
+						</div>
+
+						<!-- Divider -->
+						<div class="my-2 border-t border-gray-100 dark:border-gray-700"></div>
+
+						<!-- Logout section -->
+						<div class="py-1">
+							<button
+								on:click={() => handleLogout(logout)}
+								disabled={loading}
+								class="flex w-full items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors duration-200 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-900/20"
+							>
+								<span class={getIcon('logout') + ' h-5 w-5'}></span>
+								<span>
+									{#if loading}
+										<span class="flex items-center justify-center gap-2">
+											<span
+												class="iconify h-4 w-4 animate-spin"
+												data-icon="svg-spinners:bars-scale-fade"
+											></span>
+											Logging out...
+										</span>
+									{:else}
+										Logout
+									{/if}
+								</span>
+							</button>
+
+							<!-- Logout error display -->
+							{#if errorMessage}
+								<div class="mt-2 rounded-lg bg-red-50 p-2 dark:bg-red-900/20">
+									<div class="flex items-center gap-2">
+										<span
+											class="iconify h-4 w-4 text-red-500 dark:text-red-400"
+											data-icon="heroicons:exclamation-circle-20-solid"
+										></span>
+										<span class="text-sm text-red-700 dark:text-red-300">{errorMessage}</span>
+									</div>
+								</div>
+							{/if}
+						</div>
+					</div>
+				</Popover>
+			</LogoutProvider>
 		</div>
 	</div>
 </aside>
@@ -189,7 +304,7 @@
 {#if !isMobile && !isOpen}
 	<button
 		on:click={handleToggle}
-		class="fixed top-1/2 left-0 z-40 rounded-r-lg bg-white p-2 shadow-md hover:bg-gray-50"
+		class="fixed top-1/2 left-0 z-40 rounded-r-xl bg-white p-2 shadow-lg transition-all duration-300 hover:bg-gray-50 hover:shadow-xl"
 	>
 		<svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
