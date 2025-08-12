@@ -85,7 +85,7 @@
 >
 	{#if loading}
 		<div class="flex items-center">
-			<span class="icon-[svg-spinners--bars-scale-fade] mr-2 h-4 w-4 animate-spin"></span>
+			<span class="icon-[svg-spinners--bars-scale-fade] mr-2 h-4 w-4"></span>
 			<slot name="loading-text">Loading...</slot>
 		</div>
 	{:else}

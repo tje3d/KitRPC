@@ -27,6 +27,7 @@ model User {
   sessions    Session[]
   permissions UserPermission[]
   todos       Todo[]
+  bankCards   BankCard[]
 
   @@index([username])
   @@index([email])
@@ -104,6 +105,22 @@ model Todo {
   completed Boolean  @default(false)
   createdAt DateTime @default(now())
   userId    String?
+user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
-  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+model BankCard {
+id          String   @id @default(cuid())
+cardNumber  String   // 16-digit Iranian bank card number
+userId      String
+isDefault   Boolean  @default(false)
+createdAt   DateTime @default(now())
+updatedAt   DateTime @updatedAt
+
+// Relations
+user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+// Indexes
+@@index([userId])
+@@index([isDefault])
+@@unique([userId, cardNumber])
 }

@@ -54,6 +54,7 @@
 			folder: 'icon-[heroicons--folder]',
 			'check-circle': 'icon-[heroicons--check-circle]',
 			calendar: 'icon-[heroicons--calendar]',
+			'credit-card': 'icon-[heroicons--credit-card]',
 			cog: 'icon-[heroicons--cog]',
 			user: 'icon-[heroicons--user-circle]',
 			'chevron-down': 'icon-[heroicons--chevron-down]',

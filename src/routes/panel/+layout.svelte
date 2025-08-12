@@ -39,6 +39,7 @@
 		{ name: 'Projects', href: '/panel/projects', icon: 'folder', category: 'Work' },
 		{ name: 'Tasks', href: '/panel/tasks', icon: 'check-circle', category: 'Work' },
 		{ name: 'Calendar', href: '/panel/calendar', icon: 'calendar', category: 'Work' },
+		{ name: 'Cards', href: '/panel/cards', icon: 'credit-card', category: 'Work' },
 		{ name: 'Settings', href: '/panel/settings', icon: 'cog', category: 'General' }
 	];
 

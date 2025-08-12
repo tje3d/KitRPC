@@ -1,5 +1,6 @@
 import { authRouter } from './auth';
 import { todosRouter } from './todos';
+import { bankCardsRouter } from './bankCards';
 import { t } from './trpc';
 
 export const router = t.router({
@@ -11,7 +12,10 @@ export const router = t.router({
 	auth: authRouter,
 
 	// Todo procedures
-	todos: todosRouter
+	todos: todosRouter,
+
+	// Bank card procedures
+	bankCards: bankCardsRouter
 });
 
 export type Router = typeof router;
