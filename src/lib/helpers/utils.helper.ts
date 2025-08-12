@@ -29,11 +29,15 @@ export const disableScroll = new Observable<void>((observer) => {
 }).pipe(shareIt());
 
 // Format currency
-export function formatCurrency(amount: number, currency: 'IRT' | 'USDT', compact: boolean = false): string {
+export function formatCurrency(
+	amount: number,
+	currency: 'IRT' | 'USDT',
+	compact: boolean = false
+): string {
 	if (currency === 'IRT') {
-		return new Intl.NumberFormat('fa-IR', {
+		return new Intl.NumberFormat('en-US', {
 			style: 'currency',
-			currency: 'IRR',
+			currency: 'IRT',
 			minimumFractionDigits: 0,
 			maximumFractionDigits: 0,
 			roundingMode: 'trunc',
@@ -44,7 +48,7 @@ export function formatCurrency(amount: number, currency: 'IRT' | 'USDT', compact
 			style: 'currency',
 			currency: 'USD',
 			minimumFractionDigits: 2,
-			maximumFractionDigits: 6,
+			maximumFractionDigits: 2,
 			roundingMode: 'trunc',
 			...(compact && { notation: 'compact', compactDisplay: 'short' })
 		})

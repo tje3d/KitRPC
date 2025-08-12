@@ -211,6 +211,11 @@
 							<p class="truncate text-sm font-semibold text-gray-900 dark:text-white">
 								{$authUser?.username || 'User'}
 							</p>
+							{#if $authUser?.role?.name}
+								<p class="truncate text-xs text-gray-500 dark:text-gray-400">
+									{$authUser.role.name}
+								</p>
+							{/if}
 						</div>
 					</div>
 
@@ -228,6 +233,11 @@
 								<p class="truncate text-sm font-semibold text-gray-900 dark:text-white">
 									{$authUser?.username || 'User'}
 								</p>
+								{#if $authUser?.role?.name}
+									<p class="truncate text-xs text-gray-500 dark:text-gray-400">
+										{$authUser.role.name}
+									</p>
+								{/if}
 							</div>
 						</div>
 

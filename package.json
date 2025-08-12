@@ -46,6 +46,7 @@
 		"@trpc/server": "^10.45.2",
 		"prisma": "^6.11.1",
 		"rxjs": "^7.8.2",
+		"superjson": "^2.2.2",
 		"trpc-sveltekit": "^3.6.3",
 		"zod": "^3.25.76"
 	}

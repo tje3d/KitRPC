@@ -1,6 +1,7 @@
+import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 import { authRouter } from './auth';
-import { todosRouter } from './todos';
 import { bankCardsRouter } from './bankCards';
+import { todosRouter } from './todos';
 import { transactionsRouter } from './transactions';
 import { t } from './trpc';
 
@@ -23,3 +24,5 @@ export const router = t.router({
 });
 
 export type Router = typeof router;
+export type RouterOutputs = inferRouterOutputs<Router>;
+export type RouterInputs = inferRouterInputs<Router>;

@@ -1,35 +1,27 @@
 <script lang="ts">
+	import { formatCurrency } from '$lib/helpers/utils.helper';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
-	import Checkbox from '$lib/kit/Checkbox.svelte';
 	import DataTable from '$lib/kit/DataTable.svelte';
-	import FormGroup from '$lib/kit/FormGroup.svelte';
 	import Input from '$lib/kit/Input.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
+	import TransactionHistoryProvider from '$lib/providers/TransactionHistoryProvider.svelte';
 	import { toast } from '$lib/toast/store';
-	import { trpc } from '$lib/trpc/client';
-	import { formatCurrency } from '$lib/helpers/utils.helper';
 	import type { CurrencyType, TransactionStatus, TransactionType } from '@prisma/client';
 	import { onMount } from 'svelte';
 
 	// Types for our filters
-	interface TransactionFilters {
-		type?: TransactionType;
-		currency?: CurrencyType;
-		status?: TransactionStatus;
-		fromDate?: string;
-		toDate?: string;
-	}
+	type TransactionFilters = Parameters<typeof transactionProvider.getHistory>[0];
+
+	// Provider reference
+	let transactionProvider: TransactionHistoryProvider;
 
 	// State
-	let transactions: any[] = [];
-	let loading = false;
 	let error: string | null = null;
 
 	// Pagination
 	let currentPage = 1;
 	const itemsPerPage = 10;
-	let totalItems = 0;
 
 	// Filters
 	let filters: TransactionFilters = {};
@@ -61,42 +53,21 @@
 	let toDate = '';
 
 	// Fetch transactions with current filters and pagination
-	async function fetchTransactions() {
-		loading = true;
-		error = null;
+	function fetchTransactions() {
+		// Build filter object for the API call
+		const apiFilters: TransactionFilters = {
+			limit: itemsPerPage,
+			offset: (currentPage - 1) * itemsPerPage
+		};
 
-		try {
-			// Build filter object for the API call
-			const apiFilters: any = {
-				limit: itemsPerPage,
-				offset: (currentPage - 1) * itemsPerPage
-			};
+		// Add filters if they exist
+		if (filters.type) apiFilters.type = filters.type;
+		if (filters.currency) apiFilters.currency = filters.currency;
+		if (filters.status) apiFilters.status = filters.status;
+		if (filters.fromDate) apiFilters.fromDate = filters.fromDate;
+		if (filters.toDate) apiFilters.toDate = filters.toDate;
 
-			// Add filters if they exist
-			if (filters.type) apiFilters.type = filters.type;
-			if (filters.currency) apiFilters.currency = filters.currency;
-			if (filters.status) apiFilters.status = filters.status;
-			if (filters.fromDate) apiFilters.fromDate = new Date(filters.fromDate);
-			if (filters.toDate) apiFilters.toDate = new Date(filters.toDate);
-
-			const result = await trpc().transactions.getHistory.query(apiFilters);
-
-			// Convert string dates to Date objects
-			transactions = result.transactions.map((transaction) => ({
-				...transaction,
-				createdAt: new Date(transaction.createdAt),
-				updatedAt: new Date(transaction.updatedAt)
-			}));
-
-			// Set total items from API response
-			totalItems = result.totalCount;
-		} catch (err: any) {
-			error = err.message || 'Failed to fetch transactions';
-			toast.error(error || 'Failed to fetch transactions');
-			console.error('Error fetching transactions:', err);
-		} finally {
-			loading = false;
-		}
+		transactionProvider.getHistory(apiFilters);
 	}
 
 	// Apply filters
@@ -118,8 +89,19 @@
 		const selectedStatus = Object.keys(selectedStatuses).find((key) => selectedStatuses[key]);
 		if (selectedStatus) filters.status = selectedStatus as TransactionStatus;
 
-		if (fromDate) filters.fromDate = fromDate;
-		if (toDate) filters.toDate = toDate;
+		// Set fromDate to start of day (00:00:00)
+		if (fromDate) {
+			const fromDateObj = new Date(fromDate);
+			fromDateObj.setHours(0, 0, 0, 0);
+			filters.fromDate = fromDateObj;
+		}
+		
+		// Set toDate to end of day (23:59:59.999)
+		if (toDate) {
+			const toDateObj = new Date(toDate);
+			toDateObj.setHours(23, 59, 59, 999);
+			filters.toDate = toDateObj;
+		}
 
 		fetchTransactions();
 	}
@@ -133,13 +115,6 @@
 		toDate = '';
 		filters = {};
 		currentPage = 1;
-		fetchTransactions();
-	}
-
-	// Handle pagination
-	function handlePageChange(page: number) {
-		if (page < 1 || page > Math.ceil(totalItems / itemsPerPage)) return;
-		currentPage = page;
 		fetchTransactions();
 	}
 
@@ -252,253 +227,279 @@
 	});
 </script>
 
-<PanelPageWrapper
-	title="Transaction History"
-	description="View and filter your transaction history."
+<TransactionHistoryProvider
+	bind:this={transactionProvider}
+	let:loading
+	let:clearError
+	let:transactions
+	let:totalCount
+	onError={(message) => toast.error(message || 'Failed to fetch transactions')}
 >
-	<!-- Filters Section -->
-	<Card variant="flat" className="mb-6">
-		<!-- Filter Header with Toggle -->
-		<div class="flex items-center justify-between border-b border-gray-200 pb-4">
-			<div class="flex items-center space-x-2">
-				<span class="icon-[heroicons--funnel] h-5 w-5 text-gray-500"></span>
-				<h2 class="text-lg font-semibold text-gray-800">Filters</h2>
-			</div>
-			<div class="flex items-center space-x-3">
-				<Button size="sm" variant="secondary" onClick={resetFilters}>
-					<span class="icon-[heroicons--arrow-path] mr-1 h-4 w-4"></span>
-					Reset
-				</Button>
-				<Button size="sm" onClick={applyFilters}>
-					<span class="icon-[heroicons--magnifying-glass] mr-1 h-4 w-4"></span>
-					Apply
-				</Button>
-			</div>
-		</div>
-
-		<!-- Quick Filter Pills -->
-		<div class="py-4">
-			<div class="flex flex-wrap items-center gap-3">
-				<!-- Transaction Type Pills -->
-				<div class="flex items-center space-x-2">
-					<span class="text-sm font-medium text-gray-600">Type:</span>
-					<div class="flex space-x-1">
-						{#each transactionTypes as type}
-							<button
-								class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors
-									{selectedTypes[type.value]
-									? 'border border-blue-200 bg-blue-100 text-blue-800'
-									: 'border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200'}"
-								on:click={() => {
-									selectedTypes = {};
-									if (!selectedTypes[type.value]) {
-										selectedTypes[type.value] = true;
-									}
-								}}
-							>
-								<span class="{getTypeIcon(type.value)} mr-1 h-3 w-3"></span>
-								{type.label}
-							</button>
-						{/each}
-					</div>
-				</div>
-
-				<!-- Currency Pills -->
-				<div class="flex items-center space-x-2">
-					<span class="text-sm font-medium text-gray-600">Currency:</span>
-					<div class="flex space-x-1">
-						{#each currencyTypes as currency}
-							<button
-								class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors
-									{selectedCurrencies[currency.value]
-									? 'border border-green-200 bg-green-100 text-green-800'
-									: 'border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200'}"
-								on:click={() => {
-									selectedCurrencies = {};
-									if (!selectedCurrencies[currency.value]) {
-										selectedCurrencies[currency.value] = true;
-									}
-								}}
-							>
-								<span class="icon-[heroicons--currency-dollar] mr-1 h-3 w-3"></span>
-								{currency.label}
-							</button>
-						{/each}
-					</div>
-				</div>
-
-				<!-- Status Pills -->
-				<div class="flex items-center space-x-2">
-					<span class="text-sm font-medium text-gray-600">Status:</span>
-					<div class="flex space-x-1">
-						{#each transactionStatuses as status}
-							<button
-								class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors
-									{selectedStatuses[status.value]
-									? status.value === 'COMPLETED'
-										? 'border border-green-200 bg-green-100 text-green-800'
-										: status.value === 'PENDING'
-											? 'border border-yellow-200 bg-yellow-100 text-yellow-800'
-											: status.value === 'FAILED'
-												? 'border border-red-200 bg-red-100 text-red-800'
-												: 'border border-gray-200 bg-gray-100 text-gray-800'
-									: 'border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200'}"
-								on:click={() => {
-									selectedStatuses = {};
-									if (!selectedStatuses[status.value]) {
-										selectedStatuses[status.value] = true;
-									}
-								}}
-							>
-								<span
-									class="mr-1 h-3 w-3 {status.value === 'COMPLETED'
-										? 'icon-[heroicons--check-circle]'
-										: status.value === 'PENDING'
-											? 'icon-[heroicons--clock]'
-											: status.value === 'FAILED'
-												? 'icon-[heroicons--x-circle]'
-												: 'icon-[heroicons--information-circle]'}"
-								></span>
-								{status.label}
-							</button>
-						{/each}
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Advanced Filters (Collapsible) -->
-		<div class="border-t border-gray-200 pt-4">
-			<div class="flex flex-col space-y-4 sm:flex-row sm:items-end sm:space-y-0 sm:space-x-4">
-				<!-- Date Range -->
-				<div class="flex-1">
-					<label class="mb-2 block text-sm font-medium text-gray-700">
-						<span class="icon-[heroicons--calendar-days] mr-1 h-4 w-4"></span>
-						Date Range
-					</label>
-					<div class="flex space-x-2">
-						<div class="flex-1">
-							<Input
-								type="date"
-								id="fromDate"
-								name="fromDate"
-								bind:value={fromDate}
-								placeholder="From date"
-								className="text-sm"
-							/>
-						</div>
-						<div class="flex items-center">
-							<span class="text-gray-400">to</span>
-						</div>
-						<div class="flex-1">
-							<Input
-								type="date"
-								id="toDate"
-								name="toDate"
-								bind:value={toDate}
-								placeholder="To date"
-								className="text-sm"
-							/>
-						</div>
-					</div>
-				</div>
-
-				<!-- Quick Date Presets -->
-				<div class="flex space-x-2">
-					<button
-						class="rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-						on:click={() => {
-							const today = new Date();
-							const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-							fromDate = lastWeek.toISOString().split('T')[0];
-							toDate = today.toISOString().split('T')[0];
-						}}
-					>
-						Last 7 days
-					</button>
-					<button
-						class="rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-						on:click={() => {
-							const today = new Date();
-							const lastMonth = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-							fromDate = lastMonth.toISOString().split('T')[0];
-							toDate = today.toISOString().split('T')[0];
-						}}
-					>
-						Last 30 days
-					</button>
-					<button
-						class="rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-						on:click={() => {
-							fromDate = '';
-							toDate = '';
-						}}
-					>
-						Clear
-					</button>
-				</div>
-			</div>
-		</div>
-	</Card>
-
-	<!-- Loading State -->
-	{#if loading}
-		<div class="flex justify-center py-12">
-		<span class="icon-[svg-spinners--bars-scale-fade] h-8 w-8 animate-spin text-blue-500"></span>
-	</div>
-	{/if}
-
-	<!-- Error State -->
-	{#if error}
+	<PanelPageWrapper
+		title="Transaction History"
+		description="View and filter your transaction history."
+	>
+		<!-- Filters Section -->
 		<Card variant="flat" className="mb-6">
-			<div class="rounded-md bg-red-50 p-4">
-				<div class="flex">
-					<div class="flex-shrink-0">
-				<span class="icon-[heroicons--x-circle] h-5 w-5 text-red-400"></span>
+			<!-- Filter Header with Toggle -->
+			<div class="flex items-center justify-between border-b border-gray-200 pb-4">
+				<div class="flex items-center space-x-2">
+					<span class="icon-[heroicons--funnel] h-5 w-5 text-gray-500"></span>
+					<h2 class="text-lg font-semibold text-gray-800">Filters</h2>
+				</div>
+				<div class="flex items-center space-x-3">
+					<Button size="sm" variant="secondary" onClick={resetFilters}>
+						<span class="icon-[heroicons--arrow-path] mr-1 h-4 w-4"></span>
+						Reset
+					</Button>
+					<Button size="sm" onClick={applyFilters}>
+						<span class="icon-[heroicons--magnifying-glass] mr-1 h-4 w-4"></span>
+						Apply
+					</Button>
+				</div>
 			</div>
-					<div class="ml-3">
-						<h3 class="text-sm font-medium text-red-800">Error loading transactions</h3>
-						<div class="mt-2 text-sm text-red-700">
-							<p>{error}</p>
+
+			<!-- Quick Filter Pills -->
+			<div class="py-4">
+				<div class="flex flex-wrap items-center gap-3">
+					<!-- Transaction Type Pills -->
+					<div class="flex items-center space-x-2">
+						<span class="text-sm font-medium text-gray-600">Type:</span>
+						<div class="flex space-x-1">
+							{#each transactionTypes as type}
+								<button
+									class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors
+										{selectedTypes[type.value]
+										? 'border border-blue-200 bg-blue-100 text-blue-800'
+										: 'border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+									on:click={() => {
+										selectedTypes = {};
+										if (!selectedTypes[type.value]) {
+											selectedTypes[type.value] = true;
+										}
+									}}
+								>
+									<span class="{getTypeIcon(type.value)} mr-1 h-3 w-3"></span>
+									{type.label}
+								</button>
+							{/each}
+						</div>
+					</div>
+
+					<!-- Currency Pills -->
+					<div class="flex items-center space-x-2">
+						<span class="text-sm font-medium text-gray-600">Currency:</span>
+						<div class="flex space-x-1">
+							{#each currencyTypes as currency}
+								<button
+									class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors
+										{selectedCurrencies[currency.value]
+										? 'border border-green-200 bg-green-100 text-green-800'
+										: 'border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+									on:click={() => {
+										selectedCurrencies = {};
+										if (!selectedCurrencies[currency.value]) {
+											selectedCurrencies[currency.value] = true;
+										}
+									}}
+								>
+									<span class="icon-[heroicons--currency-dollar] mr-1 h-3 w-3"></span>
+									{currency.label}
+								</button>
+							{/each}
+						</div>
+					</div>
+
+					<!-- Status Pills -->
+					<div class="flex items-center space-x-2">
+						<span class="text-sm font-medium text-gray-600">Status:</span>
+						<div class="flex space-x-1">
+							{#each transactionStatuses as status}
+								<button
+									class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors
+										{selectedStatuses[status.value]
+										? status.value === 'COMPLETED'
+											? 'border border-green-200 bg-green-100 text-green-800'
+											: status.value === 'PENDING'
+												? 'border border-yellow-200 bg-yellow-100 text-yellow-800'
+												: status.value === 'FAILED'
+													? 'border border-red-200 bg-red-100 text-red-800'
+													: 'border border-gray-200 bg-gray-100 text-gray-800'
+										: 'border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200'}"
+									on:click={() => {
+										selectedStatuses = {};
+										if (!selectedStatuses[status.value]) {
+											selectedStatuses[status.value] = true;
+										}
+									}}
+								>
+									<span
+										class="mr-1 h-3 w-3 {status.value === 'COMPLETED'
+											? 'icon-[heroicons--check-circle]'
+											: status.value === 'PENDING'
+												? 'icon-[heroicons--clock]'
+												: status.value === 'FAILED'
+													? 'icon-[heroicons--x-circle]'
+													: 'icon-[heroicons--information-circle]'}"
+									></span>
+									{status.label}
+								</button>
+							{/each}
 						</div>
 					</div>
 				</div>
 			</div>
-		</Card>
-	{/if}
 
-	<!-- Transactions Table -->
-	{#if !loading && !error}
-		<Card variant="flat">
-			<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
-				<div>
-					<h2 class="text-lg font-bold text-gray-800">Transactions</h2>
-					<p class="mt-1 text-sm text-gray-600">List of your transaction history</p>
+			<!-- Advanced Filters (Collapsible) -->
+			<div class="border-t border-gray-200 pt-4">
+				<div class="flex flex-col space-y-4 sm:flex-row sm:items-end sm:space-y-0 sm:space-x-4">
+					<!-- Date Range -->
+					<div class="flex-1">
+						<label class="mb-2 block text-sm font-medium text-gray-700">
+							<span class="icon-[heroicons--calendar-days] mr-1 h-4 w-4"></span>
+							Date Range
+						</label>
+						<div class="flex space-x-2">
+							<div class="flex-1">
+								<Input
+									type="date"
+									id="fromDate"
+									name="fromDate"
+									bind:value={fromDate}
+									placeholder="From date"
+									className="text-sm"
+								/>
+							</div>
+							<div class="flex items-center">
+								<span class="text-gray-400">to</span>
+							</div>
+							<div class="flex-1">
+								<Input
+									type="date"
+									id="toDate"
+									name="toDate"
+									bind:value={toDate}
+									placeholder="To date"
+									className="text-sm"
+								/>
+							</div>
+						</div>
+					</div>
+
+					<!-- Quick Date Presets -->
+					<div class="flex space-x-2">
+						<button
+							class="rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+							on:click={() => {
+								const today = new Date();
+								const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+								fromDate = lastWeek.toISOString().split('T')[0];
+								toDate = today.toISOString().split('T')[0];
+							}}
+						>
+							Last 7 days
+						</button>
+						<button
+							class="rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+							on:click={() => {
+								const today = new Date();
+								const lastMonth = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+								fromDate = lastMonth.toISOString().split('T')[0];
+								toDate = today.toISOString().split('T')[0];
+							}}
+						>
+							Last 30 days
+						</button>
+						<button
+							class="rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+							on:click={() => {
+								fromDate = '';
+								toDate = '';
+							}}
+						>
+							Clear
+						</button>
+					</div>
 				</div>
 			</div>
-
-			{#if transactions.length === 0}
-				<div class="py-12 text-center">
-					<div class="mx-auto h-12 w-12 text-gray-400">
-				<span class="icon-[heroicons--document-text] h-12 w-12"></span>
-			</div>
-					<h3 class="mt-2 text-sm font-medium text-gray-900">No transactions found</h3>
-					<p class="mt-1 text-sm text-gray-500">
-						Try adjusting your filters to find what you're looking for.
-					</p>
-				</div>
-			{:else}
-				<DataTable
-					data={transactions}
-					{columns}
-					{itemsPerPage}
-					{totalItems}
-					{currentPage}
-					showPagination={totalItems > itemsPerPage}
-					onPageChange={handlePageChange}
-					onSortChange={handleSortChange}
-				/>
-			{/if}
 		</Card>
-	{/if}
-</PanelPageWrapper>
+
+		<!-- Loading State -->
+		{#if loading}
+			<div class="flex justify-center py-12">
+				<span class="icon-[svg-spinners--bars-scale-fade] h-8 w-8 text-blue-500"></span>
+			</div>
+		{/if}
+
+		<!-- Error State -->
+		{#if error}
+			<Card variant="flat" className="mb-6">
+				<div class="rounded-md bg-red-50 p-4">
+					<div class="flex">
+						<div class="flex-shrink-0">
+							<span class="icon-[heroicons--x-circle] h-5 w-5 text-red-400"></span>
+						</div>
+						<div class="ml-3">
+							<h3 class="text-sm font-medium text-red-800">Error loading transactions</h3>
+							<div class="mt-2 text-sm text-red-700">
+								<p>{error}</p>
+								<button
+									class="mt-2 text-sm text-red-600 underline hover:text-red-500"
+									on:click={() => {
+										error = null;
+										clearError();
+									}}
+								>
+									Dismiss
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</Card>
+		{/if}
+
+		<!-- Transactions Table -->
+		{#if !loading && !error}
+			<Card variant="flat">
+				<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+					<div>
+						<h2 class="text-lg font-bold text-gray-800">Transactions</h2>
+						<p class="mt-1 text-sm text-gray-600">List of your transaction history</p>
+					</div>
+				</div>
+
+				{#if transactions?.length === 0}
+					<div class="py-12 text-center">
+						<div class="mx-auto h-12 w-12 text-gray-400">
+							<span class="icon-[heroicons--document-text] h-12 w-12"></span>
+						</div>
+						<h3 class="mt-2 text-sm font-medium text-gray-900">No transactions found</h3>
+						<p class="mt-1 text-sm text-gray-500">
+							Try adjusting your filters to find what you're looking for.
+						</p>
+					</div>
+				{:else}
+					<DataTable
+						data={transactions?.map((r) => ({
+							...r,
+							createdAt: new Date(r.createdAt),
+							updatedAt: new Date(r.updatedAt)
+						}))}
+						{columns}
+						{itemsPerPage}
+						totalItems={totalCount}
+						{currentPage}
+						showPagination={totalCount > itemsPerPage}
+						onPageChange={(page) => {
+							if (page < 1 || page > Math.ceil(totalCount / itemsPerPage)) return;
+							currentPage = page;
+							fetchTransactions();
+						}}
+						onSortChange={handleSortChange}
+					/>
+				{/if}
+			</Card>
+		{/if}
+	</PanelPageWrapper>
+</TransactionHistoryProvider>
