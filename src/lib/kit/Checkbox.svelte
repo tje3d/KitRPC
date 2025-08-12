@@ -37,16 +37,9 @@
 		<div
 			class="flex h-5 w-5 items-center justify-center rounded-md border-2 border-gray-300 bg-white transition-all duration-200 ease-in-out peer-checked:border-blue-600 peer-checked:bg-blue-600 peer-hover:border-gray-400 peer-focus:ring-2 peer-focus:ring-blue-500 peer-focus:ring-offset-2"
 		>
-			<svg
-				class="h-3.5 w-3.5 text-white transition-all duration-200 ease-in-out"
-				fill="none"
-				viewBox="0 0 24 24"
-				stroke="currentColor"
-				stroke-width="3"
-				aria-hidden="true"
-			>
-				<path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-			</svg>
+			<span
+				class="icon-[heroicons--check] h-3.5 w-3.5 text-white transition-all duration-200 ease-in-out"
+			></span>
 		</div>
 	</div>
 	{#if label}

@@ -158,14 +158,10 @@
 					<div
 						class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg"
 					>
-						<svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-							/>
-						</svg>
+						<span
+							class="iconify h-6 w-6 text-white"
+							data-icon="heroicons:clipboard-document-list-20-solid"
+						></span>
 					</div>
 					<span class="text-xl font-bold text-gray-800">TaskFlow</span>
 				</div>
@@ -189,21 +185,10 @@
 								>
 									{#if loading}
 										<span class="flex items-center gap-2">
-											<svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
-												<circle
-													class="opacity-25"
-													cx="12"
-													cy="12"
-													r="10"
-													stroke="currentColor"
-													stroke-width="4"
-												/>
-												<path
-													class="opacity-75"
-													fill="currentColor"
-													d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-												/>
-											</svg>
+											<span
+												class="iconify h-4 w-4 animate-spin"
+												data-icon="svg-spinners:bars-scale-fade"
+											></span>
 											Logging out...
 										</span>
 									{:else}
@@ -223,19 +208,10 @@
 												<div
 													class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-red-100"
 												>
-													<svg
-														class="h-4 w-4 text-red-600"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-													>
-														<path
-															stroke-linecap="round"
-															stroke-linejoin="round"
-															stroke-width="2"
-															d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-														/>
-													</svg>
+													<span
+														class="iconify h-4 w-4 text-red-600"
+														data-icon="heroicons:exclamation-circle-20-solid"
+													></span>
 												</div>
 												<div class="flex-1">
 													<h3 class="text-sm font-semibold text-red-800">Logout Error</h3>
@@ -246,19 +222,8 @@
 													class="rounded-lg p-1 text-red-400 transition-colors hover:bg-red-100 hover:text-red-600"
 													aria-label="Dismiss error"
 												>
-													<svg
-														class="h-4 w-4"
-														fill="none"
-														stroke="currentColor"
-														viewBox="0 0 24 24"
-													>
-														<path
-															stroke-linecap="round"
-															stroke-linejoin="round"
-															stroke-width="2"
-															d="M6 18L18 6M6 6l12 12"
-														/>
-													</svg>
+													<span class="iconify h-4 w-4" data-icon="heroicons:x-mark-20-solid"
+													></span>
 												</button>
 											</div>
 										</div>
@@ -332,18 +297,10 @@
 								<div
 									class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-red-100"
 								>
-									<svg
-										class="h-4 w-4 text-red-600"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-										><path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-										/></svg
-									>
+									<span
+										class="iconify h-4 w-4 text-red-600"
+										data-icon="heroicons:exclamation-circle-20-solid"
+									></span>
 								</div>
 								<div class="flex-1">
 									<h3 class="text-sm font-semibold text-red-800">Error</h3>
@@ -354,14 +311,7 @@
 									class="rounded-lg p-1 text-red-400 transition-colors hover:bg-red-100 hover:text-red-600"
 									aria-label="Dismiss error"
 								>
-									<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-										><path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M6 18L18 6M6 6l12 12"
-										/></svg
-									>
+									<span class="iconify h-4 w-4" data-icon="heroicons:x-mark-20-solid"></span>
 								</button>
 							</div>
 						</div>
@@ -393,18 +343,15 @@
 									<div
 										class="h-16 w-16 {card.iconBg} flex items-center justify-center rounded-2xl shadow-lg"
 									>
-										<svg
-											class="h-8 w-8 text-{card.color}-600"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-											><path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d={card.icon}
-											/></svg
-										>
+										<span
+											class="iconify h-8 w-8 text-{card.color}-600"
+											data-icon={card.icon ===
+											'M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'
+												? 'heroicons:clipboard-document-list-20-solid'
+												: card.icon === 'M5 13l4 4L19 7'
+													? 'heroicons:check-20-solid'
+													: 'heroicons:chart-bar-20-solid'}
+										></span>
 									</div>
 								</div>
 							</div>
@@ -420,18 +367,7 @@
 							<div
 								class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg"
 							>
-								<svg
-									class="h-6 w-6 text-white"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-									><path
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-									/></svg
-								>
+								<span class="iconify h-6 w-6 text-white" data-icon="heroicons:plus-20-solid"></span>
 							</div>
 							<h2 class="text-2xl font-bold text-gray-800">Add New Task</h2>
 						</div>
@@ -439,31 +375,17 @@
 						{#if addError}
 							<div class="mb-6 {errorCardClasses}" in:fade={{ duration: 300 }}>
 								<div class="flex items-center gap-3">
-									<svg
-										class="h-5 w-5 text-red-500"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-										><path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-										/></svg
-									>
+									<span
+										class="iconify h-5 w-5 text-red-500"
+										data-icon="heroicons:exclamation-circle-20-solid"
+									></span>
 									<p class="text-sm text-red-700">{addError}</p>
 									<button
 										on:click={clearAddError}
 										class="text-red-400 hover:text-red-600"
 										aria-label="Dismiss error"
-										><svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-											><path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M6 18L18 6M6 6l12 12"
-											/></svg
-										></button
+										><span class="iconify h-4 w-4" data-icon="heroicons:x-mark-20-solid"
+										></span></button
 									>
 								</div>
 							</div>
@@ -472,18 +394,10 @@
 						<div class="flex items-center gap-4">
 							<div class="relative flex-1">
 								<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-									<svg
-										class="h-5 w-5 text-gray-400"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-										><path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-										/></svg
-									>
+									<span
+										class="iconify h-5 w-5 text-gray-400"
+										data-icon="heroicons:pencil-square-20-solid"
+									></span>
 								</div>
 								<input
 									type="text"
@@ -500,31 +414,15 @@
 							>
 								{#if addLoading}
 									<div class="flex items-center gap-2">
-										<svg class="h-5 w-5 animate-spin" fill="none" viewBox="0 0 24 24"
-											><circle
-												class="opacity-25"
-												cx="12"
-												cy="12"
-												r="10"
-												stroke="currentColor"
-												stroke-width="4"
-											/><path
-												class="opacity-75"
-												fill="currentColor"
-												d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-											/></svg
-										>Adding...
+										<span
+											class="iconify h-5 w-5 animate-spin"
+											data-icon="svg-spinners:bars-scale-fade"
+										></span>Adding...
 									</div>
 								{:else}
 									<div class="flex items-center gap-2">
-										<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-											><path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-											/></svg
-										>Add Task
+										<span class="iconify h-5 w-5" data-icon="heroicons:plus-20-solid"></span>Add
+										Task
 									</div>
 								{/if}
 							</button>
@@ -541,18 +439,10 @@
 								<div
 									class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg"
 								>
-									<svg
-										class="h-6 w-6 text-white"
-										fill="none"
-										stroke="currentColor"
-										viewBox="0 0 24 24"
-										><path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-										/></svg
-									>
+									<span
+										class="iconify h-6 w-6 text-white"
+										data-icon="heroicons:clipboard-document-list-20-solid"
+									></span>
 								</div>
 								<h2 class="text-2xl font-bold text-gray-800">Your Tasks</h2>
 								{#if todos.length}
@@ -589,18 +479,10 @@
 									<div
 										class="mx-auto mb-8 flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 shadow-lg"
 									>
-										<svg
-											class="h-16 w-16 text-blue-500"
-											fill="none"
-											stroke="currentColor"
-											viewBox="0 0 24 24"
-											><path
-												stroke-linecap="round"
-												stroke-linejoin="round"
-												stroke-width="2"
-												d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-											/></svg
-										>
+										<span
+											class="iconify h-16 w-16 text-blue-500"
+											data-icon="heroicons:clipboard-document-list-20-solid"
+										></span>
 									</div>
 									<h3 class="mb-3 text-2xl font-bold text-gray-800">No tasks yet</h3>
 									<p class="mx-auto max-w-md text-lg leading-relaxed text-gray-600">
@@ -620,35 +502,17 @@
 												{#if err}
 													<div class="mb-4 {errorCardClasses}" in:fade={{ duration: 300 }}>
 														<div class="flex items-center gap-3">
-															<svg
-																class="h-4 w-4 text-red-500"
-																fill="none"
-																stroke="currentColor"
-																viewBox="0 0 24 24"
-																><path
-																	stroke-linecap="round"
-																	stroke-linejoin="round"
-																	stroke-width="2"
-																	d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-																/></svg
-															>
+															<span
+																class="iconify h-4 w-4 text-red-500"
+																data-icon="heroicons:exclamation-circle-20-solid"
+															></span>
 															<p class="flex-1 text-sm text-red-700">{err}</p>
 															<button
 																on:click={clear}
 																class="text-red-400 hover:text-red-600"
 																aria-label="Dismiss error"
-																><svg
-																	class="h-4 w-4"
-																	fill="none"
-																	stroke="currentColor"
-																	viewBox="0 0 24 24"
-																	><path
-																		stroke-linecap="round"
-																		stroke-linejoin="round"
-																		stroke-width="2"
-																		d="M6 18L18 6M6 6l12 12"
-																	/></svg
-																></button
+																><span class="iconify h-4 w-4" data-icon="heroicons:x-mark-20-solid"
+																></span></button
 															>
 														</div>
 													</div>
@@ -666,23 +530,10 @@
 													/>
 													{#if toggleLoading}
 														<div class="absolute inset-0 flex items-center justify-center">
-															<svg
-																class="h-4 w-4 animate-spin text-blue-600"
-																fill="none"
-																viewBox="0 0 24 24"
-																><circle
-																	class="opacity-25"
-																	cx="12"
-																	cy="12"
-																	r="10"
-																	stroke="currentColor"
-																	stroke-width="4"
-																/><path
-																	class="opacity-75"
-																	fill="currentColor"
-																	d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-																/></svg
-															>
+															<span
+																class="iconify h-4 w-4 animate-spin text-blue-600"
+																data-icon="svg-spinners:bars-scale-fade"
+															></span>
 														</div>
 													{/if}
 												</div>
@@ -721,34 +572,16 @@
 														>
 															{#if updateLoading}
 																<span class="flex items-center gap-2"
-																	><svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"
-																		><circle
-																			class="opacity-25"
-																			cx="12"
-																			cy="12"
-																			r="10"
-																			stroke="currentColor"
-																			stroke-width="4"
-																		/><path
-																			class="opacity-75"
-																			fill="currentColor"
-																			d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-																		/></svg
-																	>Saving...</span
+																	><span
+																		class="iconify h-4 w-4 animate-spin"
+																		data-icon="svg-spinners:bars-scale-fade"
+																	></span>Saving...</span
 																>
 															{:else}
-																<svg
-																	class="mr-1 h-4 w-4"
-																	fill="none"
-																	stroke="currentColor"
-																	viewBox="0 0 24 24"
-																	><path
-																		stroke-linecap="round"
-																		stroke-linejoin="round"
-																		stroke-width="2"
-																		d="M5 13l4 4L19 7"
-																	/></svg
-																>Save
+																<span
+																	class="iconify mr-1 h-4 w-4"
+																	data-icon="heroicons:check-20-solid"
+																></span>Save
 															{/if}
 														</button>
 														<button
@@ -759,18 +592,10 @@
 															disabled={updateLoading}
 															class={cancelButtonClasses}
 														>
-															<svg
-																class="mr-1 h-4 w-4"
-																fill="none"
-																stroke="currentColor"
-																viewBox="0 0 24 24"
-																><path
-																	stroke-linecap="round"
-																	stroke-linejoin="round"
-																	stroke-width="2"
-																	d="M6 18L18 6M6 6l12 12"
-																/></svg
-															>Cancel
+															<span
+																class="iconify mr-1 h-4 w-4"
+																data-icon="heroicons:x-mark-20-solid"
+															></span>Cancel
 														</button>
 													{:else}
 														<button
@@ -785,18 +610,10 @@
 																deleteLoading}
 															class={editButtonClasses}
 														>
-															<svg
-																class="mr-1 h-4 w-4"
-																fill="none"
-																stroke="currentColor"
-																viewBox="0 0 24 24"
-																><path
-																	stroke-linecap="round"
-																	stroke-linejoin="round"
-																	stroke-width="2"
-																	d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-																/></svg
-															>Edit
+															<span
+																class="iconify mr-1 h-4 w-4"
+																data-icon="heroicons:pencil-square-20-solid"
+															></span>Edit
 														</button>
 														<button
 															on:click={() => deleteTodo(todo.id)}
@@ -805,34 +622,16 @@
 														>
 															{#if deleteLoading}
 																<span class="flex items-center gap-2"
-																	><svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24"
-																		><circle
-																			class="opacity-25"
-																			cx="12"
-																			cy="12"
-																			r="10"
-																			stroke="currentColor"
-																			stroke-width="4"
-																		/><path
-																			class="opacity-75"
-																			fill="currentColor"
-																			d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-																		/></svg
-																	>Deleting...</span
+																	><span
+																		class="iconify h-4 w-4 animate-spin"
+																		data-icon="svg-spinners:bars-scale-fade"
+																	></span>Deleting...</span
 																>
 															{:else}
-																<svg
-																	class="mr-1 h-4 w-4"
-																	fill="none"
-																	stroke="currentColor"
-																	viewBox="0 0 24 24"
-																	><path
-																		stroke-linecap="round"
-																		stroke-linejoin="round"
-																		stroke-width="2"
-																		d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-																	/></svg
-																>Delete
+																<span
+																	class="iconify mr-1 h-4 w-4"
+																	data-icon="heroicons:trash-20-solid"
+																></span>Delete
 															{/if}
 														</button>
 													{/if}
@@ -854,14 +653,10 @@
 					<div
 						class="mb-8 inline-flex h-24 w-24 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-2xl"
 					>
-						<svg class="h-12 w-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-							><path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-							/></svg
-						>
+						<span
+							class="iconify h-12 w-12 text-white"
+							data-icon="heroicons:clipboard-document-list-20-solid"
+						></span>
 					</div>
 					<h1
 						class="mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-6xl font-bold tracking-tight text-transparent"
@@ -896,35 +691,14 @@
 							<div
 								class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-{card.color}-500 to-{card.color}-600 shadow-lg"
 							>
-								<svg
-									class="h-8 w-8 text-white"
-									fill="none"
-									stroke="currentColor"
-									viewBox="0 0 24 24"
-								>
-									{#if card.title === 'Easy Task Creation'}
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-										/>
-									{:else if card.title === 'Progress Tracking'}
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-										/>
-									{:else}
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											stroke-width="2"
-											d="M13 10V3L4 14h7v7l9-11h-7z"
-										/>
-									{/if}
-								</svg>
+								<span
+									class="iconify h-8 w-8 text-white"
+									data-icon={card.title === 'Easy Task Creation'
+										? 'heroicons:plus-20-solid'
+										: card.title === 'Progress Tracking'
+											? 'heroicons:chart-bar-20-solid'
+											: 'heroicons:bolt-20-solid'}
+								></span>
 							</div>
 							<h3 class="mb-4 text-xl font-bold text-gray-800">{card.title}</h3>
 							<p class="text-gray-600">{card.text}</p>
