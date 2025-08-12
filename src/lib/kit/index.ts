@@ -7,6 +7,7 @@ export { default as ErrorDisplay } from './ErrorDisplay.svelte';
 export { default as FormGroup } from './FormGroup.svelte';
 export { default as Input } from './Input.svelte';
 export { default as Link } from './Link.svelte';
+export { default as PanelPageWrapper } from './PanelPageWrapper.svelte';
 export { default as PasswordInput } from './PasswordInput.svelte';
 export { default as PasswordStrengthIndicator } from './PasswordStrengthIndicator.svelte';
 export { default as SocialButton } from './SocialButton.svelte';

@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import Sidebar from '$lib/kit/Sidebar.svelte';
 	import Button from '$lib/kit/Button.svelte';
-	import Card from '$lib/kit/Card.svelte';
+	import Sidebar from '$lib/kit/Sidebar.svelte';
 	import { onMount } from 'svelte';
 
 	// State for sidebar visibility
@@ -35,11 +34,11 @@
 
 	// Navigation items
 	const navItems = [
-		{ name: 'Dashboard', href: '/panel', icon: 'dashboard' },
-		{ name: 'Projects', href: '/panel/projects', icon: 'folder' },
-		{ name: 'Tasks', href: '/panel/tasks', icon: 'check-circle' },
-		{ name: 'Calendar', href: '/panel/calendar', icon: 'calendar' },
-		{ name: 'Settings', href: '/panel/settings', icon: 'cog' }
+		{ name: 'Dashboard', href: '/panel', icon: 'dashboard', category: 'General' },
+		{ name: 'Projects', href: '/panel/projects', icon: 'folder', category: 'Work' },
+		{ name: 'Tasks', href: '/panel/tasks', icon: 'check-circle', category: 'Work' },
+		{ name: 'Calendar', href: '/panel/calendar', icon: 'calendar', category: 'Work' },
+		{ name: 'Settings', href: '/panel/settings', icon: 'cog', category: 'General' }
 	];
 
 	// Check if current route matches nav item
@@ -69,18 +68,13 @@
 						></path>
 					</svg>
 				</Button>
-				<h1 class="text-xl font-bold text-gray-800">Dashboard</h1>
-				<div class="w-10"></div>
-				<!-- Spacer for alignment -->
 			</header>
 		{/if}
 
 		<!-- Page content -->
 		<main class="flex-1 overflow-y-auto p-4 md:p-6">
 			<div class="mx-auto max-w-7xl">
-				<Card>
-					<slot />
-				</Card>
+				<slot />
 			</div>
 		</main>
 	</div>

@@ -4,7 +4,7 @@
 	// Props
 	export let isOpen: boolean = true;
 	export let isMobile: boolean = false;
-	export let navItems: Array<{ name: string; href: string; icon: string }> = [];
+	export let navItems: Array<{ name: string; href: string; icon: string; category?: string }> = [];
 	export let isActive: (href: string) => boolean = () => false;
 
 	// Dispatch events
@@ -22,10 +22,39 @@
 			folder: 'icon-[heroicons--folder-20-solid]',
 			'check-circle': 'icon-[heroicons--check-circle-20-solid]',
 			calendar: 'icon-[heroicons--calendar-20-solid]',
-			cog: 'icon-[heroicons--cog-20-solid]'
+			cog: 'icon-[heroicons--cog-20-solid]',
+			user: 'icon-[heroicons--user-circle-20-solid]'
 		};
 		return icons[iconName] || icons.dashboard;
 	}
+
+	// User profile data (in a real app, this would come from a store or context)
+	let userProfile = {
+		name: 'John Doe',
+		email: 'john@example.com',
+		avatar: ''
+	};
+
+	// Collapsible sections state
+	let collapsedSections: Record<string, boolean> = {};
+
+	// Toggle section collapse state
+	function toggleSection(category: string) {
+		collapsedSections[category] = !collapsedSections[category];
+	}
+
+	// Group nav items by category
+	$: groupedNavItems = navItems.reduce(
+		(acc, item) => {
+			const category = item.category || 'General';
+			if (!acc[category]) {
+				acc[category] = [];
+			}
+			acc[category].push(item);
+			return acc;
+		},
+		{} as Record<string, typeof navItems>
+	);
 </script>
 
 <!-- Sidebar backdrop (mobile only) -->
@@ -74,22 +103,64 @@
 			{/if}
 		</div>
 
+		<!-- User profile section -->
+		<div class="border-b border-gray-200 p-4">
+			<div class="flex items-center space-x-3">
+				<div
+					class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-200 text-gray-500"
+				>
+					<span class={getIcon('user') + ' h-6 w-6'}></span>
+				</div>
+				<div class="min-w-0 flex-1">
+					<p class="truncate text-sm font-medium text-gray-800">{userProfile.name}</p>
+					<p class="truncate text-sm text-gray-500">{userProfile.email}</p>
+				</div>
+			</div>
+		</div>
+
 		<!-- Navigation -->
 		<nav class="flex-1 overflow-y-auto p-4">
-			<ul class="space-y-1">
-				{#each navItems as item}
-					<li>
-						<a
-							href={item.href}
-							class={`flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors duration-200
-								${isActive(item.href) ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}`}
+			{#each Object.entries(groupedNavItems) as [category, items]}
+				<div class="mb-4">
+					{#if category !== 'General'}
+						<button
+							on:click={() => toggleSection(category)}
+							class="flex w-full items-center justify-between rounded-lg px-4 py-2 text-left text-xs font-semibold tracking-wider text-gray-500 uppercase hover:bg-gray-100"
 						>
-							<span class={getIcon(item.icon) + ' h-5 w-5'}></span>
-							<span class="ml-3">{item.name}</span>
-						</a>
-					</li>
-				{/each}
-			</ul>
+							<span>{category}</span>
+							<svg
+								class={`h-4 w-4 transition-transform duration-200 ${collapsedSections[category] ? 'rotate-180' : ''}`}
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M19 9l-7 7-7-7"
+								></path>
+							</svg>
+						</button>
+					{/if}
+					<ul
+						class={`mt-1 space-y-1 ${category !== 'General' && collapsedSections[category] ? 'hidden' : ''}`}
+					>
+						{#each items as item}
+							<li>
+								<a
+									href={item.href}
+									class={`flex items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors duration-200
+										${isActive(item.href) ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'}`}
+								>
+									<span class={getIcon(item.icon) + ' h-5 w-5'}></span>
+									<span class="ml-3">{item.name}</span>
+								</a>
+							</li>
+						{/each}
+					</ul>
+				</div>
+			{/each}
 		</nav>
 
 		<!-- Sidebar footer -->

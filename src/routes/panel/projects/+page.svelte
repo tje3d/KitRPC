@@ -1,8 +1,12 @@
 <script lang="ts">
+	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
+	import Button from '$lib/kit/Button.svelte';
 </script>
 
-<div class="space-y-6">
-	<h1 class="text-2xl font-bold text-gray-800">Projects</h1>
+<PanelPageWrapper title="Projects">
+	<svelte:fragment slot="actions">
+		<Button className="px-4 py-2">Create New Project</Button>
+	</svelte:fragment>
 
 	<div class="rounded-lg bg-white p-6 shadow">
 		<div class="flex items-center justify-between">
@@ -104,4 +108,4 @@
 			</div>
 		</div>
 	</div>
-</div>
+</PanelPageWrapper>
