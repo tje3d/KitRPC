@@ -9,6 +9,7 @@ import { prisma } from '$lib/prisma';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { t } from './trpc';
+import { getUserBalances } from '$lib/services/balance.service';
 
 // Input validation schemas
 const loginSchema = z.object({
@@ -235,12 +236,22 @@ export const authRouter = t.router({
 
 	// Get current user
 	me: protectedProcedure.query(async ({ ctx }) => {
-		return {
-			id: ctx.user.id,
-			username: ctx.user.username,
-			role: ctx.user.role,
-			permissions: ctx.user.permissions
-		};
+		try {
+			const balances = await getUserBalances(ctx.user.id);
+			return {
+				id: ctx.user.id,
+				username: ctx.user.username,
+				role: ctx.user.role,
+				permissions: ctx.user.permissions,
+				balances
+			};
+		} catch (error) {
+			throw new TRPCError({
+				code: 'INTERNAL_SERVER_ERROR',
+				message: 'Failed to fetch user data',
+				cause: error
+			});
+		}
 	}),
 
 	// Check if user has permission
@@ -253,5 +264,19 @@ export const authRouter = t.router({
 		)
 		.query(async ({ ctx, input }) => {
 			return hasPermission(ctx.user, input.resource, input.action);
-		})
+		}),
+
+	// Get user balances
+	balances: protectedProcedure.query(async ({ ctx }) => {
+		try {
+			const balances = await getUserBalances(ctx.user.id);
+			return balances;
+		} catch (error) {
+			throw new TRPCError({
+				code: 'INTERNAL_SERVER_ERROR',
+				message: 'Failed to fetch balances',
+				cause: error
+			});
+		}
+	})
 });

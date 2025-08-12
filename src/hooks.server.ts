@@ -1,9 +1,9 @@
+import { validateSession } from '$lib/auth';
 import { createContext } from '$lib/trpc/context';
 import { router } from '$lib/trpc/router';
-import { validateSession } from '$lib/auth';
 import type { Handle } from '@sveltejs/kit';
-import { createTRPCHandle } from 'trpc-sveltekit';
 import { redirect } from '@sveltejs/kit';
+import { createTRPCHandle } from 'trpc-sveltekit';
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// Check if the route starts with /panel
