@@ -3,6 +3,7 @@
 	import ConfirmDialog from '$lib/dialog/ConfirmDialog.svelte';
 	import { dialogStore } from '$lib/dialog/store';
 	import { authUser } from '$lib/flow/auth.flow';
+	import Balance from '$lib/kit/Balance.svelte';
 	import Popover from '$lib/kit/Popover.svelte';
 	import LogoutProvider from '$lib/providers/LogoutProvider.svelte';
 	import { createEventDispatcher, tick } from 'svelte';
@@ -102,44 +103,44 @@
 		${isMobile ? 'h-full' : 'h-screen'}`}
 >
 	<div class="flex h-full flex-col">
-		<!-- Sidebar header -->
-		<div class="flex items-center justify-between border-b border-gray-100 p-5">
-			<div class="flex items-center space-x-3">
-				<div
-					class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-md"
-				>
-					<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M13 10V3L4 14h7v7l9-11h-7z"
-						></path>
-					</svg>
-				</div>
-				<h1 class="text-xl font-bold text-gray-900">KitRPC</h1>
-			</div>
-
-			<!-- Close button (mobile only) -->
-			{#if isMobile}
-				<button
-					on:click={handleToggle}
-					class="rounded-lg p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-				>
-					<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="M6 18L18 6M6 6l12 12"
-						></path>
-					</svg>
-				</button>
-			{/if}
-		</div>
-
 		<!-- Navigation -->
 		<nav class="flex-1 overflow-y-auto p-4">
+			<!-- Sidebar header -->
+			<div class="mb-4 flex items-center justify-between border-b border-gray-100 p-5">
+				<div class="flex items-center space-x-3">
+					<div
+						class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-md"
+					>
+						<svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M13 10V3L4 14h7v7l9-11h-7z"
+							></path>
+						</svg>
+					</div>
+					<h1 class="text-xl font-bold text-gray-900">KitRPC</h1>
+				</div>
+
+				<!-- Close button (mobile only) -->
+				{#if isMobile}
+					<button
+						on:click={handleToggle}
+						class="rounded-lg p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+					>
+						<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M6 18L18 6M6 6l12 12"
+							></path>
+						</svg>
+					</button>
+				{/if}
+			</div>
+
 			{#each Object.entries(groupedNavItems) as [category, items]}
 				<div class="mb-2">
 					{#if category !== 'General'}
@@ -187,6 +188,11 @@
 				</div>
 			{/each}
 		</nav>
+
+		<!-- Balance section -->
+		<div class="px-4 pb-4">
+			<Balance />
+		</div>
 
 		<!-- User profile section -->
 		<div class="border-t border-gray-100 p-4">

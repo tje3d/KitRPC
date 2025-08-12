@@ -9,7 +9,6 @@ import { prisma } from '$lib/prisma';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { t } from './trpc';
-import { getUserBalances } from '$lib/services/balance.service';
 
 // Input validation schemas
 const loginSchema = z.object({
@@ -119,6 +118,8 @@ export const authRouter = t.router({
 				user: {
 					id: user.id,
 					username: user.username,
+					balanceIRT: user.balanceIRT,
+					balanceUSDT: user.balanceUSDT,
 					role: user.role,
 					permissions: user.permissions
 				},
@@ -195,6 +196,8 @@ export const authRouter = t.router({
 				user: {
 					id: user.id,
 					username: user.username,
+					balanceIRT: user.balanceIRT,
+					balanceUSDT: user.balanceUSDT,
 					role: user.role,
 					permissions: user.permissions
 				},
@@ -237,13 +240,13 @@ export const authRouter = t.router({
 	// Get current user
 	me: protectedProcedure.query(async ({ ctx }) => {
 		try {
-			const balances = await getUserBalances(ctx.user.id);
 			return {
 				id: ctx.user.id,
 				username: ctx.user.username,
 				role: ctx.user.role,
 				permissions: ctx.user.permissions,
-				balances
+				balanceIRT: ctx.user.balanceIRT,
+				balanceUSDT: ctx.user.balanceUSDT
 			};
 		} catch (error) {
 			throw new TRPCError({
@@ -269,8 +272,10 @@ export const authRouter = t.router({
 	// Get user balances
 	balances: protectedProcedure.query(async ({ ctx }) => {
 		try {
-			const balances = await getUserBalances(ctx.user.id);
-			return balances;
+			return {
+				balanceIRT: ctx.user.balanceIRT,
+				balanceUSDT: ctx.user.balanceUSDT
+			};
 		} catch (error) {
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',

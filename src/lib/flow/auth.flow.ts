@@ -1,6 +1,7 @@
+import { invalidateAll } from '$app/navigation';
 import { useBooleanStorage, useObjectStorage } from '$lib/helpers/localStorage.helper';
 import { shareIt, SvelteSubject } from '$lib/helpers/rxjs.helper';
-import { distinctUntilChanged, Observable } from 'rxjs';
+import { distinctUntilChanged, interval, Observable } from 'rxjs';
 
 export const [isLoggedInMain, setIsLoggedIn] = useBooleanStorage('isloggedin', false);
 export const isLoggedIn = isLoggedInMain.pipe(distinctUntilChanged(), shareIt());
@@ -16,15 +17,11 @@ export const ready = new SvelteSubject<boolean>(false);
 export const initAuthFlow = new Observable<boolean>((observer) => {
 	const subs: Array<{ unsubscribe: () => void }> = [];
 
-	// subs.push(
-	//   networkErrors$.subscribe((r) => {
-	//     if (r instanceof AjaxError) {
-	//       if (r.status === 401 && !r.request.url.endsWith('user/login')) {
-	//         logoutLocal()
-	//       }
-	//     }
-	//   }),
-	// )
+	subs.push(
+		interval(60_000).subscribe(() => {
+			invalidateUserData();
+		})
+	);
 
 	// Set ready state
 	ready.next(true);
@@ -54,4 +51,16 @@ export const logoutLocal = () => {
 			localStorage.setItem(key, value);
 		}
 	});
+};
+
+/**
+ * Invalidates the current user data by triggering a server-side reload
+ * This will cause the layout server to re-fetch user data from the database
+ */
+export const invalidateUserData = async () => {
+	try {
+		await invalidateAll();
+	} catch (error) {
+		console.error('Failed to invalidate user data:', error);
+	}
 };

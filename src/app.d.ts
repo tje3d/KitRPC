@@ -26,6 +26,8 @@ declare global {
 
 		// Auth-related types
 		type AuthUser = Pick<PrismaUser, 'id' | 'username'> & {
+			balanceIRT?: number;
+			balanceUSDT?: number;
 			role?: Role & {
 				permissions: Array<{
 					permission: Permission;

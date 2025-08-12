@@ -66,11 +66,33 @@ export const trpcApiResponses$ = new Subject<any>();
 // ─── Error Handling Utilities ────────────────────────────────────────────────
 
 function isTrpcRetriableError(error: TRPCClientError<any>): boolean {
+	// Don't retry on network disconnection errors
+	if (isNetworkDisconnectedError(error)) {
+		return false;
+	}
+	
 	// Retry on network errors or server errors (5xx)
 	return (
 		error.data?.code === 'INTERNAL_SERVER_ERROR' ||
 		error.data?.httpStatus >= 500 ||
 		!error.data?.httpStatus // Network error
+	);
+}
+
+function isNetworkDisconnectedError(error: any): boolean {
+	// Check for common network disconnection error patterns
+	const errorMessage = error?.message?.toLowerCase() || '';
+	const errorCause = error?.cause?.message?.toLowerCase() || '';
+	
+	return (
+		errorMessage.includes('net::err_internet_disconnected') ||
+		errorMessage.includes('network error') ||
+		errorMessage.includes('failed to fetch') ||
+		errorMessage.includes('networkerror') ||
+		errorCause.includes('net::err_internet_disconnected') ||
+		errorCause.includes('network error') ||
+		errorCause.includes('failed to fetch') ||
+		errorCause.includes('networkerror')
 	);
 }
 
@@ -337,6 +359,13 @@ export class TrpcRequestWrap<TParams, TResponse> {
 	): Observable<TResponse> {
 		const request$ = () =>
 			from(this.requestFn(params)).pipe(
+				catchError((error) => {
+					// Immediately return network disconnection errors without timeout
+					if (isNetworkDisconnectedError(error)) {
+						return throwError(() => error);
+					}
+					return throwError(() => error);
+				}),
 				timeout(options.timeout!), // Apply timeout to the request
 				retryOnTrpcRetriable(options.retryCount!, options.retryDelay!, options.retryMaxDelay!),
 				tap((v) => trpcApiResponses$.next(v))
@@ -479,6 +508,11 @@ export class TrpcRequestWrap<TParams, TResponse> {
 		if (customExtractor) {
 			const customMessage = customExtractor(error);
 			if (customMessage) return customMessage;
+		}
+
+		// Handle network disconnection errors first
+		if (isNetworkDisconnectedError(error)) {
+			return 'No internet connection. Please check your network and try again.';
 		}
 
 		// Handle validation errors first (BAD_REQUEST with validation details)

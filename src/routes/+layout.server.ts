@@ -24,8 +24,9 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 		// Return user data in the format expected by the client
 		const user: App.AuthUser = {
 			id: session.user.id,
-			email: session.user.email,
-			mobile: session.user.mobile,
+			username: session.user.username,
+			balanceIRT: session.user.balanceIRT,
+			balanceUSDT: session.user.balanceUSDT,
 			role: session.user.role ? {
 				id: session.user.role.id,
 				name: session.user.role.name,

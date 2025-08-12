@@ -64,6 +64,7 @@ export async function validateSession(token: string) {
 		return null;
 	}
 
+	// Add balances to user object
 	return session;
 }
 
