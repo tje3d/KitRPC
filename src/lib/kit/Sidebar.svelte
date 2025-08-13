@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { invalidateAll } from '$app/navigation';
+	import { afterNavigate, invalidateAll } from '$app/navigation';
 	import ConfirmDialog from '$lib/dialog/ConfirmDialog.svelte';
 	import { dialogStore } from '$lib/dialog/store';
 	import { authUser } from '$lib/flow/auth.flow';
@@ -7,6 +7,7 @@
 	import Popover from '$lib/kit/Popover.svelte';
 	import LogoutProvider from '$lib/providers/LogoutProvider.svelte';
 	import { createEventDispatcher, tick } from 'svelte';
+	import { fade } from 'svelte/transition';
 
 	// Props
 	export let isOpen: boolean = true;
@@ -89,16 +90,26 @@
 		},
 		{} as Record<string, typeof navItems>
 	);
+
+	afterNavigate((nav) => {
+		if (nav.from?.route.id && nav.to?.route.id && nav.from.route.id !== nav.to.route.id) {
+			isOpen = false;
+		}
+	});
 </script>
 
 <!-- Sidebar backdrop (mobile only) -->
 {#if isMobile && isOpen}
-	<div class="bg-opacity-50 fixed inset-0 z-40 bg-black/25 lg:hidden" on:click={handleToggle}></div>
+	<div
+		class="bg-opacity-50 fixed inset-0 z-[90] touch-manipulation bg-black/25 lg:hidden"
+		transition:fade|local
+		on:click={handleToggle}
+	></div>
 {/if}
 
 <!-- Sidebar -->
 <aside
-	class={`fixed inset-y-0 start-0 z-50 w-64 transform bg-white shadow-xl transition-all duration-300 ease-in-out lg:static lg:z-auto lg:translate-x-0
+	class={`fixed inset-y-0 start-0 z-[100] w-64 transform bg-white shadow-xl transition-all duration-300 ease-in-out lg:static lg:translate-x-0
 		${isOpen ? 'translate-x-0' : 'translate-x-full'}
 		${isMobile ? 'h-full' : 'h-screen'}`}
 >
@@ -197,7 +208,7 @@
 		<!-- User profile section -->
 		<div class="border-t border-gray-100 p-4">
 			<LogoutProvider {onLoggedOut} let:loading let:errorMessage let:clearError let:logout>
-				<Popover position="top" offset={10} showOnHover={false}>
+				<Popover position="auto" offset={10} showOnHover={false}>
 					<div
 						slot="trigger"
 						class="flex cursor-pointer items-center space-x-3 rounded-lg p-2 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -316,15 +327,3 @@
 		</div>
 	</div>
 </aside>
-
-<!-- Sidebar toggle button (desktop only, when sidebar is collapsed) -->
-{#if !isMobile && !isOpen}
-	<button
-		on:click={handleToggle}
-		class="fixed top-1/2 left-0 z-40 rounded-r-xl bg-white p-2 shadow-lg transition-all duration-300 hover:bg-gray-50 hover:shadow-xl"
-	>
-		<svg class="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-		</svg>
-	</button>
-{/if}

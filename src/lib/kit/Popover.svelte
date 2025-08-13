@@ -34,9 +34,7 @@
 	// Handle hover events
 	function handleMouseEnter() {
 		if (showOnHover) {
-			isVisible = true;
-			// Wait for DOM update before calculating position
-			tick().then(updatePosition);
+			showPopover();
 		}
 	}
 
@@ -49,12 +47,26 @@
 	// Handle click events
 	function handleClick() {
 		if (showOnClick) {
-			isVisible = !isVisible;
 			if (isVisible) {
-				// Wait for DOM update before calculating position
-				tick().then(updatePosition);
+				isVisible = false;
+			} else {
+				showPopover();
 			}
 		}
+	}
+
+	// Show popover with proper positioning
+	async function showPopover() {
+		// Reset position to avoid using old dimensions
+		popoverStyles = {};
+		isVisible = true;
+
+		// Wait for DOM update and then calculate position
+		await tick();
+		// Add small delay to ensure element is fully rendered
+		requestAnimationFrame(() => {
+			updatePosition();
+		});
 	}
 
 	// Close popover when clicking outside
@@ -132,7 +144,7 @@
 			case 'left':
 				top = triggerRect.top + triggerRect.height / 2 - popoverRect.height / 2;
 				if (rtl) {
-					right = `${viewportWidth - (triggerRect.left - popoverRect.width - offset)}px`;
+					right = `${viewportWidth - triggerRect.left + offset}px`;
 				} else {
 					left = triggerRect.left - popoverRect.width - offset;
 				}

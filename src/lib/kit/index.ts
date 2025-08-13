@@ -15,3 +15,4 @@ export { default as BackgroundDecoration } from './BackgroundDecoration.svelte';
 export { default as Popover } from './Popover.svelte';
 export { default as StatusBadge } from './StatusBadge.svelte';
 export { default as DataTable } from './DataTable.svelte';
+export { default as Pagination } from './Pagination.svelte';

@@ -4,7 +4,20 @@
 input,
 button,
 textarea,
-select,
-button {
+select {
 	@apply outline-none;
+}
+
+button,
+[type='button'],
+[role='button'] {
+	cursor: pointer;
+}
+
+a,
+button,
+label,
+[role='button'],
+input {
+	touch-action: manipulation;
 }
