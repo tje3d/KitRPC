@@ -17,3 +17,4 @@ export { default as StatusBadge } from './StatusBadge.svelte';
 export { default as DataTable } from './DataTable.svelte';
 export { default as Pagination } from './Pagination.svelte';
 export { default as Select } from './Select.svelte';
+export { default as QRCode } from './QRCode.svelte';

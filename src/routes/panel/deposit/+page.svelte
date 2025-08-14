@@ -3,6 +3,7 @@
 	import Card from '$lib/kit/Card.svelte';
 	import Input from '$lib/kit/Input.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
+	import QRCode from '$lib/kit/QRCode.svelte';
 	import { trpc } from '$lib/trpc/client';
 	import { onMount } from 'svelte';
 	import { detectIranianBank } from '$lib/helpers/IranianBanks.helper';
@@ -11,7 +12,6 @@
 	// State
 	let activeTab: 'irt' | 'usdt' = 'usdt';
 	let loading = false;
-	let saving = false;
 	let error: string | null = null;
 
 	// USDT deposit state
@@ -26,81 +26,6 @@
 	let bankCardsLoading = false;
 	let bankCardsError: string | null = null;
 	let selectedCardId: string | null = null;
-
-	// Common form state
-	let amount = '';
-	let description = '';
-	let amountError = '';
-
-	// Format amount as user types (for IRT)
-	function formatAmount(value: string): string {
-		// Remove non-numeric characters except for decimal point
-		let cleaned = value.replace(/[^\d.]/g, '');
-
-		// Ensure only one decimal point
-		const parts = cleaned.split('.');
-		if (parts.length > 2) {
-			cleaned = parts[0] + '.' + parts.slice(1).join('');
-		}
-
-		// Limit to 2 decimal places for IRT
-		if (activeTab === 'irt' && parts[1] && parts[1].length > 2) {
-			cleaned = parts[0] + '.' + parts[1].substring(0, 2);
-		}
-
-		return cleaned;
-	}
-
-	// Handle amount input
-	function handleAmountInput(event: Event) {
-		const input = event.target as HTMLInputElement;
-		amount = formatAmount(input.value);
-		input.value = amount;
-	}
-
-	// Validate form
-	function validateForm(): boolean {
-		let isValid = true;
-		amountError = '';
-
-		if (!amount || parseFloat(amount) <= 0) {
-			amountError = 'Amount must be greater than zero';
-			isValid = false;
-		}
-
-		if (activeTab === 'irt' && (!selectedCardId || selectedCardId === '')) {
-			// For IRT, we would validate card selection, but it's not implemented yet
-		}
-
-		return isValid;
-	}
-
-	// Handle form submission
-	async function handleSubmit() {
-		if (!validateForm()) {
-			return;
-		}
-
-		saving = true;
-		error = null;
-
-		try {
-			// In a real implementation, we would submit the deposit request here
-			// For now, we'll just show a success message
-			alert(
-				`Deposit request submitted!\nAmount: ${amount}\nType: ${activeTab.toUpperCase()}\n${activeTab === 'usdt' ? `Network: ${selectedNetwork}` : `Card: ${selectedCardId}`}\nDescription: ${description || 'None'}`
-			);
-
-			// Reset form
-			amount = '';
-			description = '';
-		} catch (err: any) {
-			error = err.message || 'Failed to submit deposit request';
-			console.error('Error submitting deposit:', err);
-		} finally {
-			saving = false;
-		}
-	}
 
 	// Fetch wallet address for USDT deposit
 	async function fetchWalletAddress() {
@@ -155,9 +80,6 @@
 		activeTab = tab;
 
 		// Reset form when changing tabs
-		amount = '';
-		description = '';
-		amountError = '';
 		error = null;
 
 		// Fetch data for the selected tab
@@ -193,7 +115,7 @@
 	<Card variant="flat">
 		<!-- Tab navigation -->
 		<div class="mb-6 border-b border-gray-200">
-			<nav class="-mb-px flex space-x-8">
+			<nav class="ga-8 -mb-px flex">
 				<button
 					on:click={() => changeTab('usdt')}
 					class={`border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap ${
@@ -236,7 +158,7 @@
 
 		<!-- USDT Deposit Form -->
 		{#if activeTab === 'usdt'}
-			<form on:submit|preventDefault={handleSubmit} class="space-y-6">
+			<div class="space-y-6">
 				<!-- Network selector -->
 				<div>
 					<label class="block text-sm font-medium text-gray-700">Network</label>
@@ -257,7 +179,7 @@
 					</div>
 				</div>
 
-				<!-- Wallet address display -->
+				<!-- Wallet address display with QR code -->
 				<div>
 					<label class="block text-sm font-medium text-gray-700">Wallet Address</label>
 					<div class="mt-1">
@@ -275,30 +197,62 @@
 								</div>
 							</div>
 						{:else if walletAddress}
-							<div class="flex rounded-md shadow-sm">
-								<input
-									type="text"
-									readonly
-									value={walletAddress}
-									class="block w-full min-w-0 flex-1 rounded-none rounded-l-md border border-gray-300 bg-gray-50 px-4 py-3 font-mono text-sm focus:border-blue-500 focus:ring-blue-500"
-									dir="ltr"
+							<div class="flex flex-col items-center space-y-4">
+								<!-- QR Code -->
+								<QRCode
+									text={walletAddress || ''}
+									size={250}
+									className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
 								/>
-								<button
-									type="button"
-									class="relative -ml-px inline-flex items-center rounded-r-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-									on:click={() => {
-										if (walletAddress) {
-											navigator.clipboard.writeText(walletAddress);
-										}
-									}}
-								>
-									<span class="icon-[heroicons--clipboard-document] h-5 w-5"></span>
-								</button>
+
+								<!-- Wallet address -->
+								<div class="w-full">
+									<div class="flex rounded-md shadow-sm">
+										<input
+											type="text"
+											readonly
+											value={walletAddress}
+											class="block w-full min-w-0 flex-1 rounded-none rounded-e-md border border-gray-300 bg-gray-50 px-4 py-3 font-mono text-sm focus:border-blue-500 focus:ring-blue-500"
+											dir="ltr"
+										/>
+										<button
+											type="button"
+											class="relative -ml-px inline-flex items-center rounded-e-md border border-gray-300 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+											on:click={() => {
+												if (walletAddress) {
+													navigator.clipboard.writeText(walletAddress);
+												}
+											}}
+										>
+											<span class="icon-[heroicons--clipboard-document] h-5 w-5"></span>
+										</button>
+									</div>
+								</div>
+
+								<!-- User guidance -->
+								<div class="w-full rounded-md bg-blue-50 p-4">
+									<div class="flex">
+										<div class="flex-shrink-0">
+											<span class="icon-[heroicons--information-circle] h-5 w-5 text-blue-400"
+											></span>
+										</div>
+										<div class="ml-3">
+											<h3 class="text-sm font-medium text-blue-800">Deposit Instructions</h3>
+											<div class="mt-2 text-sm text-blue-700">
+												<ul class="list-disc space-y-1 pl-5">
+													<li>
+														Send your USDT to the address above using the {selectedNetwork.toUpperCase()}
+														network
+													</li>
+													<li>Make sure to use the correct network to avoid loss of funds</li>
+													<li>Your deposit will be processed automatically after confirmation</li>
+													<li>No amount or description is needed - just send to this address</li>
+												</ul>
+											</div>
+										</div>
+									</div>
+								</div>
 							</div>
-							<p class="mt-2 text-sm text-gray-500">
-								Send your USDT to this address. Make sure to use the {selectedNetwork.toUpperCase()}
-								network.
-							</p>
 						{:else}
 							<div class="rounded-md border border-gray-300 bg-gray-50 px-4 py-3">
 								<p class="text-sm text-gray-500">
@@ -308,66 +262,12 @@
 						{/if}
 					</div>
 				</div>
-
-				<!-- Amount input -->
-				<div>
-					<label for="amount" class="block text-sm font-medium text-gray-700">Amount (USDT)</label>
-					<div class="mt-1">
-						<Input
-							id="amount"
-							name="amount"
-							type="text"
-							placeholder="0.00"
-							bind:value={amount}
-							on:input={handleAmountInput}
-							error={!!amountError}
-							errorMessage={amountError}
-							disabled={saving}
-							dir="ltr"
-						/>
-					</div>
-				</div>
-
-				<!-- Description input -->
-				<div>
-					<label for="description" class="block text-sm font-medium text-gray-700"
-						>Description (Optional)</label
-					>
-					<div class="mt-1">
-						<Input
-							id="description"
-							name="description"
-							type="text"
-							placeholder="Add a note to your deposit"
-							bind:value={description}
-							disabled={saving}
-						/>
-					</div>
-				</div>
-
-				<!-- Submit button -->
-				<div>
-					<Button
-						type="submit"
-						disabled={saving || walletAddressLoading || !walletAddress}
-						fullWidth
-					>
-						{#if saving}
-							<span class="flex items-center justify-center gap-2">
-								<span class="icon-[svg-spinners--bars-scale-fade] h-4 w-4"></span>
-								Submitting...
-							</span>
-						{:else}
-							Submit Deposit Request
-						{/if}
-					</Button>
-				</div>
-			</form>
+			</div>
 		{/if}
 
 		<!-- IRT Deposit Form -->
 		{#if activeTab === 'irt'}
-			<form on:submit|preventDefault={handleSubmit} class="space-y-6">
+			<div class="space-y-6">
 				<!-- Bank card selector -->
 				<div>
 					<label class="block text-sm font-medium text-gray-700">Bank Card</label>
@@ -440,56 +340,6 @@
 					</div>
 				</div>
 
-				<!-- Amount input -->
-				<div>
-					<label for="amount" class="block text-sm font-medium text-gray-700">Amount (IRT)</label>
-					<div class="mt-1">
-						<Input
-							id="amount"
-							name="amount"
-							type="text"
-							placeholder="0.00"
-							bind:value={amount}
-							on:input={handleAmountInput}
-							error={!!amountError}
-							errorMessage={amountError}
-							disabled={saving}
-							dir="ltr"
-						/>
-					</div>
-				</div>
-
-				<!-- Description input -->
-				<div>
-					<label for="description" class="block text-sm font-medium text-gray-700"
-						>Description (Optional)</label
-					>
-					<div class="mt-1">
-						<Input
-							id="description"
-							name="description"
-							type="text"
-							placeholder="Add a note to your deposit"
-							bind:value={description}
-							disabled={saving}
-						/>
-					</div>
-				</div>
-
-				<!-- Submit button -->
-				<div>
-					<Button type="submit" disabled={saving || bankCardsLoading} fullWidth>
-						{#if saving}
-							<span class="flex items-center justify-center gap-2">
-								<span class="icon-[svg-spinners--bars-scale-fade] h-4 w-4"></span>
-								Submitting...
-							</span>
-						{:else}
-							Submit Deposit Request
-						{/if}
-					</Button>
-				</div>
-
 				<!-- Implementation note -->
 				<div class="rounded-md bg-blue-50 p-4">
 					<div class="flex">
@@ -503,7 +353,7 @@
 						</div>
 					</div>
 				</div>
-			</form>
+			</div>
 		{/if}
 	</Card>
 </PanelPageWrapper>
