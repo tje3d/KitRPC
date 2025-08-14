@@ -390,11 +390,133 @@ export const getMediaForAdmin = async (
 	}
 };
 
+// Get media statistics for admin dashboard
+export const getMediaStatistics = async () => {
+	try {
+		// Execute all queries in parallel for better performance
+		const [
+			totalCount,
+			totalFileSize,
+			visibilityDistribution,
+			reasonDistribution,
+			fileTypeDistribution,
+			topUsers
+		] = await Promise.all([
+			// Total media count
+			defaultPrisma.media.count(),
+
+			// Total file size
+			defaultPrisma.media
+				.aggregate({
+					_sum: {
+						fileSize: true
+					}
+				})
+				.then((result) => result._sum.fileSize || 0),
+
+			// Visibility distribution
+			defaultPrisma.media.groupBy({
+				by: ['visibility'],
+				_count: {
+					visibility: true
+				}
+			}),
+
+			// Reason distribution
+			defaultPrisma.media.groupBy({
+				by: ['reason'],
+				_count: {
+					reason: true
+				}
+			}),
+
+			// File type distribution (grouped by mimeType)
+			defaultPrisma.media.groupBy({
+				by: ['mimeType'],
+				_count: {
+					mimeType: true
+				}
+			}),
+
+			// Top users by media count
+			defaultPrisma.media
+				.groupBy({
+					by: ['ownerId'],
+					_count: {
+						ownerId: true
+					},
+					orderBy: {
+						_count: {
+							ownerId: 'desc'
+						}
+					},
+					take: 10
+				})
+				.then(async (userGroups) => {
+					// Get user details for the top users
+					const userIds = userGroups.map((group) => group.ownerId);
+					const users = await defaultPrisma.user.findMany({
+						where: {
+							id: {
+								in: userIds
+							}
+						},
+						select: {
+							id: true,
+							username: true
+						}
+					});
+
+					// Map user details to the counts
+					return userGroups.map((group) => {
+						const user = users.find((u) => u.id === group.ownerId);
+						return {
+							userId: group.ownerId,
+							username: user?.username || 'Unknown',
+							count: group._count.ownerId
+						};
+					});
+				})
+		]);
+
+		// Format the results
+		return {
+			totalCount,
+			totalFileSize,
+			visibilityDistribution: visibilityDistribution.reduce(
+				(acc, item) => {
+					acc[item.visibility] = item._count.visibility;
+					return acc;
+				},
+				{} as Record<string, number>
+			),
+			reasonDistribution: reasonDistribution.reduce(
+				(acc, item) => {
+					acc[item.reason] = item._count.reason;
+					return acc;
+				},
+				{} as Record<string, number>
+			),
+			fileTypeDistribution: fileTypeDistribution.reduce(
+				(acc, item) => {
+					acc[item.mimeType] = item._count.mimeType;
+					return acc;
+				},
+				{} as Record<string, number>
+			),
+			topUsers
+		};
+	} catch (error: any) {
+		throw new Error(`Failed to get media statistics: ${error.message}`);
+	}
+};
+
 export default {
 	saveMediaFile,
 	createMediaRecord,
 	getMediaById,
 	deleteMedia,
 	getMediaByUser,
-	getMediaForAdmin
+	getMediaForAdmin,
+	getMediaStatistics
 };

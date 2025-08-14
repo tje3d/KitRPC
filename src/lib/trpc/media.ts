@@ -8,7 +8,8 @@ import {
 	deleteMedia,
 	getMediaForAdmin,
 	saveMediaFile,
-	createMediaRecord
+	createMediaRecord,
+	getMediaStatistics
 } from '$lib/services/media.service';
 import { MediaReason, MediaVisibility } from '@prisma/client';
 
@@ -256,6 +257,20 @@ export const mediaRouter = t.router({
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
 				message: 'Failed to fetch media list for admin',
+				cause: error
+			});
+		}
+	}),
+
+	// Admin statistics
+	adminStats: adminProcedure.query(async () => {
+		try {
+			const stats = await getMediaStatistics();
+			return stats;
+		} catch (error) {
+			throw new TRPCError({
+				code: 'INTERNAL_SERVER_ERROR',
+				message: 'Failed to fetch media statistics',
 				cause: error
 			});
 		}

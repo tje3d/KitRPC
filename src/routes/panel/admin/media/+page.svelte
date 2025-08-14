@@ -11,6 +11,7 @@
 
 	type Media = RouterOutputs['media']['adminList']['media'][0];
 	type Pagination = RouterOutputs['media']['adminList']['pagination'];
+	type Statistics = RouterOutputs['media']['adminStats'];
 
 	// State
 	let currentPage = 1;
@@ -23,10 +24,11 @@
 	let startDate: string = '';
 	let endDate: string = '';
 
-	// Load media on component mount and when filters change
+	// Load media and statistics on component mount
 	$: {
 		if (mediaProvider) {
 			loadMedia();
+			loadStatistics();
 		}
 	}
 
@@ -59,6 +61,10 @@
 		}
 
 		mediaProvider.adminListMedia(filters);
+	}
+
+	function loadStatistics() {
+		mediaProvider.loadStatistics();
 	}
 
 	function handlePageChange(page: number) {
@@ -202,7 +208,7 @@
 								row.mimeType.startsWith('image/')
 									? `<img src="/${row.storagePath}" alt="${row.originalName}" class="h-10 w-10 rounded object-cover">`
 									: `<div class="h-10 w-10 rounded bg-gray-200 flex items-center justify-center">
-										<span class="icon-[heroicons--document] h-6 w-6 text-gray-500"></span>
+										<span class="icon-[heroicons--document-text] h-6 w-6 text-gray-500"></span>
 									  </div>`
 							}
 						</div>
@@ -272,7 +278,7 @@
 							data-id="${row.id}"
 							title="View media"
 						>
-							<span class="icon-[heroicons--eye] w-4 h-4"></span>
+							<span class="icon-[heroicons--magnifying-glass] w-4 h-4"></span>
 						</button>
 						<button
 							class="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
@@ -280,7 +286,7 @@
 							data-id="${row.id}"
 							title="Delete media"
 						>
-							<span class="icon-[heroicons--trash] w-4 h-4"></span>
+							<span class="icon-[heroicons--x-mark] w-4 h-4"></span>
 						</button>
 					</div>
 				`;
@@ -302,17 +308,106 @@
 </script>
 
 <PanelPageWrapper title="Media Management" description="Manage all media files in the system">
-	<Card variant="flat">
-		<MediaProvider
-			bind:this={mediaProvider}
-			onDeleteSuccess={handleDeleteSuccess}
-			onDeleteError={handleDeleteError}
-			let:media
-			let:pagination
-			let:listLoading
-			let:listErrorMessage
-			let:deleteLoading
-		>
+	<MediaProvider
+		bind:this={mediaProvider}
+		onDeleteSuccess={handleDeleteSuccess}
+		onDeleteError={handleDeleteError}
+		let:media
+		let:pagination
+		let:statistics
+		let:listLoading
+		let:statsLoading
+		let:listErrorMessage
+		let:statsErrorMessage
+		let:deleteLoading
+	>
+		<!-- Statistics Summary Cards -->
+		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+			<!-- Total Media Count -->
+			<Card variant="flat" compact className="border-s-4 border-s-blue-500">
+				<div class="flex items-center">
+					<div class="flex-shrink-0 rounded-full bg-blue-100 p-3">
+						<span class="icon-[heroicons--photo] block h-6 w-6 text-blue-600"></span>
+					</div>
+					<div class="ms-4">
+						<p class="text-sm font-medium text-gray-500">Total Media</p>
+						{#if statsLoading}
+							<div class="mt-1 h-6 w-20 animate-pulse rounded bg-gray-200"></div>
+						{:else}
+							<p class="text-2xl font-semibold text-gray-900">{statistics?.totalCount ?? 0}</p>
+						{/if}
+					</div>
+				</div>
+			</Card>
+
+			<!-- Total File Size -->
+			<Card variant="flat" compact className="border-s-4 border-s-green-500">
+				<div class="flex items-center">
+					<div class="flex-shrink-0 rounded-full bg-green-100 p-3">
+						<span class="icon-[heroicons--server-stack] block h-6 w-6 text-green-600"></span>
+					</div>
+					<div class="ms-4">
+						<p class="text-sm font-medium text-gray-500">Total Size</p>
+						{#if statsLoading}
+							<div class="mt-1 h-6 w-20 animate-pulse rounded bg-gray-200"></div>
+						{:else}
+							<p class="text-2xl font-semibold text-gray-900">
+								{formatFileSize(statistics?.totalFileSize ?? 0)}
+							</p>
+						{/if}
+					</div>
+				</div>
+			</Card>
+
+			<!-- Public Media Count -->
+			<Card variant="flat" compact className="border-s-4 border-s-yellow-500">
+				<div class="flex items-center">
+					<div class="flex-shrink-0 rounded-full bg-yellow-100 p-3">
+						<span class="icon-[heroicons--eye] block h-6 w-6 text-yellow-600"></span>
+					</div>
+					<div class="ms-4">
+						<p class="text-sm font-medium text-gray-500">Public Media</p>
+						{#if statsLoading}
+							<div class="mt-1 h-6 w-20 animate-pulse rounded bg-gray-200"></div>
+						{:else}
+							<p class="text-2xl font-semibold text-gray-900">
+								{statistics?.visibilityDistribution?.PUBLIC ?? 0}
+							</p>
+						{/if}
+					</div>
+				</div>
+			</Card>
+
+			<!-- Private Media Count -->
+			<Card variant="flat" compact className="border-s-4 border-s-purple-500">
+				<div class="flex items-center">
+					<div class="flex-shrink-0 rounded-full bg-purple-100 p-3">
+						<span class="icon-[heroicons--lock-closed] block h-6 w-6 text-purple-600"></span>
+					</div>
+					<div class="ms-4">
+						<p class="text-sm font-medium text-gray-500">Private Media</p>
+						{#if statsLoading}
+							<div class="mt-1 h-6 w-20 animate-pulse rounded bg-gray-200"></div>
+						{:else}
+							<p class="text-2xl font-semibold text-gray-900">
+								{statistics?.visibilityDistribution?.PRIVATE ?? 0}
+							</p>
+						{/if}
+					</div>
+				</div>
+			</Card>
+		</div>
+
+		<Card variant="flat">
+			{#if statsErrorMessage}
+				<div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+					<div class="flex items-center">
+						<span class="icon-[heroicons--exclamation-circle] me-2 h-5 w-5 text-red-500"></span>
+						<span class="text-red-700">{statsErrorMessage}</span>
+					</div>
+				</div>
+			{/if}
+
 			<!-- Filter Panel -->
 			<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
 				<Input
@@ -383,7 +478,7 @@
 			{#if listErrorMessage}
 				<div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
 					<div class="flex items-center">
-						<span class="icon-[heroicons--exclamation-triangle] me-2 h-5 w-5 text-red-500"></span>
+						<span class="icon-[heroicons--exclamation-circle] me-2 h-5 w-5 text-red-500"></span>
 						<span class="text-red-700">{listErrorMessage}</span>
 					</div>
 				</div>
@@ -401,12 +496,12 @@
 					loading={listLoading}
 				>
 					<div slot="empty" class="py-8 text-center">
-						<span class="icon-[heroicons--photo] mx-auto h-12 w-12 text-gray-400"></span>
+						<span class="icon-[heroicons--folder-open] mx-auto h-12 w-12 text-gray-400"></span>
 						<h3 class="mt-2 text-sm font-medium text-gray-900">No media files</h3>
 						<p class="mt-1 text-sm text-gray-500">Get started by uploading some media files.</p>
 					</div>
 				</DataTable>
 			</div>
-		</MediaProvider>
-	</Card>
+		</Card>
+	</MediaProvider>
 </PanelPageWrapper>

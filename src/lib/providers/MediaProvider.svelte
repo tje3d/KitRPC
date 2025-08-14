@@ -3,7 +3,11 @@
 	import { page } from '$app/state';
 	import { shareIt } from '$lib/helpers/rxjs.helper';
 	import { subscribe } from '$lib/helpers/svelte-rxjs.helper';
-	import { createTrpcRequestFn, useTrpcRequest } from '$lib/helpers/useTrpcRequest.helper';
+	import {
+		createTrpcRequestFn,
+		createTrpcRequestFnNoParams,
+		useTrpcRequest
+	} from '$lib/helpers/useTrpcRequest.helper';
 	import { trpc } from '$lib/trpc/client';
 	import type { RouterInputs, RouterOutputs } from '$lib/trpc/router';
 	import { map, startWith, Subject } from 'rxjs';
@@ -24,6 +28,9 @@
 		reason: string;
 		visibility: string;
 	};
+
+	// Types for media statistics
+	type MediaStatisticsResponseData = RouterOutputs['media']['adminStats'];
 
 	// Props
 	export let onSuccess: ((data: AdminListMediaResponseData) => void) | undefined = undefined;
@@ -46,6 +53,18 @@
 		})
 	);
 
+	// Request for media statistics
+	const {
+		clearError: clearStatsError,
+		errorMessage: statsErrorMessage,
+		loading: statsLoading,
+		trigger: statsTrigger,
+		responseSuccess: statsResponseSuccess
+	} = useTrpcRequest(
+		createTrpcRequestFnNoParams(() => {
+			return trpc(page).media.adminStats.query();
+		})
+	);
 	const media = listResponseSuccess.pipe(
 		startWith(undefined),
 		map((r) => r?.media || []),
@@ -55,6 +74,12 @@
 	const pagination = listResponseSuccess.pipe(
 		startWith(undefined),
 		map((r) => r?.pagination),
+		shareIt()
+	);
+
+	const statistics = statsResponseSuccess.pipe(
+		startWith(undefined),
+		map((r) => r),
 		shareIt()
 	);
 
@@ -120,10 +145,13 @@
 			xhr.send(formData);
 		});
 	}
-
 	// Actions
 	export function adminListMedia(input: AdminListMediaRequestParams) {
 		listTrigger.next(input);
+	}
+
+	export function loadStatistics() {
+		statsTrigger.next();
 	}
 
 	export function deleteMedia(input: DeleteMediaRequestParams) {
@@ -196,14 +224,19 @@
 <slot
 	media={$media}
 	pagination={$pagination}
+	statistics={$statistics}
 	listLoading={$listLoading}
+	statsLoading={$statsLoading}
 	deleteLoading={$deleteLoading}
 	listErrorMessage={$listErrorMessage}
+	statsErrorMessage={$statsErrorMessage}
 	deleteErrorMessage={$deleteErrorMessage}
 	{clearListError}
+	{clearStatsError}
 	{clearDeleteError}
 	{clearUploadError}
 	{adminListMedia}
+	{loadStatistics}
 	{deleteMedia}
 	{uploadMedia}
 	{uploadMediaFormData}
