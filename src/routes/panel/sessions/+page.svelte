@@ -18,7 +18,6 @@
 	let error: string | null = null;
 	let currentSessionError: string | null = null;
 	let deleteError: string | null = null;
-	let sessionToDelete: Session | null = null;
 
 	// Format date for display
 	function formatDate(date: Date): string {
@@ -71,7 +70,6 @@
 
 	// Show delete confirmation dialog
 	function confirmDelete(session: Session) {
-		sessionToDelete = session;
 		dialogStore.open({
 			component: ConfirmDialog,
 			props: {
@@ -86,9 +84,6 @@
 					tick().then(() => {
 						deleteSession(session.id);
 					});
-				},
-				onCancel: () => {
-					sessionToDelete = null;
 				}
 			}
 		});
@@ -96,7 +91,43 @@
 
 	// Delete a session
 	function deleteSession(sessionId: string) {
-		sessionProvider.deleteSession(sessionId);
+		if (sessionProvider) {
+			sessionProvider.deleteSession(sessionId);
+		}
+	}
+
+	// Handle delete success
+	function handleDeleteSuccess() {
+		toast.success('Session terminated successfully');
+		sessionProvider.getSessions(); // Refresh the list
+	}
+
+	// Handle delete error
+	function handleDeleteError(error: string) {
+		toast.error(error || 'Failed to terminate session');
+	}
+
+	// Handle row actions
+	function handleRowAction(event: Event, sessionList: Session[]) {
+		const target = event.target as HTMLElement;
+		const button = target.closest('button[data-action]');
+
+		if (!button) return;
+
+		const action = button.getAttribute('data-action');
+		const id = button.getAttribute('data-id');
+
+		if (!action || !id) return;
+
+		switch (action) {
+			case 'delete':
+				// Find the session in the current list
+				const session = sessionList?.find((s: Session) => s.id === id);
+				if (session) {
+					confirmDelete(session);
+				}
+				break;
+		}
 	}
 
 	// Define columns for the DataTable
@@ -143,12 +174,14 @@
 			key: 'actions',
 			label: 'Actions',
 			render: (value: any, row: Session) => `
-				<div class="flex justify-end">
-					<button 
-						class="text-red-600 hover:text-red-900"
-						onclick="(() => { const event = new CustomEvent('deleteSession', { detail: '${row.id}' }); document.dispatchEvent(event); })()"
+				<div class="flex items-center justify-end gap-2">
+					<button
+						class="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+						data-action="delete"
+						data-id="${row.id}"
+						title="Terminate session"
 					>
-						Terminate
+						<span class="icon-[heroicons--trash] w-4 h-4"></span>
 					</button>
 				</div>
 			`
@@ -158,25 +191,13 @@
 	// Load sessions when component mounts
 	onMount(() => {
 		sessionProvider.getSessions();
-
-		// Listen for delete events from the DataTable
-		const handleDeleteSession = (event: Event) => {
-			const customEvent = event as CustomEvent;
-			const sessionId = customEvent.detail;
-			// We'll handle the delete confirmation in the event handler
-		};
-
-		document.addEventListener('deleteSession', handleDeleteSession as EventListener);
-
-		// Cleanup event listener
-		return () => {
-			document.removeEventListener('deleteSession', handleDeleteSession as EventListener);
-		};
 	});
 </script>
 
 <SessionProvider
 	bind:this={sessionProvider}
+	onDeleteSuccess={handleDeleteSuccess}
+	onDeleteError={handleDeleteError}
 	let:sessions
 	let:loading
 	let:errorMessage
@@ -317,16 +338,18 @@
 						</p>
 					</div>
 				{:else}
-					<DataTable
-						data={sessions?.filter((s) => !s.isCurrent)}
-						{columns}
-						itemsPerPage={10}
-						totalItems={sessions?.filter((s) => !s.isCurrent).length || 0}
-						currentPage={1}
-						showPagination={false}
-						onPageChange={() => {}}
-						onSortChange={() => {}}
-					/>
+					<div on:click={(e) => handleRowAction(e, sessions?.filter((s) => !s.isCurrent) || [])}>
+						<DataTable
+							data={sessions?.filter((s) => !s.isCurrent)}
+							{columns}
+							itemsPerPage={10}
+							totalItems={sessions?.filter((s) => !s.isCurrent).length || 0}
+							currentPage={1}
+							showPagination={false}
+							onPageChange={() => {}}
+							onSortChange={() => {}}
+						/>
+					</div>
 				{/if}
 			{/if}
 		</Card>

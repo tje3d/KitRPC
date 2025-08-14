@@ -11,7 +11,14 @@ declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			user: import('./app').App.AuthUser | null;
+			user: App.AuthUser | null;
+			fileData?: {
+				filename: string;
+				mimeType: string;
+				encoding: string;
+				buffer: Buffer;
+			} | null;
+			formData?: Record<string, string>;
 		}
 		// interface PageData {}
 		// interface PageState {}

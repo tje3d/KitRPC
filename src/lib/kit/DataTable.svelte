@@ -34,13 +34,14 @@
 
 	// State for search and filtering
 	let columnFilters: Record<string, string> = {};
-	let selectedRows: Set<Row> = new Set();
+	let selectedRows: Record<any, boolean> = {};
 
 	// Computed properties
 	$: isServerSide = onPageChange !== null;
 	$: totalPages = isServerSide
 		? Math.ceil(totalItems / itemsPerPage)
 		: Math.ceil(data.length / itemsPerPage);
+	$: selectedRowsCount = Object.values(selectedRows).filter(Boolean).length;
 
 	// Filtered data based on search term and column filters
 	$: filteredData = (() => {
@@ -127,36 +128,26 @@
 	}
 
 	function handleSelectAll() {
-		if (selectedRows.size === paginatedData.length) {
-			// Deselect all
-			selectedRows.clear();
-			selectedRows = selectedRows;
-		} else {
-			// Select all
-			paginatedData.forEach((row: Row) => selectedRows.add(row));
-			selectedRows = selectedRows;
+		// Create a copy of the current selectedRows object to avoid direct mutation
+		const newSelectedRows = { ...selectedRows };
+
+		// Check if all rows in the current page are already selected
+		const allSelected = selectedRowsCount === paginatedData.length && paginatedData.length > 0;
+
+		// Toggle selection state for all rows in the current page
+		for (const row of paginatedData) {
+			// Use row.id as the key if available, otherwise skip (with a console warning)
+			if (row.id === undefined) {
+				console.warn('Row missing id property, cannot select:', row);
+				continue;
+			}
+
+			// Set selection state based on whether all were previously selected
+			newSelectedRows[row.id] = !allSelected;
 		}
-	}
 
-	function handleSelectRow(row: Row) {
-		if (selectedRows.has(row)) {
-			selectedRows.delete(row);
-		} else {
-			selectedRows.add(row);
-		}
-		selectedRows = selectedRows;
-	}
-
-	function isRowSelected(row: Row) {
-		return selectedRows.has(row);
-	}
-
-	function isAllSelected() {
-		return paginatedData.length > 0 && selectedRows.size === paginatedData.length;
-	}
-
-	function isIndeterminate() {
-		return selectedRows.size > 0 && selectedRows.size < paginatedData.length;
+		// Update the selectedRows object to trigger reactivity
+		selectedRows = newSelectedRows;
 	}
 </script>
 
@@ -204,8 +195,8 @@
 					<Checkbox
 						id="select-all-checkbox"
 						name="select-all"
-						checked={isAllSelected()}
-						indeterminate={isIndeterminate()}
+						checked={selectedRowsCount > 0 && selectedRowsCount === paginatedData.length}
+						indeterminate={selectedRowsCount > 0 && selectedRowsCount < paginatedData.length}
 						onChange={handleSelectAll}
 					/>
 				</th>
@@ -234,8 +225,7 @@
 						<Checkbox
 							id={`select-row-${i}`}
 							name={`select-row-${i}`}
-							checked={isRowSelected(row)}
-							onChange={() => handleSelectRow(row)}
+							bind:checked={selectedRows[row.id]}
 						/>
 					</td>
 					{#each columns as column (column.key)}
@@ -251,7 +241,7 @@
 			{:else}
 				<tr>
 					<td colspan={columns.length + 1} class="px-6 py-4 text-center text-gray-500">
-						No data available
+						<slot name="empty">No data available</slot>
 					</td>
 				</tr>
 			{/each}

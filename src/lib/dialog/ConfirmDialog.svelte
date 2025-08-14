@@ -1,4 +1,6 @@
 <script lang="ts">
+	import Focus from '../actions/focus.action';
+
 	export let title: string = 'Warning!';
 	export let message: string = 'Are you sure?';
 	export let cancel: string = 'Cancel';
@@ -34,6 +36,7 @@
 			{cancel}
 		</button>
 		<button
+			use:Focus
 			class="rounded-lg px-5 py-2 text-white transition focus:ring-2 focus:ring-blue-300 focus:outline-none dark:focus:ring-blue-500 {colors[
 				color
 			]}"

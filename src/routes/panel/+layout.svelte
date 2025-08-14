@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
 	import { goto, invalidateAll } from '$app/navigation';
+	import { base } from '$app/paths';
 	import { page } from '$app/stores';
 	import { authUser, isLoggedIn } from '$lib/flow/auth.flow';
 	import Button from '$lib/kit/Button.svelte';
@@ -33,31 +34,31 @@
 
 	// Navigation items
 	$: navItems = [
-		{ name: 'Dashboard', href: '/panel', icon: 'dashboard', category: 'General' },
-		{ name: 'Projects', href: '/panel/projects', icon: 'briefcase', category: 'Work' },
-		{ name: 'Tasks', href: '/panel/tasks', icon: 'clipboard-list', category: 'Work' },
-		{ name: 'Calendar', href: '/panel/calendar', icon: 'calendar-days', category: 'Work' },
-		{ name: 'Cards', href: '/panel/cards', icon: 'credit-card', category: 'Work' },
-		{ name: 'Transactions', href: '/panel/transactions', icon: 'banknotes', category: 'Work' },
-		{ name: 'Deposit', href: '/panel/deposit', icon: 'arrow-down-tray', category: 'Work' },
-		{ name: 'Sessions', href: '/panel/sessions', icon: 'device-phone-mobile', category: 'Work' },
+		{ name: 'Dashboard', href: `${base}/panel`, icon: 'dashboard', category: 'General' },
+		{ name: 'Projects', href: `${base}/panel/projects`, icon: 'briefcase', category: 'Work' },
+		{ name: 'Tasks', href: `${base}/panel/tasks`, icon: 'clipboard-list', category: 'Work' },
+		{ name: 'Calendar', href: `${base}/panel/calendar`, icon: 'calendar-days', category: 'Work' },
+		{ name: 'Cards', href: `${base}/panel/cards`, icon: 'credit-card', category: 'Work' },
+		{ name: 'Transactions', href: `${base}/panel/transactions`, icon: 'banknotes', category: 'Work' },
+		{ name: 'Deposit', href: `${base}/panel/deposit`, icon: 'arrow-down-tray', category: 'Work' },
+		{ name: 'Sessions', href: `${base}/panel/sessions`, icon: 'device-phone-mobile', category: 'Work' },
 		// Add wallet management link for admin users
 		...(($authUser?.role?.permissions || []).some(
 			(p) => p.permission.resource === 'wallet' && p.permission.action === 'manage'
 		)
-			? [{ name: 'Wallets', href: '/panel/admin/wallets', icon: 'wallet', category: 'Admin' }]
+			? [{ name: 'Wallets', href: `${base}/panel/admin/wallets`, icon: 'wallet', category: 'Admin' }]
 			: []),
 		// Add user management link for users with appropriate permissions
 		...(($authUser?.role?.permissions || []).some(
 			(p) => p.permission.resource === 'user' && p.permission.action === 'manage'
 		)
-			? [{ name: 'Users', href: '/panel/admin/users', icon: 'users', category: 'Admin' }]
+			? [{ name: 'Users', href: `${base}/panel/admin/users`, icon: 'users', category: 'Admin' }]
 			: []),
 		// Add role management link for users with appropriate permissions
 		...(($authUser?.role?.permissions || []).some(
 			(p) => p.permission.resource === 'role' && p.permission.action === 'manage'
 		)
-			? [{ name: 'Roles', href: '/panel/admin/roles', icon: 'user-group', category: 'Admin' }]
+			? [{ name: 'Roles', href: `${base}/panel/admin/roles`, icon: 'user-group', category: 'Admin' }]
 			: []),
 		// Add permission management link for users with appropriate permissions
 		...(($authUser?.role?.permissions || []).some(
@@ -66,31 +67,40 @@
 			? [
 					{
 						name: 'Permissions',
-						href: '/panel/admin/permissions',
+						href: `${base}/panel/admin/permissions`,
 						icon: 'shield-check',
 						category: 'Admin'
 					}
 				]
+			: []),
+		// Add media management link for users with appropriate permissions
+		...(($authUser?.role?.permissions || []).some(
+			(p) => p.permission.resource === 'media' && p.permission.action === 'manage'
+		)
+			? [{ name: 'Media', href: `${base}/panel/admin/media`, icon: 'photo', category: 'Admin' }]
 			: [])
 	];
 
 	// Check if current route matches nav item (reactive)
 	$: isActive = (href: string) => {
-		// Use route.id for more reliable matching
-		const routeId = $page.route.id || '/';
-
+		// Get current pathname with base prefix
+		const currentPath = $page.url.pathname;
+		
+		// Remove base prefix from href for comparison
+		const hrefWithoutBase = href.startsWith(base) ? href.slice(base.length) : href;
+		
 		// Handle special case for dashboard
-		if (href === '/panel') {
-			return routeId === '/panel' || routeId === '/';
+		if (hrefWithoutBase === '/panel') {
+			return currentPath === `${base}/panel` || currentPath === `${base}/` || currentPath === base || currentPath === '/';
 		}
 
 		// Normalize paths for comparison
-		const normalizedRouteId = routeId.endsWith('/') ? routeId.slice(0, -1) : routeId;
+		const normalizedCurrentPath = currentPath.endsWith('/') ? currentPath.slice(0, -1) : currentPath;
 		const normalizedHref = href.endsWith('/') ? href.slice(0, -1) : href;
 
 		// For other routes, check for exact match or prefix match
 		return (
-			normalizedRouteId === normalizedHref || normalizedRouteId.startsWith(normalizedHref + '/')
+			normalizedCurrentPath === normalizedHref || normalizedCurrentPath.startsWith(normalizedHref + '/')
 		);
 	};
 
@@ -149,9 +159,9 @@
 								</div>
 								<div class="py-1">
 									<a
-										href="/panel/settings/profile"
-										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-									>
+									href="{base}/panel/settings/profile"
+									class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+								>
 										<span class="icon-[heroicons--cog-6-tooth] mr-2 inline h-4 w-4"></span>
 										Profile
 									</a>

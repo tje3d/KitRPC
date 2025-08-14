@@ -62,6 +62,12 @@ async function main() {
 				description: 'Manage permissions',
 				resource: 'permission',
 				action: 'manage'
+			},
+			{
+				name: 'media:manage',
+				description: 'Manage media files',
+				resource: 'media',
+				action: 'manage'
 			}
 		];
 
@@ -88,7 +94,64 @@ async function main() {
 
 		console.log('✅ Permissions assigned to roles!');
 	} else {
-		console.log('👥 Roles already exist, skipping role creation.');
+		console.log('👥 Roles already exist, checking for new permissions...');
+
+		// Check if media:manage permission exists, if not create it
+		let mediaPermission = await prisma.permission.findUnique({
+			where: { name: 'media:manage' }
+		});
+
+		// Track if the permission existed before
+		const permissionExisted = !!mediaPermission;
+
+		if (!mediaPermission) {
+			console.log('🔐 Creating media management permission...');
+
+			mediaPermission = await prisma.permission.create({
+				data: {
+					name: 'media:manage',
+					description: 'Manage media files',
+					resource: 'media',
+					action: 'manage'
+				}
+			});
+		}
+
+		// Ensure the media:manage permission is assigned to the admin role
+		if (mediaPermission) {
+			const adminRole = await prisma.role.findUnique({
+				where: { name: 'admin' }
+			});
+
+			if (adminRole) {
+				// Check if the permission is already assigned to the admin role
+				const existingRolePermission = await prisma.rolePermission.findUnique({
+					where: {
+						roleId_permissionId: {
+							roleId: adminRole.id,
+							permissionId: mediaPermission.id
+						}
+					}
+				});
+
+				if (!existingRolePermission) {
+					await prisma.rolePermission.create({
+						data: {
+							roleId: adminRole.id,
+							permissionId: mediaPermission.id
+						}
+					});
+
+					if (!permissionExisted) {
+						console.log('✅ Media management permission created and assigned to admin role!');
+					} else {
+						console.log('✅ Media management permission assigned to admin role!');
+					}
+				} else {
+					console.log('✅ Media management permission already assigned to admin role.');
+				}
+			}
+		}
 	}
 
 	// Check if users already exist

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { afterNavigate, invalidateAll } from '$app/navigation';
+	import { base } from '$app/paths';
 	import ConfirmDialog from '$lib/dialog/ConfirmDialog.svelte';
 	import { dialogStore } from '$lib/dialog/store';
 	import { authUser } from '$lib/flow/auth.flow';
@@ -270,7 +271,7 @@
 						<!-- Menu items -->
 						<div class="py-1">
 							<a
-								href="/panel/settings/profile"
+								href="{base}/panel/settings/profile"
 								class="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700/50"
 							>
 								<span class={getIcon('profile') + ' h-5 w-5'}></span>
@@ -278,7 +279,7 @@
 							</a>
 
 							<a
-								href="/panel/help"
+								href="{base}/panel/help"
 								class="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700/50"
 							>
 								<span class={getIcon('help') + ' h-5 w-5'}></span>

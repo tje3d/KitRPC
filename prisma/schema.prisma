@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,78 +8,74 @@ datasource db {
 }
 
 model User {
-  id          String   @id @default(cuid())
-  username    String   @unique
+  id          String           @id @default(cuid())
+  username    String           @unique
   email       String?
   password    String
-  balanceIRT  Float    @default(0)
-  balanceUSDT Float    @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   roleId      String
-  role        Role             @relation(fields: [roleId], references: [id])
-  sessions    Session[]
-  permissions UserPermission[]
-  todos       Todo[]
+  balanceIRT  Float            @default(0)
+  balanceUSDT Float            @default(0)
   bankCards   BankCard[]
+  media       Media[]
+  sessions    Session[]
+  todos       Todo[]
   Transaction Transaction[]
+  role        Role             @relation(fields: [roleId], references: [id])
+  permissions UserPermission[]
 
   @@index([username])
   @@index([email])
+  @@index([roleId], map: "User_roleId_fkey")
 }
 
 model Role {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String           @id @default(cuid())
+  name        String           @unique
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  users       User[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   permissions RolePermission[]
+  users       User[]
 }
 
 model Permission {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String           @id @default(cuid())
+  name        String           @unique
   description String?
-  resource    String // e.g., "todo", "user", "admin"
-  action      String // e.g., "create", "read", "update", "delete"
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  roles RolePermission[]
-  users UserPermission[]
+  resource    String
+  action      String
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  roles       RolePermission[]
+  users       UserPermission[]
 
   @@unique([resource, action])
 }
 
 model RolePermission {
-  id           String   @id @default(cuid())
+  id           String     @id @default(cuid())
   roleId       String
   permissionId String
-  createdAt    DateTime @default(now())
-
-  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@unique([roleId, permissionId])
+  @@index([permissionId], map: "RolePermission_permissionId_fkey")
 }
 
 model UserPermission {
-  id           String   @id @default(cuid())
+  id           String     @id @default(cuid())
   userId       String
   permissionId String
-  createdAt    DateTime @default(now())
-
-  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, permissionId])
+  @@index([permissionId], map: "UserPermission_permissionId_fkey")
 }
 
 model Session {
@@ -95,12 +85,11 @@ model Session {
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  userAgent  String?
-  ipAddress  String?
-  deviceType String?
   browser    String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deviceType String?
+  ipAddress  String?
+  userAgent  String?
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
   @@index([expiresAt])
@@ -108,6 +97,7 @@ model Session {
   @@index([ipAddress])
   @@index([deviceType])
   @@index([browser])
+  @@index([userId], map: "Session_userId_fkey")
 }
 
 model Todo {
@@ -117,24 +107,82 @@ model Todo {
   createdAt DateTime @default(now())
   userId    String?
   user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId], map: "Todo_userId_fkey")
 }
 
 model BankCard {
-  id         String   @id @default(cuid())
-  cardNumber String // 16-digit Iranian bank card number
-  userId     String
-  isDefault  Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  // Relations
+  id          String        @id @default(cuid())
+  cardNumber  String
+  userId      String
+  isDefault   Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   Transaction Transaction[]
 
   @@unique([userId, cardNumber])
-  // Indexes
   @@index([userId])
   @@index([isDefault])
+}
+
+model Transaction {
+  id              String            @id @default(cuid())
+  userId          String
+  type            TransactionType
+  currency        CurrencyType
+  amount          Float
+  status          TransactionStatus @default(PENDING)
+  description     String?
+  bankCardId      String?
+  transactionHash String?
+  fromAddress     String?
+  toAddress       String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  bankCard        BankCard?         @relation(fields: [bankCardId], references: [id])
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([currency])
+  @@index([status])
+  @@index([createdAt])
+  @@index([bankCardId], map: "Transaction_bankCardId_fkey")
+}
+
+model WalletAddress {
+  id        String   @id @default(cuid())
+  network   String
+  address   String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([network])
+  @@index([address])
+  @@index([isActive])
+}
+
+model Media {
+  id           String          @id @default(cuid())
+  reason       MediaReason
+  visibility   MediaVisibility @default(PRIVATE)
+  filename     String
+  originalName String
+  fileSize     Int
+  mimeType     String
+  storagePath  String
+  metadata     Json?
+  ownerId      String
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  owner        User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@index([ownerId])
+  @@index([reason])
+  @@index([visibility])
+  @@index([createdAt])
 }
 
 enum TransactionType {
@@ -155,42 +203,14 @@ enum TransactionStatus {
   CANCELLED
 }
 
-model Transaction {
-  id              String            @id @default(cuid())
-  userId          String
-  type            TransactionType
-  currency        CurrencyType
-  amount          Float
-  status          TransactionStatus @default(PENDING)
-  description     String?
-  bankCardId      String? // For IRT transactions
-  transactionHash String? // For USDT transactions
-  fromAddress     String? // For USDT transactions
-  toAddress       String? // For USDT transactions
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-
-  // Relations
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bankCard BankCard? @relation(fields: [bankCardId], references: [id], onDelete: SetNull)
-
-  // Indexes
-  @@index([userId])
-  @@index([type])
-  @@index([currency])
-  @@index([status])
-  @@index([createdAt])
+enum MediaReason {
+  KYC
+  PROFILE_AVATAR
+  DOCUMENT_VERIFICATION
+  BUSINESS_LICENSE
 }
 
-model WalletAddress {
-  id        String   @id @default(cuid())
-  network   String // e.g., "Tron", "Ethereum", etc.
-  address   String // The actual wallet address
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([network])
-  @@index([address])
-  @@index([isActive])
+enum MediaVisibility {
+  PUBLIC
+  PRIVATE
 }

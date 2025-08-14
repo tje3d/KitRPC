@@ -8,6 +8,7 @@ import { rolesRouter } from './roles';
 import { permissionsRouter } from './permissions';
 import { walletRouter } from './wallet';
 import { sessionsRouter } from './sessions';
+import { mediaRouter } from './media';
 import { t } from './trpc';
 
 export const router = t.router({
@@ -40,7 +41,10 @@ export const router = t.router({
 	permissions: permissionsRouter,
 
 	// Session management procedures
-	sessions: sessionsRouter
+	sessions: sessionsRouter,
+
+	// Media management procedures
+	media: mediaRouter
 });
 
 export type Router = typeof router;

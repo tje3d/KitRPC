@@ -1,36 +1,21 @@
 <script lang="ts">
-	// Define props using Svelte 5 syntax
-	const {
-		id,
-		name,
-		checked = false,
-		indeterminate = false,
-		onChange = () => {},
-		label = '',
-		className = '',
-		disabled = false,
-		error = false
-	} = $props<{
-		id: string;
-		name: string;
-		checked?: boolean;
-		indeterminate?: boolean;
-		onChange?: (checked: boolean) => void;
-		label?: string;
-		className?: string;
-		disabled?: boolean;
-		error?: boolean;
-	}>();
+	export let id: string;
+	export let name: string;
+	export let checked: boolean = false;
+	export let indeterminate: boolean = false;
+	export let onChange: (checked: boolean) => void = () => {};
+	export let label: string = '';
+	export let className: string = '';
+	export let disabled: boolean = false;
+	export let error: boolean = false;
 
 	// State for checkbox reference
-	let checkboxRef = $state<HTMLInputElement | null>(null);
+	let checkboxRef: HTMLInputElement | null = null;
 
-	// Update indeterminate state when prop changes
-	$effect(() => {
-		if (checkboxRef) {
-			checkboxRef.indeterminate = indeterminate;
-		}
-	});
+	// Update indeterminate state when prop changes using reactive statement
+	$: if (checkboxRef) {
+		checkboxRef.indeterminate = indeterminate;
+	}
 
 	// Handle change event
 	function handleChange() {
@@ -47,45 +32,54 @@
 			{id}
 			{name}
 			type="checkbox"
-			{checked}
+			bind:checked
 			{disabled}
-			class="peer absolute z-10 h-5 w-5 cursor-pointer opacity-0"
+			class="peer absolute z-10 h-6 w-6 cursor-pointer opacity-0"
 			on:change={handleChange}
 			aria-label={label || undefined}
 			aria-invalid={error}
 		/>
 		<div
-			class={`flex h-5 w-5 cursor-pointer items-center justify-center rounded-md border-2 bg-white transition-all duration-200 ease-in-out peer-focus:ring-2 peer-focus:ring-offset-2 ${
+			class={`group relative flex h-6 w-6 transform cursor-pointer items-center justify-center rounded-lg border-2 shadow-sm transition-all duration-300 ease-out peer-focus:ring-4 peer-focus:ring-offset-1 peer-active:scale-95 ${
 				indeterminate
-					? 'border-blue-600 bg-blue-600 peer-hover:border-blue-700 peer-focus:ring-blue-500'
+					? 'border-indigo-500 bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-indigo-200 peer-hover:from-indigo-600 peer-hover:to-indigo-700 peer-hover:shadow-md peer-focus:ring-indigo-200'
 					: checked
-						? 'border-blue-600 bg-blue-600 peer-hover:border-blue-700 peer-focus:ring-blue-500'
+						? 'border-indigo-500 bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-indigo-200 peer-hover:from-indigo-600 peer-hover:to-indigo-700 peer-hover:shadow-md peer-focus:ring-indigo-200'
 						: error
-							? 'border-red-500 bg-red-50 peer-hover:border-red-600 peer-focus:ring-red-500'
+							? 'border-red-400 bg-gradient-to-br from-red-50 to-red-100 shadow-red-100 peer-hover:border-red-500 peer-hover:from-red-100 peer-hover:to-red-200 peer-focus:ring-red-200'
 							: disabled
-								? 'border-gray-200 bg-gray-100'
-								: 'border-gray-300 peer-hover:border-gray-400 peer-focus:ring-blue-500'
-			} ${disabled ? 'cursor-not-allowed' : ''}`}
+								? 'border-gray-200 bg-gray-50 shadow-gray-100'
+								: 'border-gray-300 bg-white shadow-gray-100 peer-hover:border-indigo-300 peer-hover:bg-indigo-50 peer-hover:shadow-indigo-100 peer-focus:ring-indigo-200'
+			} ${disabled ? 'cursor-not-allowed opacity-60' : 'hover:shadow-lg'}`}
 		>
 			{#if indeterminate}
 				<span
-					class="icon-[heroicons--minus-small] h-3.5 w-3.5 transition-all duration-200 ease-in-out"
+					class="icon-[heroicons--minus-small] h-4 w-4 transform text-white transition-all duration-300 ease-out group-hover:scale-110"
 				></span>
 			{:else if checked}
-				<span class="icon-[heroicons--check] h-3.5 w-3.5 transition-all duration-200 ease-in-out"
+				<span
+					class="icon-[heroicons--check] animate-in zoom-in-50 h-4 w-4 transform text-white transition-all duration-200 ease-out group-hover:scale-110"
 				></span>
 			{/if}
+			<!-- Subtle inner glow effect -->
+			<div
+				class={`absolute inset-0 rounded-lg transition-opacity duration-300 ${
+					checked || indeterminate
+						? 'bg-gradient-to-br from-white/20 to-transparent opacity-100'
+						: 'opacity-0'
+				}`}
+			></div>
 		</div>
 	</div>
 	{#if label}
 		<label
 			for={id}
-			class={`ms-3 block text-sm font-medium transition-colors duration-200 ease-in-out select-none ${
+			class={`ms-3 block cursor-pointer text-sm font-medium transition-all duration-300 ease-out select-none ${
 				disabled
-					? 'cursor-not-allowed text-gray-400'
+					? 'cursor-not-allowed text-gray-400 opacity-60'
 					: error
-						? 'text-red-600'
-						: 'text-gray-700 peer-hover:text-gray-900 peer-focus:text-gray-900'
+						? 'text-red-600 hover:text-red-700'
+						: 'text-gray-700 peer-focus:text-indigo-600 hover:text-indigo-600'
 			}`}
 		>
 			{label}

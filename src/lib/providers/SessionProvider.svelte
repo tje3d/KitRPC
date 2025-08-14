@@ -11,7 +11,9 @@
 
 	// Props
 	export let onSuccess: ((data: Session[]) => void) | undefined = undefined;
+	export let onDeleteSuccess: ((data: { success: boolean }) => void) | undefined = undefined;
 	export let onError: ((error: string) => void) | undefined;
+	export let onDeleteError: ((error: string) => void) | undefined;
 
 	// Request for fetching all sessions
 	const { clearError, errorMessage, loading, trigger, responseSuccess } = useTrpcRequest(
@@ -69,6 +71,16 @@
 		if (!message) return;
 
 		onError?.(message);
+	});
+
+	subscribe(deleteResponseSuccess, (result) => {
+		if (!result) return;
+		onDeleteSuccess?.(result);
+	});
+
+	subscribe(deleteErrorMessage, (message) => {
+		if (!message) return;
+		onDeleteError?.(message);
 	});
 </script>
 
