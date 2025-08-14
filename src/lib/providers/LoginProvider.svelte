@@ -3,11 +3,14 @@
 	import { subscribe } from '$lib/helpers/svelte-rxjs.helper';
 	import { createTrpcRequestFn, useTrpcRequest } from '$lib/helpers/useTrpcRequest.helper';
 	import { trpc } from '$lib/trpc/client';
+	import type { RouterInputs } from '$lib/trpc/router';
 
 	export let onLoggedIn: (user: App.AuthUser, token: string) => void;
 
+	type RequestParams = RouterInputs['auth']['login'];
+
 	const { clearError, errorMessage, loading, trigger, responseSuccess } = useTrpcRequest(
-		createTrpcRequestFn((input: { username: string; password: string }) => {
+		createTrpcRequestFn((input: RequestParams) => {
 			return trpc(page).auth.login.mutate(input);
 		})
 	);
@@ -18,7 +21,7 @@
 		onLoggedIn(result.user, result.token);
 	});
 
-	function login(input: { username: string; password: string }) {
+	function login(input: RequestParams) {
 		trigger.next(input);
 	}
 </script>

@@ -1,8 +1,10 @@
 Backend:
+
 - use bun, bunx instead of node, npm and npx
 - to update database use scripts in package.json ( like generate migrate ... )
 
 Frontend:
+
 - we already have ui kits, to implement pages, first implement the ui kits ( or update them if needed but should be backward compatible - add variants etc if not possible create new component )
 
 use tailwindcss icon packages installed
@@ -16,3 +18,5 @@ Proper Syntax
 
 To call api, first implement the provider pattern in providers folder, then use it in components.
 when you need to call a method of provider you should use svelte bind:this syntax and have refrence to instance then you can use all methods.
+for migrate you should pass --name bun run db:migrate --name [name]
+when implementing a service for backend, after implementing functions dont write a create service function its only duplicate code.

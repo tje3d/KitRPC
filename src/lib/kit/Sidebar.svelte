@@ -52,12 +52,23 @@
 	// Get icon component based on icon name
 	function getIcon(iconName: string) {
 		const icons: Record<string, string> = {
-			dashboard: 'icon-[heroicons--home]',
+			dashboard: 'icon-[heroicons--squares-2x2]',
+			briefcase: 'icon-[heroicons--briefcase]',
+			'clipboard-list': 'icon-[heroicons--clipboard-document-list]',
+			'calendar-days': 'icon-[heroicons--calendar-days]',
+			'credit-card': 'icon-[heroicons--credit-card]',
+			banknotes: 'icon-[heroicons--banknotes]',
+			'arrow-down-tray': 'icon-[heroicons--arrow-down-tray]',
+			'device-phone-mobile': 'icon-[heroicons--device-phone-mobile]',
+			wallet: 'icon-[heroicons--wallet]',
+			users: 'icon-[heroicons--users]',
+			'user-group': 'icon-[heroicons--user-group]',
+			'shield-check': 'icon-[heroicons--shield-check]',
+			cog: 'icon-[heroicons--cog-6-tooth]',
+			// Legacy icons for backward compatibility
 			folder: 'icon-[heroicons--folder]',
 			'check-circle': 'icon-[heroicons--check-circle]',
 			calendar: 'icon-[heroicons--calendar]',
-			'credit-card': 'icon-[heroicons--credit-card]',
-			cog: 'icon-[heroicons--cog]',
 			user: 'icon-[heroicons--user-circle]',
 			'chevron-down': 'icon-[heroicons--chevron-down]',
 			'chevron-up': 'icon-[heroicons--chevron-up]',
@@ -65,7 +76,8 @@
 			account: 'icon-[heroicons--identification]',
 			help: 'icon-[heroicons--question-mark-circle]',
 			theme: 'icon-[heroicons--moon]',
-			logout: 'icon-[heroicons--arrow-left-on-rectangle]'
+			logout: 'icon-[heroicons--arrow-left-on-rectangle]',
+			'arrow-down-on-square': 'icon-[heroicons--arrow-down-on-square]'
 		};
 		return icons[iconName] || icons.dashboard;
 	}
@@ -258,19 +270,11 @@
 						<!-- Menu items -->
 						<div class="py-1">
 							<a
-								href="/panel/settings"
+								href="/panel/settings/profile"
 								class="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700/50"
 							>
 								<span class={getIcon('profile') + ' h-5 w-5'}></span>
 								<span>Profile & Settings</span>
-							</a>
-
-							<a
-								href="/panel/settings"
-								class="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700/50"
-							>
-								<span class={getIcon('account') + ' h-5 w-5'}></span>
-								<span>Account Management</span>
 							</a>
 
 							<a

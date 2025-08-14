@@ -9,7 +9,9 @@
 </div>
 
 <!-- Visual container -->
-<div class="fixed top-6 right-6 z-50 flex flex-col gap-3 pointer-events-none max-sm:top-4 max-sm:right-4 max-sm:left-4">
+<div
+	class="pointer-events-none fixed top-6 right-6 z-[1100] flex flex-col gap-3 max-sm:top-4 max-sm:right-4 max-sm:left-4"
+>
 	{#each $toasts$ as t (t.id)}
 		<Toast data={t} />
 	{/each}

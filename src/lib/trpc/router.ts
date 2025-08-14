@@ -3,6 +3,11 @@ import { authRouter } from './auth';
 import { bankCardsRouter } from './bankCards';
 import { todosRouter } from './todos';
 import { transactionsRouter } from './transactions';
+import { usersRouter } from './users';
+import { rolesRouter } from './roles';
+import { permissionsRouter } from './permissions';
+import { walletRouter } from './wallet';
+import { sessionsRouter } from './sessions';
 import { t } from './trpc';
 
 export const router = t.router({
@@ -20,7 +25,22 @@ export const router = t.router({
 	bankCards: bankCardsRouter,
 
 	// Transaction procedures
-	transactions: transactionsRouter
+	transactions: transactionsRouter,
+
+	// Wallet address procedures
+	wallet: walletRouter,
+
+	// User management procedures
+	users: usersRouter,
+
+	// Role management procedures
+	roles: rolesRouter,
+
+	// Permission management procedures
+	permissions: permissionsRouter,
+
+	// Session management procedures
+	sessions: sessionsRouter
 });
 
 export type Router = typeof router;

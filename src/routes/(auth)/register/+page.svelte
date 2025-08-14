@@ -42,34 +42,7 @@
 	// Password strength
 	$: passwordStrength = calculatePasswordStrength($password$);
 
-	function calculatePasswordStrength(password: string): {
-		score: number;
-		label: string;
-		color: string;
-	} {
-		let score = 0;
-		if (password.length >= 6) score++;
-		if (/[a-z]/.test(password)) score++;
-		if (/[A-Z]/.test(password)) score++;
-		if (/\d/.test(password)) score++;
-		if (/[^a-zA-Z\d]/.test(password)) score++;
-
-		const labels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
-		const colors = [
-			'bg-red-500',
-			'bg-orange-500',
-			'bg-yellow-500',
-			'bg-blue-500',
-			'bg-green-500',
-			'bg-teal-500'
-		];
-
-		return {
-			score,
-			label: labels[score] || 'Very Weak',
-			color: colors[score] || 'bg-red-500'
-		};
-	}
+	import { calculatePasswordStrength } from '$lib/helpers/password.helper';
 
 	// Actions
 	function handleRegister(e: SubmitEvent, register: Function) {
@@ -188,7 +161,7 @@
 				<!-- Password Strength Indicator -->
 				{#if $password$}
 					<div class="space-y-2" in:fade={{ duration: 200 }}>
-						<PasswordStrengthIndicator strength={Math.min(passwordStrength.score, 4)} />
+						<PasswordStrengthIndicator strength={passwordStrength.score} />
 					</div>
 				{/if}
 			</FormGroup>

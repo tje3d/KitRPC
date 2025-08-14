@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { authUser, isLoggedIn } from '$lib/flow/auth.flow';
 	import Button from '$lib/kit/Button.svelte';
@@ -32,14 +32,47 @@
 	}
 
 	// Navigation items
-	const navItems = [
+	$: navItems = [
 		{ name: 'Dashboard', href: '/panel', icon: 'dashboard', category: 'General' },
-		{ name: 'Projects', href: '/panel/projects', icon: 'folder', category: 'Work' },
-		{ name: 'Tasks', href: '/panel/tasks', icon: 'check-circle', category: 'Work' },
-		{ name: 'Calendar', href: '/panel/calendar', icon: 'calendar', category: 'Work' },
+		{ name: 'Projects', href: '/panel/projects', icon: 'briefcase', category: 'Work' },
+		{ name: 'Tasks', href: '/panel/tasks', icon: 'clipboard-list', category: 'Work' },
+		{ name: 'Calendar', href: '/panel/calendar', icon: 'calendar-days', category: 'Work' },
 		{ name: 'Cards', href: '/panel/cards', icon: 'credit-card', category: 'Work' },
-		{ name: 'Transactions', href: '/panel/transactions', icon: 'credit-card', category: 'Work' },
-		{ name: 'Settings', href: '/panel/settings', icon: 'cog', category: 'General' }
+		{ name: 'Transactions', href: '/panel/transactions', icon: 'banknotes', category: 'Work' },
+		{ name: 'Deposit', href: '/panel/deposit', icon: 'arrow-down-tray', category: 'Work' },
+		{ name: 'Sessions', href: '/panel/sessions', icon: 'device-phone-mobile', category: 'Work' },
+		// Add wallet management link for admin users
+		...(($authUser?.role?.permissions || []).some(
+			(p) => p.permission.resource === 'wallet' && p.permission.action === 'manage'
+		)
+			? [{ name: 'Wallets', href: '/panel/admin/wallets', icon: 'wallet', category: 'Admin' }]
+			: []),
+		// Add user management link for users with appropriate permissions
+		...(($authUser?.role?.permissions || []).some(
+			(p) => p.permission.resource === 'user' && p.permission.action === 'manage'
+		)
+			? [{ name: 'Users', href: '/panel/admin/users', icon: 'users', category: 'Admin' }]
+			: []),
+		// Add role management link for users with appropriate permissions
+		...(($authUser?.role?.permissions || []).some(
+			(p) => p.permission.resource === 'role' && p.permission.action === 'manage'
+		)
+			? [{ name: 'Roles', href: '/panel/admin/roles', icon: 'user-group', category: 'Admin' }]
+			: []),
+		// Add permission management link for users with appropriate permissions
+		...(($authUser?.role?.permissions || []).some(
+			(p) => p.permission.resource === 'permission' && p.permission.action === 'manage'
+		)
+			? [
+					{
+						name: 'Permissions',
+						href: '/panel/admin/permissions',
+						icon: 'shield-check',
+						category: 'Admin'
+					}
+				]
+			: []),
+		{ name: 'Profile', href: '/panel/settings/profile', icon: 'cog', category: 'General' }
 	];
 
 	// Check if current route matches nav item (reactive)
@@ -61,6 +94,10 @@
 			normalizedRouteId === normalizedHref || normalizedRouteId.startsWith(normalizedHref + '/')
 		);
 	};
+
+	$: if (!$isLoggedIn && browser) {
+		goto('/login');
+	}
 </script>
 
 <svelte:window on:resize={checkMobile} />
@@ -113,11 +150,11 @@
 								</div>
 								<div class="py-1">
 									<a
-										href="/panel/settings"
+										href="/panel/settings/profile"
 										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
 									>
 										<span class="icon-[heroicons--cog-6-tooth] mr-2 inline h-4 w-4"></span>
-										Settings
+										Profile
 									</a>
 									<button
 										class="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"

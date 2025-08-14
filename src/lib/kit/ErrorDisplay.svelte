@@ -8,13 +8,13 @@
 	<div class="flex items-start">
 		<span class="icon-[heroicons--exclamation-circle] mt-0.5 h-5 w-5 flex-shrink-0 text-red-400"
 		></span>
-		<div class="ml-3 flex-1">
+		<div class="ms-3 flex-1">
 			<p class="text-sm text-red-800">{message}</p>
 		</div>
 		<button
 			type="button"
 			on:click={onDismiss}
-			class="ml-3 text-red-400 transition-colors hover:text-red-600"
+			class="ms-3 text-red-400 transition-colors hover:text-red-600"
 			aria-label="Dismiss error"
 		>
 			<svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -10,7 +10,9 @@ import type {
 declare global {
 	namespace App {
 		// interface Error {}
-		// interface Locals {}
+		interface Locals {
+			user: import('./app').App.AuthUser | null;
+		}
 		// interface PageData {}
 		// interface PageState {}
 		// interface Platform {}
@@ -25,7 +27,7 @@ declare global {
 		type Role = Omit<PrismaRole, 'createdAt' | 'updatedAt'>;
 
 		// Auth-related types
-		type AuthUser = Pick<PrismaUser, 'id' | 'username'> & {
+		type AuthUser = Pick<PrismaUser, 'id' | 'username' | 'email'> & {
 			balanceIRT?: number;
 			balanceUSDT?: number;
 			role?: Role & {

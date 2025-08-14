@@ -1,41 +1,40 @@
 <script lang="ts">
+	import { fade } from 'svelte/transition';
+	import Checkbox from './Checkbox.svelte';
+	import Input from './Input.svelte';
 	import Pagination from './Pagination.svelte';
 
-	/** @type {Array<any>} - The data to display in the table */
-	export let data: Array<any> = [];
-
-	/** @type {Array<{key: string, label: string, sortable?: boolean}>} - Column definitions */
-	export let columns: Array<{
+	// Define types
+	type Column = {
 		key: string;
 		label: string;
 		sortable?: boolean;
+		filterable?: boolean;
 		render?: (value: any, row: any) => any;
-	}> = [];
+	};
 
-	/** @type {number} - Number of items per page */
+	type Row = Record<string, any>;
+
+	// Define props using Svelte 4 syntax
+	export let data: Array<Row> = [];
+	export let columns: Array<Column> = [];
 	export let itemsPerPage: number = 10;
-
-	/** @type {string} - Additional CSS classes for the table */
 	export let className: string = '';
-
-	/** @type {boolean} - Whether to show pagination controls */
 	export let showPagination: boolean = true;
-
-	/** @type {number} - Total number of items (for server-side pagination) */
 	export let totalItems: number = 0;
-
-	/** @type {number} - Current page (for server-side pagination) */
 	export let currentPage: number = 1;
-
-	/** @type {function} - Callback when page changes (for server-side pagination) */
 	export let onPageChange: ((page: number) => void) | null = null;
-
-	/** @type {function} - Callback when sort changes (for server-side pagination) */
 	export let onSortChange: ((key: string, direction: 'asc' | 'desc') => void) | null = null;
+	export let searchTerm: string = '';
+	export let loading: boolean = false;
 
 	// State for client-side sorting (when server-side callbacks are not provided)
 	let sortKey: string | null = null;
 	let sortDirection: 'asc' | 'desc' = 'asc';
+
+	// State for search and filtering
+	let columnFilters: Record<string, string> = {};
+	let selectedRows: Set<Row> = new Set();
 
 	// Computed properties
 	$: isServerSide = onPageChange !== null;
@@ -43,29 +42,58 @@
 		? Math.ceil(totalItems / itemsPerPage)
 		: Math.ceil(data.length / itemsPerPage);
 
-	$: sortedData = isServerSide
-		? data
-		: data.slice().sort((a, b) => {
-				if (!sortKey) return 0;
+	// Filtered data based on search term and column filters
+	$: filteredData = (() => {
+		if (isServerSide) return data;
 
-				const aValue = a[sortKey];
-				const bValue = b[sortKey];
+		return data.filter((row: Row) => {
+			// Global search
+			if (searchTerm) {
+				const searchLower = searchTerm.toLowerCase();
+				const matchesSearch = columns.some((column: Column) => {
+					const value = row[column.key];
+					return value && value.toString().toLowerCase().includes(searchLower);
+				});
+				if (!matchesSearch) return false;
+			}
 
-				if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-				if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-				return 0;
+			// Column filters
+			return columns.every((column: Column) => {
+				if (!column.filterable || !columnFilters[column.key]) return true;
+				const filterValue = columnFilters[column.key].toLowerCase();
+				const cellValue = row[column.key];
+				return cellValue && cellValue.toString().toLowerCase().includes(filterValue);
 			});
+		});
+	})();
 
-	$: paginatedData = isServerSide
-		? sortedData
-		: sortedData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+	$: sortedData = (() => {
+		if (isServerSide) return filteredData;
+
+		return filteredData.slice().sort((a: Row, b: Row) => {
+			if (!sortKey) return 0;
+
+			const aValue = a[sortKey];
+			const bValue = b[sortKey];
+
+			if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+			if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+			return 0;
+		});
+	})();
+
+	$: paginatedData = (() => {
+		if (isServerSide) return sortedData;
+
+		return sortedData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+	})();
 
 	// Functions
 	function handleSort(key: string) {
 		if (isServerSide && onSortChange) {
 			const newDirection = sortKey === key && sortDirection === 'asc' ? 'desc' : 'asc';
 			sortKey = key;
-			sortDirection = newDirection;
+			sortDirection = newDirection as 'asc' | 'desc';
 			onSortChange(key, newDirection);
 		} else {
 			if (sortKey === key) {
@@ -81,12 +109,106 @@
 		if (sortKey !== key) return 'heroicons--chevron-up-down';
 		return sortDirection === 'asc' ? 'heroicons--chevron-up' : 'heroicons--chevron-down';
 	}
+
+	function handleSearchChange() {
+		// Reset to first page when search changes
+		if (!isServerSide && currentPage !== 1) {
+			// In client-side mode, we would need to update currentPage
+			// But since it's a prop, we can't directly modify it
+		}
+	}
+
+	function handleFilterChange(columnKey: string) {
+		// Reset to first page when filter changes
+		if (!isServerSide && currentPage !== 1) {
+			// In client-side mode, we would need to update currentPage
+			// But since it's a prop, we can't directly modify it
+		}
+	}
+
+	function handleSelectAll() {
+		if (selectedRows.size === paginatedData.length) {
+			// Deselect all
+			selectedRows.clear();
+			selectedRows = selectedRows;
+		} else {
+			// Select all
+			paginatedData.forEach((row: Row) => selectedRows.add(row));
+			selectedRows = selectedRows;
+		}
+	}
+
+	function handleSelectRow(row: Row) {
+		if (selectedRows.has(row)) {
+			selectedRows.delete(row);
+		} else {
+			selectedRows.add(row);
+		}
+		selectedRows = selectedRows;
+	}
+
+	function isRowSelected(row: Row) {
+		return selectedRows.has(row);
+	}
+
+	function isAllSelected() {
+		return paginatedData.length > 0 && selectedRows.size === paginatedData.length;
+	}
+
+	function isIndeterminate() {
+		return selectedRows.size > 0 && selectedRows.size < paginatedData.length;
+	}
 </script>
 
-<div class={`overflow-x-auto ${className}`}>
+<!-- Search and filter controls -->
+<div class="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+	<!-- Global search -->
+	<div class="w-full md:w-64">
+		<Input
+			id="datatable-search"
+			name="datatable-search"
+			type="text"
+			placeholder="Search..."
+			bind:value={searchTerm}
+			onChange={handleSearchChange}
+			className="w-full"
+		/>
+	</div>
+
+	<!-- Column filters -->
+	<div class="flex flex-wrap gap-2">
+		{#each columns as column}
+			{#if column.filterable}
+				<div class="w-32">
+					<Input
+						id={`filter-${column.key}`}
+						name={`filter-${column.key}`}
+						type="text"
+						placeholder={`Filter ${column.label}`}
+						value={columnFilters[column.key] || ''}
+						onChange={() => handleFilterChange(column.key)}
+						className="w-full"
+					/>
+				</div>
+			{/if}
+		{/each}
+	</div>
+</div>
+
+<div class={`relative overflow-x-auto ${className}`}>
 	<table class="min-w-full divide-y divide-gray-200">
 		<thead class="bg-gray-50">
 			<tr>
+				<!-- Selection column -->
+				<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+					<Checkbox
+						id="select-all-checkbox"
+						name="select-all"
+						checked={isAllSelected()}
+						indeterminate={isIndeterminate()}
+						onChange={handleSelectAll}
+					/>
+				</th>
 				{#each columns as column (column.key)}
 					<th
 						scope="col"
@@ -107,6 +229,15 @@
 		<tbody class="divide-y divide-gray-200 bg-white">
 			{#each paginatedData as row, i (row.id || i)}
 				<tr class="hover:bg-gray-50">
+					<!-- Selection cell -->
+					<td class="px-6 py-4 text-sm whitespace-nowrap">
+						<Checkbox
+							id={`select-row-${i}`}
+							name={`select-row-${i}`}
+							checked={isRowSelected(row)}
+							onChange={() => handleSelectRow(row)}
+						/>
+					</td>
 					{#each columns as column (column.key)}
 						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
 							{#if column.render}
@@ -117,23 +248,39 @@
 						</td>
 					{/each}
 				</tr>
+			{:else}
+				<tr>
+					<td colspan={columns.length + 1} class="px-6 py-4 text-center text-gray-500">
+						No data available
+					</td>
+				</tr>
 			{/each}
 		</tbody>
 	</table>
 
 	{#if showPagination && totalPages > 1}
 		<Pagination
-			totalItems={isServerSide ? totalItems : data.length}
+			totalItems={isServerSide ? totalItems : filteredData.length}
 			{currentPage}
 			{itemsPerPage}
 			onPageChange={(page) => {
 				if (isServerSide && onPageChange) {
 					onPageChange(page);
 				} else {
-					currentPage = page;
+					// In client-side mode, we would need to update currentPage
+					// But since it's a prop, we can't directly modify it
 				}
 			}}
 			className="mt-4"
 		/>
+	{/if}
+
+	{#if loading}
+		<div
+			class="absolute inset-0 z-10 flex items-center justify-center bg-black/20"
+			in:fade|local={{ delay: 1_000 }}
+		>
+			<span class="icon-[svg-spinners--ring-resize] h-8 w-8 text-blue-500"></span>
+		</div>
 	{/if}
 </div>

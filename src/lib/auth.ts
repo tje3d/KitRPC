@@ -16,7 +16,15 @@ export function generateToken(): string {
 }
 
 // Session utilities
-export async function createSession(userId: string): Promise<{ token: string; expiresAt: Date }> {
+export async function createSession(
+	userId: string,
+	deviceInfo?: {
+		userAgent?: string;
+		ipAddress?: string;
+		deviceType?: string;
+		browser?: string;
+	}
+): Promise<{ token: string; expiresAt: Date }> {
 	const token = generateToken();
 	const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
@@ -24,7 +32,13 @@ export async function createSession(userId: string): Promise<{ token: string; ex
 		data: {
 			userId,
 			token,
-			expiresAt
+			expiresAt,
+			...(deviceInfo && {
+				userAgent: deviceInfo.userAgent,
+				ipAddress: deviceInfo.ipAddress,
+				deviceType: deviceInfo.deviceType,
+				browser: deviceInfo.browser
+			})
 		}
 	});
 

@@ -39,14 +39,15 @@ async function main() {
 			{ name: 'todo:delete', description: 'Delete todos', resource: 'todo', action: 'delete' },
 
 			// User permissions
-			{ name: 'user:read', description: 'Read user profiles', resource: 'user', action: 'read' },
+			{ name: 'user:manage', description: 'Manage users', resource: 'user', action: 'manage' },
+
+			// Wallet permissions
 			{
-				name: 'user:update',
-				description: 'Update user profiles',
-				resource: 'user',
-				action: 'update'
+				name: 'wallet:manage',
+				description: 'Manage wallet addresses',
+				resource: 'wallet',
+				action: 'manage'
 			},
-			{ name: 'user:delete', description: 'Delete users', resource: 'user', action: 'delete' },
 
 			// Admin permissions
 			{
@@ -72,23 +73,6 @@ async function main() {
 
 		// Assign permissions to roles
 		console.log('🔗 Assigning permissions to roles...');
-
-		// User role gets basic todo permissions
-		const userPermissions = createdPermissions.filter(
-			(p) =>
-				p.resource === 'todo' || (p.resource === 'user' && ['read', 'update'].includes(p.action))
-		);
-
-		await Promise.all(
-			userPermissions.map((permission) =>
-				prisma.rolePermission.create({
-					data: {
-						roleId: userRole.id,
-						permissionId: permission.id
-					}
-				})
-			)
-		);
 
 		// Admin role gets all permissions
 		await Promise.all(

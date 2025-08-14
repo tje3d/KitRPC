@@ -1,12 +1,12 @@
 <script lang="ts">
-	/** @type {number} - Password strength score (0-4) */
+	/** @type {number} - Password strength score (0-5) */
 	export let strength: number = 0;
 
 	/** @type {string} - Additional CSS classes */
 	export let className: string = '';
 
 	// Strength labels
-	const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+	const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
 
 	// Strength colors
 	const strengthColors = [
@@ -14,7 +14,8 @@
 		'bg-orange-500', // Weak
 		'bg-yellow-500', // Fair
 		'bg-blue-500', // Good
-		'bg-green-500' // Strong
+		'bg-green-500', // Strong
+		'bg-purple-500' // Very Strong
 	];
 
 	// Get strength label
@@ -24,7 +25,7 @@
 	$: strengthColor = strengthColors[strength] || 'bg-red-500';
 
 	// Get bar width percentage
-	$: barWidth = ((strength + 1) / 5) * 100;
+	$: barWidth = ((strength + 1) / 6) * 100;
 </script>
 
 <div class={`space-y-2 ${className}`}>
@@ -47,8 +48,10 @@
 			Use at least 8 characters with a mix of letters, numbers, and symbols.
 		{:else if strength < 4}
 			Getting stronger! Try adding more character variety.
-		{:else}
+		{:else if strength < 6}
 			Great password! It meets all security requirements.
+		{:else}
+			Excellent password! Maximum security achieved.
 		{/if}
 	</div>
 </div>

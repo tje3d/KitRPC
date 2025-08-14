@@ -56,3 +56,40 @@ export function formatCurrency(
 			.replace('$', 'USDT ');
 	}
 }
+
+// Extract device information from request context
+export function extractDeviceInfo(ctx: { request: Request }) {
+	const userAgent = ctx.request.headers.get('user-agent') || undefined;
+	const ipAddress =
+		ctx.request.headers.get('x-forwarded-for') || ctx.request.headers.get('x-real-ip') || undefined;
+
+	// Simple device type detection based on user agent
+	let deviceType = 'desktop';
+	let browser = 'unknown';
+
+	if (userAgent) {
+		if (/mobile/i.test(userAgent)) {
+			deviceType = 'mobile';
+		} else if (/tablet/i.test(userAgent)) {
+			deviceType = 'tablet';
+		}
+
+		// Simple browser detection
+		if (/chrome/i.test(userAgent) && !/edge/i.test(userAgent)) {
+			browser = 'Chrome';
+		} else if (/firefox/i.test(userAgent)) {
+			browser = 'Firefox';
+		} else if (/safari/i.test(userAgent) && !/chrome/i.test(userAgent)) {
+			browser = 'Safari';
+		} else if (/edge/i.test(userAgent)) {
+			browser = 'Edge';
+		}
+	}
+
+	return {
+		userAgent,
+		ipAddress,
+		deviceType,
+		browser
+	};
+}

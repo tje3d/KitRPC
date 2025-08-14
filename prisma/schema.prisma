@@ -89,17 +89,25 @@ model UserPermission {
 }
 
 model Session {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @unique
-  expiresAt DateTime
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  userId     String
+  token      String   @unique
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userAgent  String?
+  ipAddress  String?
+  deviceType String?
+  browser    String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([token])
   @@index([expiresAt])
+  @@index([userAgent])
+  @@index([ipAddress])
+  @@index([deviceType])
+  @@index([browser])
 }
 
 model Todo {
@@ -172,4 +180,17 @@ model Transaction {
   @@index([currency])
   @@index([status])
   @@index([createdAt])
+}
+
+model WalletAddress {
+  id        String   @id @default(cuid())
+  network   String // e.g., "Tron", "Ethereum", etc.
+  address   String // The actual wallet address
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([network])
+  @@index([address])
+  @@index([isActive])
 }

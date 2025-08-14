@@ -3,7 +3,7 @@ import type { LayoutServerLoad } from './$types';
 
 export const load: LayoutServerLoad = async ({ cookies }) => {
 	const sessionToken = cookies.get('session_token');
-	
+
 	if (!sessionToken) {
 		return {
 			user: null
@@ -12,7 +12,7 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 
 	try {
 		const session = await validateSession(sessionToken);
-		
+
 		if (!session) {
 			// Clear invalid session cookie
 			cookies.delete('session_token', { path: '/' });
@@ -25,14 +25,17 @@ export const load: LayoutServerLoad = async ({ cookies }) => {
 		const user: App.AuthUser = {
 			id: session.user.id,
 			username: session.user.username,
+			email: session.user.email,
 			balanceIRT: session.user.balanceIRT,
 			balanceUSDT: session.user.balanceUSDT,
-			role: session.user.role ? {
-				id: session.user.role.id,
-				name: session.user.role.name,
-				description: session.user.role.description,
-				permissions: session.user.role.permissions
-			} : undefined,
+			role: session.user.role
+				? {
+						id: session.user.role.id,
+						name: session.user.role.name,
+						description: session.user.role.description,
+						permissions: session.user.role.permissions
+					}
+				: undefined,
 			permissions: session.user.permissions
 		};
 

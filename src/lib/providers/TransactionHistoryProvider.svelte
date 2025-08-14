@@ -1,9 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { shareIt } from '$lib/helpers/rxjs.helper';
 	import { subscribe } from '$lib/helpers/svelte-rxjs.helper';
 	import { createTrpcRequestFn, useTrpcRequest } from '$lib/helpers/useTrpcRequest.helper';
 	import { trpc } from '$lib/trpc/client';
 	import type { RouterInputs, RouterOutputs } from '$lib/trpc/router';
+	import { map } from 'rxjs';
 
 	type RequestParams = NonNullable<RouterInputs['transactions']['getHistory']>;
 	type ResponseData = RouterOutputs['transactions']['getHistory'];
@@ -19,12 +21,20 @@
 		})
 	);
 
-	$: totalCount = $responseSuccess?.totalCount || 0;
-	$: transactions = $responseSuccess?.transactions.map((r) => ({
-		...r,
-		createdAt: new Date(r.createdAt),
-		updatedAt: new Date(r.updatedAt)
-	}));
+	const totalCount = responseSuccess.pipe(
+		map((r) => r?.totalCount || 0),
+		shareIt()
+	);
+	const transactions = responseSuccess.pipe(
+		map((r) =>
+			r?.transactions.map((r) => ({
+				...r,
+				createdAt: new Date(r.createdAt),
+				updatedAt: new Date(r.updatedAt)
+			}))
+		),
+		shareIt()
+	);
 
 	// Actions
 	export function getHistory(filters: RequestParams) {
@@ -48,8 +58,8 @@
 	response={$responseSuccess}
 	loading={$loading}
 	errorMessage={$errorMessage}
-	{totalCount}
-	{transactions}
+	totalCount={$totalCount}
+	transactions={$transactions}
 	{clearError}
 	{getHistory}
 />

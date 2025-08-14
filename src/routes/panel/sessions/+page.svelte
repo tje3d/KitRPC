@@ -1,0 +1,334 @@
+<script lang="ts">
+	import ConfirmDialog from '$lib/dialog/ConfirmDialog.svelte';
+	import { dialogStore } from '$lib/dialog/store';
+	import Card from '$lib/kit/Card.svelte';
+	import DataTable from '$lib/kit/DataTable.svelte';
+	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
+	import SessionProvider from '$lib/providers/SessionProvider.svelte';
+	import { toast } from '$lib/toast/store';
+	import type { RouterOutputs } from '$lib/trpc/router';
+	import { onMount, tick } from 'svelte';
+
+	type Session = RouterOutputs['sessions']['getSessions'][number];
+
+	// Provider reference
+	let sessionProvider: SessionProvider;
+
+	// State
+	let error: string | null = null;
+	let currentSessionError: string | null = null;
+	let deleteError: string | null = null;
+	let sessionToDelete: Session | null = null;
+
+	// Format date for display
+	function formatDate(date: Date): string {
+		return new Date(date).toLocaleString();
+	}
+
+	// Format device type for display
+	function formatDeviceType(deviceType: string | null): string {
+		if (!deviceType) return 'Unknown';
+		return deviceType.charAt(0).toUpperCase() + deviceType.slice(1);
+	}
+
+	// Format browser for display
+	function formatBrowser(browser: string | null): string {
+		if (!browser) return 'Unknown';
+		return browser;
+	}
+
+	// Get device icon based on device type
+	function getDeviceIcon(deviceType: string | null): string {
+		if (!deviceType) return 'icon-[heroicons--device-phone-mobile]';
+
+		switch (deviceType.toLowerCase()) {
+			case 'mobile':
+				return 'icon-[heroicons--device-phone-mobile]';
+			case 'tablet':
+				return 'icon-[heroicons--device-tablet]';
+			default:
+				return 'icon-[heroicons--computer-desktop]';
+		}
+	}
+
+	// Get browser icon based on browser name
+	function getBrowserIcon(browser: string | null): string {
+		if (!browser) return 'icon-[heroicons--globe-alt]';
+
+		const browserLower = browser.toLowerCase();
+		if (browserLower.includes('chrome')) {
+			return 'icon-[cib--chrome]';
+		} else if (browserLower.includes('firefox')) {
+			return 'icon-[cib--firefox]';
+		} else if (browserLower.includes('safari')) {
+			return 'icon-[cib--safari]';
+		} else if (browserLower.includes('edge')) {
+			return 'icon-[cib--microsoft-edge]';
+		} else {
+			return 'icon-[heroicons--globe-alt]';
+		}
+	}
+
+	// Show delete confirmation dialog
+	function confirmDelete(session: Session) {
+		sessionToDelete = session;
+		dialogStore.open({
+			component: ConfirmDialog,
+			props: {
+				title: 'Terminate Session',
+				message: `Are you sure you want to terminate the session from ${formatDeviceType(session.deviceType)} on ${formatDate(new Date(session.createdAt))}? This action cannot be undone.`,
+				confirm: 'Terminate',
+				cancel: 'Cancel',
+				color: 'red',
+				onConfirm: () => {
+					history.back();
+
+					tick().then(() => {
+						deleteSession(session.id);
+					});
+				},
+				onCancel: () => {
+					sessionToDelete = null;
+				}
+			}
+		});
+	}
+
+	// Delete a session
+	function deleteSession(sessionId: string) {
+		sessionProvider.deleteSession(sessionId);
+	}
+
+	// Define columns for the DataTable
+	const columns = [
+		{
+			key: 'deviceType',
+			label: 'Device',
+			render: (value: string, row: Session) => `
+				<div class="flex items-center">
+					<span class="${getDeviceIcon(row.deviceType)} h-5 w-5 text-gray-500"></span>
+					<span class="ms-2 text-sm font-medium text-gray-900">${formatDeviceType(row.deviceType)}</span>
+				</div>
+			`
+		},
+		{
+			key: 'browser',
+			label: 'Browser',
+			render: (value: string, row: Session) => `
+				<div class="flex items-center">
+					<span class="${getBrowserIcon(row.browser)} h-5 w-5 text-gray-500"></span>
+					<span class="ms-2 text-sm text-gray-900">${formatBrowser(row.browser)}</span>
+				</div>
+			`
+		},
+		{
+			key: 'ipAddress',
+			label: 'IP Address',
+			render: (value: string) => `
+				<div class="text-sm text-gray-500">
+					${value || 'Unknown'}
+				</div>
+			`
+		},
+		{
+			key: 'createdAt',
+			label: 'Login Time',
+			render: (value: Date) => `
+				<div class="text-sm text-gray-500">
+					${formatDate(value)}
+				</div>
+			`
+		},
+		{
+			key: 'actions',
+			label: 'Actions',
+			render: (value: any, row: Session) => `
+				<div class="flex justify-end">
+					<button 
+						class="text-red-600 hover:text-red-900"
+						onclick="(() => { const event = new CustomEvent('deleteSession', { detail: '${row.id}' }); document.dispatchEvent(event); })()"
+					>
+						Terminate
+					</button>
+				</div>
+			`
+		}
+	];
+
+	// Load sessions when component mounts
+	onMount(() => {
+		sessionProvider.getSessions();
+
+		// Listen for delete events from the DataTable
+		const handleDeleteSession = (event: Event) => {
+			const customEvent = event as CustomEvent;
+			const sessionId = customEvent.detail;
+			// We'll handle the delete confirmation in the event handler
+		};
+
+		document.addEventListener('deleteSession', handleDeleteSession as EventListener);
+
+		// Cleanup event listener
+		return () => {
+			document.removeEventListener('deleteSession', handleDeleteSession as EventListener);
+		};
+	});
+</script>
+
+<SessionProvider
+	bind:this={sessionProvider}
+	let:sessions
+	let:loading
+	let:errorMessage
+	let:deleteLoading
+	let:deleteErrorMessage
+	let:clearError
+	let:clearDeleteError
+	let:getSessions
+	let:deleteSession
+	let:currentSession
+	onError={(message) => toast.error(message || 'Failed to fetch sessions')}
+>
+	<PanelPageWrapper
+		title="Session Management"
+		description="View and manage your active sessions across devices."
+	>
+		<!-- Current Session Section -->
+		<Card variant="flat" className="mb-6">
+			<div class="flex items-center justify-between border-b border-gray-200 pb-4">
+				<div class="flex items-center space-x-2">
+					<span class="icon-[heroicons--computer-desktop] h-5 w-5 text-gray-500"></span>
+					<h2 class="text-lg font-semibold text-gray-800">Current Session</h2>
+				</div>
+			</div>
+
+			{#if loading}
+				<div class="flex justify-center py-6">
+					<span class="icon-[svg-spinners--bars-scale-fade] h-6 w-6 text-blue-500"></span>
+				</div>
+			{:else if currentSession}
+				<div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+					<div class="rounded-lg border border-gray-200 p-4">
+						<div class="flex items-center">
+							<span class="{getDeviceIcon(currentSession.deviceType || null)} h-6 w-6 text-gray-500"
+							></span>
+							<span class="ms-2 text-sm font-medium text-gray-900">Device</span>
+						</div>
+						<p class="mt-1 text-sm text-gray-500">
+							{formatDeviceType(currentSession.deviceType || null)}
+						</p>
+					</div>
+
+					<div class="rounded-lg border border-gray-200 p-4">
+						<div class="flex items-center">
+							<span class="{getBrowserIcon(currentSession.browser || null)} h-6 w-6 text-gray-500"
+							></span>
+							<span class="ms-2 text-sm font-medium text-gray-900">Browser</span>
+						</div>
+						<p class="mt-1 text-sm text-gray-500">
+							{formatBrowser(currentSession.browser || null)}
+						</p>
+					</div>
+
+					<div class="rounded-lg border border-gray-200 p-4">
+						<div class="flex items-center">
+							<span class="icon-[heroicons--globe-alt] h-6 w-6 text-gray-500"></span>
+							<span class="ms-2 text-sm font-medium text-gray-900">IP Address</span>
+						</div>
+						<p class="mt-1 text-sm text-gray-500">{currentSession.ipAddress || 'Unknown'}</p>
+					</div>
+
+					<div class="rounded-lg border border-gray-200 p-4">
+						<div class="flex items-center">
+							<span class="icon-[heroicons--clock] h-6 w-6 text-gray-500"></span>
+							<span class="ms-2 text-sm font-medium text-gray-900">Login Time</span>
+						</div>
+						<p class="mt-1 text-sm text-gray-500">
+							{formatDate(new Date(currentSession.createdAt))}
+						</p>
+					</div>
+				</div>
+			{:else}
+				<div class="py-6 text-center">
+					<div class="mx-auto h-12 w-12 text-gray-400">
+						<span class="icon-[heroicons--exclamation-triangle] h-12 w-12"></span>
+					</div>
+					<h3 class="mt-2 text-sm font-medium text-gray-900">Current session not found</h3>
+					<p class="mt-1 text-sm text-gray-500">
+						Unable to retrieve information about your current session.
+					</p>
+				</div>
+			{/if}
+		</Card>
+
+		<!-- All Sessions Section -->
+		<Card variant="flat">
+			<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+				<div>
+					<h2 class="text-lg font-bold text-gray-800">Active Sessions</h2>
+					<p class="mt-1 text-sm text-gray-600">List of all your active sessions across devices</p>
+				</div>
+			</div>
+
+			<!-- Loading State -->
+			{#if loading}
+				<div class="flex justify-center py-12">
+					<span class="icon-[svg-spinners--bars-scale-fade] h-8 w-8 text-blue-500"></span>
+				</div>
+			{/if}
+
+			<!-- Error State -->
+			{#if errorMessage}
+				<Card variant="flat" className="mb-6">
+					<div class="rounded-md bg-red-50 p-4">
+						<div class="flex">
+							<div class="flex-shrink-0">
+								<span class="icon-[heroicons--x-circle] h-5 w-5 text-red-400"></span>
+							</div>
+							<div class="ms-3">
+								<h3 class="text-sm font-medium text-red-800">Error loading sessions</h3>
+								<div class="mt-2 text-sm text-red-700">
+									<p>{errorMessage}</p>
+									<button
+										class="mt-2 text-sm text-red-600 underline hover:text-red-500"
+										on:click={() => {
+											clearError();
+										}}
+									>
+										Dismiss
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</Card>
+			{/if}
+
+			<!-- Sessions Table -->
+			{#if !loading && !errorMessage}
+				{#if sessions?.length === 0}
+					<div class="py-12 text-center">
+						<div class="mx-auto h-12 w-12 text-gray-400">
+							<span class="icon-[heroicons--document-text] h-12 w-12"></span>
+						</div>
+						<h3 class="mt-2 text-sm font-medium text-gray-900">No active sessions</h3>
+						<p class="mt-1 text-sm text-gray-500">
+							You don't have any active sessions besides the current one.
+						</p>
+					</div>
+				{:else}
+					<DataTable
+						data={sessions?.filter((s) => !s.isCurrent)}
+						{columns}
+						itemsPerPage={10}
+						totalItems={sessions?.filter((s) => !s.isCurrent).length || 0}
+						currentPage={1}
+						showPagination={false}
+						onPageChange={() => {}}
+						onSortChange={() => {}}
+					/>
+				{/if}
+			{/if}
+		</Card>
+	</PanelPageWrapper>
+</SessionProvider>

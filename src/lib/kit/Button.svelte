@@ -28,6 +28,9 @@
 	/** @type {boolean} - Whether the button should take full width */
 	export let fullWidth: boolean = false;
 
+	/** @type {string} - Optional href to render as anchor link */
+	export let href: string | undefined = undefined;
+
 	// Base button classes
 	const baseButtonClasses =
 		'cursor-pointer inline-flex items-center justify-center transform rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
@@ -69,26 +72,47 @@
 
 	// Handle click event
 	function handleClick() {
-		if (!isDisabled) {
+		if (!isDisabled && !href) {
 			onClick();
 		}
 	}
 </script>
 
-<button
-	{type}
-	disabled={isDisabled}
-	class={buttonClasses}
-	on:click={handleClick}
-	aria-busy={loading}
-	aria-disabled={isDisabled}
->
-	{#if loading}
-		<div class="flex items-center">
-			<span class="icon-[svg-spinners--bars-scale-fade] mr-2 h-4 w-4"></span>
-			<slot name="loading-text">Loading...</slot>
-		</div>
-	{:else}
-		<slot />
-	{/if}
-</button>
+{#if href}
+	<a
+		{href}
+		class={buttonClasses}
+		on:click={handleClick}
+		aria-busy={loading}
+		aria-disabled={isDisabled}
+		role="button"
+		tabindex={isDisabled ? -1 : 0}
+	>
+		{#if loading}
+			<div class="flex items-center">
+				<span class="icon-[svg-spinners--bars-scale-fade] mr-2 h-4 w-4"></span>
+				<slot name="loading-text">Loading...</slot>
+			</div>
+		{:else}
+			<slot />
+		{/if}
+	</a>
+{:else}
+	<button
+		{type}
+		disabled={isDisabled}
+		class={buttonClasses}
+		on:click={handleClick}
+		aria-busy={loading}
+		aria-disabled={isDisabled}
+	>
+		{#if loading}
+			<div class="flex items-center">
+				<span class="icon-[svg-spinners--bars-scale-fade] mr-2 h-4 w-4"></span>
+				<slot name="loading-text" />
+			</div>
+		{:else}
+			<slot />
+		{/if}
+	</button>
+{/if}

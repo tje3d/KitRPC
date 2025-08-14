@@ -6,6 +6,7 @@ import {
 	verifyPassword
 } from '$lib/auth';
 import { prisma } from '$lib/prisma';
+import { extractDeviceInfo } from '$lib/helpers/utils.helper';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { t } from './trpc';
@@ -101,8 +102,16 @@ export const authRouter = t.router({
 				}
 			});
 
-			// Create session
-			const { token, expiresAt } = await createSession(user.id);
+			// Extract device information from request
+			const { userAgent, ipAddress, deviceType, browser } = extractDeviceInfo(ctx);
+
+			// Create session with device information
+			const { token, expiresAt } = await createSession(user.id, {
+				userAgent,
+				ipAddress,
+				deviceType,
+				browser
+			});
 
 			// Set cookie
 			ctx.cookies.set('session_token', token, {
@@ -179,8 +188,16 @@ export const authRouter = t.router({
 				});
 			}
 
-			// Create session
-			const { token, expiresAt } = await createSession(user.id);
+			// Extract device information from request
+			const { userAgent, ipAddress, deviceType, browser } = extractDeviceInfo(ctx);
+
+			// Create session with device information
+			const { token, expiresAt } = await createSession(user.id, {
+				userAgent,
+				ipAddress,
+				deviceType,
+				browser
+			});
 
 			// Set cookie
 			ctx.cookies.set('session_token', token, {
