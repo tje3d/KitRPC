@@ -71,8 +71,7 @@
 						category: 'Admin'
 					}
 				]
-			: []),
-		{ name: 'Profile', href: '/panel/settings/profile', icon: 'cog', category: 'General' }
+			: [])
 	];
 
 	// Check if current route matches nav item (reactive)
