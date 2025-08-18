@@ -54,12 +54,12 @@
 	const columns = [
 		{
 			key: 'network',
-			label: 'Network',
+			label: 'شبکه',
 			sortable: true
 		},
 		{
 			key: 'address',
-			label: 'Address',
+			label: 'آدرس',
 			sortable: true,
 			render: (value: string) => `
 				<div class="font-mono text-sm" dir="ltr">
@@ -69,7 +69,7 @@
 		},
 		{
 			key: 'isActive',
-			label: 'Status',
+			label: 'وضعیت',
 			sortable: true,
 			render: (value: boolean) => `
 				<div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium
@@ -77,13 +77,13 @@
 					<span class="me-1.5 h-3 w-3
 					${value ? 'text-green-600 icon-[heroicons--check-circle]' : 'text-gray-600 icon-[heroicons--x-circle]'}">
 					</span>
-					<span>${value ? 'Active' : 'Inactive'}</span>
+					<span>${value ? 'فعال' : 'غیرفعال'}</span>
 				</div>
 			`
 		},
 		{
 			key: 'createdAt',
-			label: 'Created',
+			label: 'ایجاد شده',
 			sortable: true,
 			render: (value: string) => `
 				<div class="text-sm whitespace-nowrap text-gray-500">
@@ -93,12 +93,12 @@
 		},
 		{
 			key: 'actions',
-			label: 'Actions',
+			label: 'عملیات',
 			render: (_: any, row: any) => `
 				<div class="flex space-x-2">
 					<button 
 						class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50"
-						title="Edit"
+						title="ویرایش"
 						data-action="edit"
 						data-id="${row.id}"
 					>
@@ -109,7 +109,7 @@
 							? `
 						<button 
 							class="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50"
-							title="Activate"
+							title="فعال‌سازی"
 							data-action="activate"
 							data-id="${row.id}"
 						>
@@ -120,7 +120,7 @@
 					}
 					<button 
 						class="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50"
-						title="Delete"
+						title="حذف"
 						data-action="delete"
 						data-id="${row.id}"
 					>
@@ -136,20 +136,20 @@
 	let:loading
 	let:wallets
 	onError={(error) => {
-		toast.error(error || 'Failed to fetch wallet addresses');
+		toast.error(error || 'دریافت آدرس‌های کیف پول ناموفق بود');
 	}}
 	let:getWalletAddresses
 >
 	<CreateWalletAddressProvider
 		onSuccess={(data) => {
 			if (data) {
-				toast.success('Wallet address added successfully');
+				toast.success('آدرس کیف پول با موفقیت اضافه شد');
 				resetForm();
 				getWalletAddresses();
 			}
 		}}
 		onError={(error) => {
-			toast.error(error || 'Failed to add wallet address');
+			toast.error(error || 'افزودن آدرس کیف پول ناموفق بود');
 		}}
 		let:createWalletAddress
 		let:loading={loadingCreate}
@@ -157,13 +157,13 @@
 		<UpdateWalletAddressProvider
 			onSuccess={(data) => {
 				if (data) {
-					toast.success('Wallet address updated successfully');
+					toast.success('آدرس کیف پول با موفقیت به‌روزرسانی شد');
 					resetForm();
 					getWalletAddresses();
 				}
 			}}
 			onError={(error) => {
-				toast.error(error || 'Failed to update wallet address');
+				toast.error(error || 'به‌روزرسانی آدرس کیف پول ناموفق بود');
 			}}
 			let:updateWalletAddress
 			let:loading={loadingUpdate}
@@ -171,30 +171,30 @@
 			<ActivateWalletAddressProvider
 				onSuccess={(data) => {
 					if (data) {
-						toast.success('Wallet address activated');
+						toast.success('آدرس کیف پول فعال شد');
 						getWalletAddresses();
 					}
 				}}
 				onError={(error) => {
-					toast.error(error || 'Failed to activate wallet address');
+					toast.error(error || 'فعال‌سازی آدرس کیف پول ناموفق بود');
 				}}
 				let:activateWalletAddress
 			>
 				<DeleteWalletAddressProvider
 					onSuccess={(data) => {
 						if (data) {
-							toast.success('Wallet address deleted successfully');
+							toast.success('آدرس کیف پول با موفقیت حذف شد');
 							getWalletAddresses();
 						}
 					}}
 					onError={(error) => {
-						toast.error(error || 'Failed to delete wallet address');
+						toast.error(error || 'حذف آدرس کیف پول ناموفق بود');
 					}}
 					let:deleteWalletAddress
 				>
 					<PanelPageWrapper
-						title="Wallet Management"
-						description="Manage wallet addresses for different networks."
+						title="مدیریت کیف پول"
+						description="مدیریت آدرس‌های کیف پول برای شبکه‌های مختلف."
 					>
 						<svelte:fragment slot="actions">
 							<Button
@@ -207,7 +207,7 @@
 									isActive = true;
 								}}
 							>
-								Add New Wallet
+								افزودن کیف پول جدید
 							</Button>
 						</svelte:fragment>
 
@@ -222,7 +222,7 @@
 						{#if showAddForm}
 							<Card variant="flat" className="mb-6">
 								<h2 class="mb-4 text-lg font-bold text-gray-800">
-									{editingWallet ? 'Edit Wallet Address' : 'Add New Wallet Address'}
+									{editingWallet ? 'ویرایش آدرس کیف پول' : 'افزودن آدرس کیف پول جدید'}
 								</h2>
 
 								<form
@@ -253,38 +253,38 @@
 									class="space-y-4"
 								>
 									<FormGroup
-										label="Network"
+										label="شبکه"
 										error={$errors?.network || ''}
 										showError={!!$errors?.network}
 									>
 										<Input
 											type="text"
-											placeholder="e.g., Tron, Ethereum, Binance"
+											placeholder="مثال: ترون، اتریوم، بایننس"
 											bind:value={network}
 											disabled={loadingCreate || loadingUpdate}
 											id="network"
 											name="network"
 										/>
 										<p class="mt-1 text-sm text-gray-500">
-											Enter the network name for this wallet address
+											نام شبکه برای این آدرس کیف پول را وارد کنید
 										</p>
 									</FormGroup>
 
 									<FormGroup
-										label="Address"
+										label="آدرس"
 										error={$errors?.address || ''}
 										showError={!!$errors?.address}
 									>
 										<Input
 											type="text"
-											placeholder="Wallet address"
+											placeholder="آدرس کیف پول"
 											bind:value={address}
 											disabled={loadingCreate || loadingUpdate}
 											id="address"
 											name="address"
 											dir="ltr"
 										/>
-										<p class="mt-1 text-sm text-gray-500">Enter the wallet address</p>
+										<p class="mt-1 text-sm text-gray-500">آدرس کیف پول را وارد کنید</p>
 									</FormGroup>
 
 									<div class="flex items-center">
@@ -295,7 +295,7 @@
 											disabled={loadingCreate || loadingUpdate}
 											class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 										/>
-										<label for="isActive" class="ms-2 block text-sm text-gray-900"> Active </label>
+										<label for="isActive" class="ms-2 block text-sm text-gray-900"> فعال </label>
 									</div>
 
 									<div class="flex justify-end space-x-3 pt-2">
@@ -308,10 +308,10 @@
 											{#if loadingCreate || loadingUpdate}
 												<span class="flex items-center justify-center gap-2">
 													<span class="icon-[svg-spinners--bars-scale-fade] h-4 w-4"></span>
-													Saving...
+													در حال ذخیره...
 												</span>
 											{:else}
-												{editingWallet ? 'Update Wallet' : 'Add Wallet'}
+												{editingWallet ? 'به‌روزرسانی کیف پول' : 'افزودن کیف پول'}
 											{/if}
 										</Button>
 									</div>
@@ -323,8 +323,8 @@
 						<Card variant="flat">
 							<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
 								<div>
-									<h2 class="text-lg font-bold text-gray-800">Wallet Addresses</h2>
-									<p class="mt-1 text-sm text-gray-600">List of all wallet addresses</p>
+									<h2 class="text-lg font-bold text-gray-800">آدرس‌های کیف پول</h2>
+									<p class="mt-1 text-sm text-gray-600">لیست همه آدرس‌های کیف پول</p>
 								</div>
 							</div>
 
@@ -333,9 +333,9 @@
 									<div class="mx-auto h-12 w-12 text-gray-400">
 										<span class="icon-[heroicons--wallet] h-12 w-12"></span>
 									</div>
-									<h3 class="mt-2 text-sm font-medium text-gray-900">No wallet addresses</h3>
+									<h3 class="mt-2 text-sm font-medium text-gray-900">آدرس کیف پولی وجود ندارد</h3>
 									<p class="mt-1 text-sm text-gray-500">
-										Get started by adding a new wallet address.
+										با افزودن یک آدرس کیف پول جدید شروع کنید.
 									</p>
 									<div class="mt-6">
 										<Button
@@ -347,7 +347,7 @@
 												isActive = true;
 											}}
 										>
-											Add New Wallet
+											افزودن کیف پول جدید
 										</Button>
 									</div>
 								</div>
@@ -392,10 +392,10 @@
 												dialogStore.open({
 													component: ConfirmDialog,
 													props: {
-														title: 'Delete Wallet Address',
-														message: `Are you sure you want to delete the ${wallet.network} wallet address? This action cannot be undone.`,
-														confirm: 'Delete',
-														cancel: 'Cancel',
+														title: 'حذف آدرس کیف پول',
+														message: `آیا مطمئن هستید که می‌خواهید آدرس کیف پول ${wallet.network} را حذف کنید؟ این عمل قابل بازگشت نیست.`,
+														confirm: 'حذف',
+														cancel: 'لغو',
 														color: 'red',
 														onConfirm: () => {
 															history.back();

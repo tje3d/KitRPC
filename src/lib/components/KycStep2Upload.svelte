@@ -44,9 +44,7 @@
 		<div class="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
 			<div class="flex items-center">
 				<span class="icon-[heroicons--information-circle] me-2 h-5 w-5 text-yellow-600"></span>
-				<p class="text-sm text-yellow-800">
-					قبل از آپلود اسناد، باید مرحله ۱ را تکمیل کرده و دریافت تأییر کنید.
-				</p>
+				<p class="text-sm text-yellow-800">قبل از آپلود اسناد، باید مرحله ۱ را تکمیل کرده باشید.</p>
 			</div>
 		</div>
 	{/if}

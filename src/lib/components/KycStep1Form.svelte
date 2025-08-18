@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Button, ErrorDisplay, FormGroup, Input } from '$lib/kit';
+	import JalaliDatePicker from '$lib/kit/JalaliDatePicker.svelte';
 	import type { RouterOutputs } from '$lib/trpc/router';
 
 	type KycStatus = RouterOutputs['kyc']['getKycStatus'];
@@ -108,14 +109,19 @@
 			error="لطفاً یک تاریخ معتبر به فرمت YYYY-MM-DD وارد کنید"
 			showError={birthDateTouched && !birthDateValid}
 		>
-			<Input
+			<JalaliDatePicker
 				id="birthDate"
 				name="birthDate"
-				type="date"
 				placeholder="YYYY-MM-DD"
 				bind:value={birthDate}
-				onBlur={() => onInputBlur('birthDate')}
-				error={birthDateTouched && !birthDateValid}
+				on:change={(e) => {
+					birthDate = e.detail.value;
+					// Trigger validation when date changes
+					onInputBlur('birthDate');
+				}}
+				on:input={(e) => {
+					birthDate = e.detail.value;
+				}}
 				disabled={isStep1Completed}
 			/>
 		</FormGroup>

@@ -48,17 +48,17 @@
 	function confirmDelete(role: Role) {
 		// Prevent deletion of default roles
 		if (role.name === 'user' || role.name === 'admin') {
-			toast.error('Cannot delete default roles');
+			toast.error('نمی‌توان نقش‌های پیش‌فرض را حذف کرد');
 			return;
 		}
 
 		dialogStore.open({
 			component: ConfirmDialog,
 			props: {
-				title: 'Delete Role',
-				message: `Are you sure you want to delete the role "${role.name}"? This action cannot be undone.`,
-				confirm: 'Delete',
-				cancel: 'Cancel',
+				title: 'حذف نقش',
+				message: `آیا مطمئن هستید که می‌خواهید نقش "${role.name}" را حذف کنید؟ این عمل قابل بازگشت نیست.`,
+				confirm: 'حذف',
+				cancel: 'لغو',
 				color: 'red',
 				onConfirm: () => {
 					history.back();
@@ -80,13 +80,13 @@
 
 	// Handle delete success
 	function handleDeleteSuccess() {
-		toast.success('Role deleted successfully');
+		toast.success('نقش با موفقیت حذف شد');
 		loadRoles(); // Refresh the list
 	}
 
 	// Handle delete error
 	function handleDeleteError(error: string) {
-		toast.error(error || 'Failed to delete role');
+		toast.error(error || 'حذف نقش ناموفق بود');
 	}
 
 	// Handle row actions
@@ -116,20 +116,20 @@
 	const columns = [
 		{
 			key: 'name',
-			label: 'Name',
+			label: 'نام',
 			sortable: true
 		},
 		{
 			key: 'description',
-			label: 'Description',
+			label: 'توضیحات',
 			sortable: true,
 			render: (value: string) => {
-				return value || '<span class="text-gray-400">No description</span>';
+				return value || '<span class="text-gray-400">بدون توضیحات</span>';
 			}
 		},
 		{
 			key: 'createdAt',
-			label: 'Created',
+			label: 'ایجاد شده',
 			sortable: true,
 			render: (value: any, row: Role) => {
 				return formatDate(row.createdAt);
@@ -137,7 +137,7 @@
 		},
 		{
 			key: 'actions',
-			label: 'Actions',
+			label: 'عملیات',
 			render: (value: any, row: Role) => {
 				return `
 					<div class="flex items-center justify-end gap-2">
@@ -150,14 +150,14 @@
 									class="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
 									data-action="delete"
 									data-id="${row.id}"
-									title="Delete role"
+									title="حذف نقش"
 								>
 									<span class="icon-[heroicons--trash] w-4 h-4"></span>
 								</button>`
 								: `<button
 									class="inline-flex items-center px-3 py-1.5 border border-gray-200 shadow-sm text-xs font-medium rounded text-gray-400 bg-gray-50 cursor-not-allowed"
 									disabled
-									title="Cannot delete default roles"
+									title="نمی‌توان نقش‌های پیش‌فرض را حذف کرد"
 								>
 									<span class="icon-[heroicons--trash] w-4 h-4"></span>
 								</button>`
@@ -169,11 +169,11 @@
 	];
 </script>
 
-<PanelPageWrapper title="Role Management" description="Manage system roles and their permissions">
+<PanelPageWrapper title="مدیریت نقش‌ها" description="مدیریت نقش‌های سیستم و مجوزهای آن‌ها">
 	<div slot="actions">
 		<Button href="/panel/admin/roles/create" variant="primary">
 			<span class="icon-[heroicons--plus] me-2 h-4 w-4"></span>
-			Add Role
+			افزودن نقش
 		</Button>
 	</div>
 

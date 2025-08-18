@@ -63,7 +63,7 @@
 		setIsLoggedIn(true);
 
 		// Show success toast
-		toast.success('Account created successfully! Welcome to TaskFlow.');
+		toast.success('حساب کاربری با موفقیت ایجاد شد! خوش آمدید به TaskFlow.');
 
 		// Navigate to home
 		goto('/');

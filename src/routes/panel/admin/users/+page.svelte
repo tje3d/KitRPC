@@ -45,7 +45,7 @@
 	}
 
 	function getUserRoleName(user: User): string {
-		return user.role?.name || 'No Role';
+		return user.role?.name || 'بدون نقش';
 	}
 
 	function getUserRoleColor(user: User): 'success' | 'warning' | 'error' | 'info' {
@@ -61,10 +61,10 @@
 		dialogStore.open({
 			component: ConfirmDialog,
 			props: {
-				title: 'Delete User',
-				message: `Are you sure you want to delete the user "${user.username}"? This action cannot be undone.`,
-				confirm: 'Delete',
-				cancel: 'Cancel',
+				title: 'حذف کاربر',
+				message: `آیا مطمئن هستید که می‌خواهید کاربر "${user.username}" را حذف کنید؟ این عمل قابل بازگشت نیست.`,
+				confirm: 'حذف',
+				cancel: 'لغو',
 				color: 'red',
 				onConfirm: () => {
 					history.back();
@@ -86,13 +86,13 @@
 
 	// Handle delete success
 	function handleDeleteSuccess() {
-		toast.success('User deleted successfully');
+		toast.success('کاربر با موفقیت حذف شد');
 		loadUsers(); // Refresh the list
 	}
 
 	// Handle delete error
 	function handleDeleteError(error: string) {
-		toast.error(error || 'Failed to delete user');
+		toast.error(error || 'حذف کاربر ناموفق بود');
 	}
 
 	// Handle row actions
@@ -122,7 +122,7 @@
 	const columns = [
 		{
 			key: 'id',
-			label: 'ID',
+			label: 'شناسه',
 			sortable: true,
 			render: (value: any, row: User) => {
 				return `
@@ -134,7 +134,7 @@
 		},
 		{
 			key: 'user',
-			label: 'User',
+			label: 'کاربر',
 			sortable: true,
 			render: (value: any, row: User) => {
 				return `
@@ -156,7 +156,7 @@
 		},
 		{
 			key: 'role',
-			label: 'Role',
+			label: 'نقش',
 			sortable: true,
 			render: (value: any, row: User) => {
 				const roleName = getUserRoleName(row);
@@ -166,7 +166,7 @@
 		},
 		{
 			key: 'createdAt',
-			label: 'Created',
+			label: 'ایجاد شده',
 			sortable: true,
 			render: (value: any, row: User) => {
 				return formatDate(row.createdAt);
@@ -174,7 +174,7 @@
 		},
 		{
 			key: 'actions',
-			label: 'Actions',
+			label: 'عملیات',
 			render: (value: any, row: User) => {
 				return `
 					<div class="flex items-center justify-end gap-2">
@@ -187,14 +187,14 @@
 									class="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
 									data-action="delete"
 									data-id="${row.id}"
-									title="Delete user"
+									title="حذف کاربر"
 								>
 									<span class="icon-[heroicons--trash] w-4 h-4"></span>
 								</button>`
 								: `<button
 									class="inline-flex items-center px-3 py-1.5 border border-gray-200 shadow-sm text-xs font-medium rounded text-gray-400 bg-gray-50 cursor-not-allowed"
 									disabled
-									title="Cannot delete admin user"
+									title="نمی‌توان کاربر مدیر را حذف کرد"
 								>
 									<span class="icon-[heroicons--trash] w-4 h-4"></span>
 								</button>`
@@ -206,11 +206,11 @@
 	];
 </script>
 
-<PanelPageWrapper title="User Management" description="Manage system users and their roles">
+<PanelPageWrapper title="مدیریت کاربران" description="مدیریت کاربران سیستم و نقش‌های آن‌ها">
 	<div slot="actions">
 		<Button href="/panel/admin/users/create" variant="primary">
 			<span class="icon-[heroicons--plus] me-2 h-4 w-4"></span>
-			Add User
+			افزودن کاربر
 		</Button>
 	</div>
 

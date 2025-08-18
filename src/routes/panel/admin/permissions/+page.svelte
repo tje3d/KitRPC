@@ -58,10 +58,10 @@
 		dialogStore.open({
 			component: ConfirmDialog,
 			props: {
-				title: 'Delete Permission',
-				message: `Are you sure you want to delete the permission "${permission.name}"? This action cannot be undone.`,
-				confirm: 'Delete',
-				cancel: 'Cancel',
+				title: 'حذف مجوز',
+				message: `آیا مطمئن هستید که می‌خواهید مجوز "${permission.name}" را حذف کنید؟ این عمل قابل بازگشت نیست.`,
+				confirm: 'حذف',
+				cancel: 'لغو',
 				color: 'red',
 				onConfirm: () => {
 					history.back();
@@ -83,13 +83,13 @@
 
 	// Handle delete success
 	function handleDeleteSuccess() {
-		toast.success('Permission deleted successfully');
+		toast.success('مجوز با موفقیت حذف شد');
 		loadPermissions(); // Refresh the list
 	}
 
 	// Handle delete error
 	function handleDeleteError(error: string) {
-		toast.error(error || 'Failed to delete permission');
+		toast.error(error || 'حذف مجوز ناموفق بود');
 	}
 
 	// Handle row actions
@@ -119,30 +119,30 @@
 	const columns = [
 		{
 			key: 'name',
-			label: 'Name',
+			label: 'نام',
 			sortable: true
 		},
 		{
 			key: 'resource',
-			label: 'Resource',
+			label: 'منبع',
 			sortable: true
 		},
 		{
 			key: 'action',
-			label: 'Action',
+			label: 'عمل',
 			sortable: true
 		},
 		{
 			key: 'description',
-			label: 'Description',
+			label: 'توضیحات',
 			sortable: true,
 			render: (value: string) => {
-				return value || '<span class="text-gray-400">No description</span>';
+				return value || '<span class="text-gray-400">بدون توضیحات</span>';
 			}
 		},
 		{
 			key: 'createdAt',
-			label: 'Created',
+			label: 'ایجاد شده',
 			sortable: true,
 			render: (value: any, row: Permission) => {
 				return formatDate(row.createdAt);
@@ -150,7 +150,7 @@
 		},
 		{
 			key: 'actions',
-			label: 'Actions',
+			label: 'عملیات',
 			render: (value: any, row: Permission) => {
 				return `
 					<div class="flex items-center justify-end gap-2">
@@ -161,7 +161,7 @@
 							class="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
 							data-action="delete"
 							data-id="${row.id}"
-							title="Delete permission"
+							title="حذف مجوز"
 						>
 							<span class="icon-[heroicons--trash] w-4 h-4"></span>
 						</button>
@@ -172,14 +172,11 @@
 	];
 </script>
 
-<PanelPageWrapper
-	title="Permission Management"
-	description="Manage system permissions for roles and users"
->
+<PanelPageWrapper title="مدیریت مجوزها" description="مدیریت مجوزهای سیستم برای نقش‌ها و کاربران">
 	<div slot="actions">
 		<Button href="/panel/admin/permissions/create" variant="primary">
 			<span class="icon-[heroicons--plus] me-2 h-4 w-4"></span>
-			Add Permission
+			افزودن مجوز
 		</Button>
 	</div>
 

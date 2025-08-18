@@ -109,7 +109,7 @@
 				<Card
 					className={kycStatus?.step1Status === 'APPROVED' || kycStatus?.step1Status === 'PENDING'
 						? 'opacity-60'
-						: ''}
+						: 'relative z-10'}
 				>
 					<SubmitKycInfoProvider
 						let:submitKycInfo
@@ -125,15 +125,15 @@
 					>
 						<KycStep1Form
 							{kycStatus}
-							{nationalId}
-							{mobile}
-							{birthDate}
-							{nationalIdTouched}
-							{mobileTouched}
-							{birthDateTouched}
-							{nationalIdValid}
-							{mobileValid}
-							{birthDateValid}
+							bind:nationalId
+							bind:mobile
+							bind:birthDate
+							bind:nationalIdTouched
+							bind:mobileTouched
+							bind:birthDateTouched
+							bind:nationalIdValid
+							bind:mobileValid
+							bind:birthDateValid
 							step1FormValid={!!step1FormValid}
 							{loading}
 							{errorMessage}

@@ -12,8 +12,8 @@
 </script>
 
 <svelte:head>
-	<title>Todo Manager</title>
-	<meta name="description" content="Todo Manager - Organize your tasks efficiently" />
+	<title>مدیر وظایف</title>
+	<meta name="description" content="مدیر وظایف - وظایف خود را به طور کارآمد سازماندهی کنید" />
 </svelte:head>
 
 <div
@@ -44,8 +44,10 @@
 		<!-- Security Notice -->
 		<div class="mt-8 text-center">
 			<p class="text-xs leading-relaxed text-gray-500">
-				Protected by industry-standard encryption.
-				<a href="/security" class="text-blue-600 hover:text-blue-800 hover:underline">Learn more</a>
+				با رمزگذاری استاندارد صنعتی محافظت می‌شود.
+				<a href="/security" class="text-blue-600 hover:text-blue-800 hover:underline"
+					>بیشتر بدانید</a
+				>
 			</p>
 		</div>
 	</div>

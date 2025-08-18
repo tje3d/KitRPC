@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { detectIranianBank } from '$lib/helpers/IranianBanks.helper';
+	import { BankCardInfo } from '$lib';
 	import Card from '$lib/kit/Card.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 	import QRCode from '$lib/kit/QRCode.svelte';
@@ -9,7 +9,6 @@
 
 	// State
 	let activeTab: 'irt' | 'usdt' = 'usdt';
-	let loading = false;
 	let error: string | null = null;
 
 	// USDT deposit state
@@ -94,12 +93,6 @@
 		fetchWalletAddress();
 	}
 
-	// Format card number for display
-	function formatCardNumber(number: string): string {
-		const cleaned = number.replace(/\D/g, '');
-		return cleaned.replace(/(\d{4})/g, '$1 ').trim();
-	}
-
 	// Load initial data
 	onMount(() => {
 		fetchWalletAddress();
@@ -107,8 +100,8 @@
 </script>
 
 <PanelPageWrapper
-	title="Deposit Funds"
-	description="Add funds to your account using cryptocurrency or bank transfer."
+	title="واریز وجه"
+	description="افزایش موجودی حساب شما از طریق ارز دیجیتال یا انتقال بانکی."
 >
 	<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 		<!-- Main content area -->
@@ -116,10 +109,8 @@
 			<Card variant="flat">
 				<!-- Currency selector -->
 				<div class="mb-6">
-					<h2 class="text-lg font-semibold text-gray-800">Select Deposit Method</h2>
-					<p class="mt-1 text-sm text-gray-600">
-						Choose how you'd like to add funds to your account
-					</p>
+					<h2 class="text-lg font-semibold text-gray-800">انتخاب روش واریز</h2>
+					<p class="mt-1 text-sm text-gray-600">روش افزایش موجودی حساب خود را انتخاب کنید</p>
 					<div class="mt-4 inline-flex rounded-lg bg-gray-100 p-1" role="group">
 						<button
 							type="button"
@@ -130,7 +121,7 @@
 									: 'text-gray-600 hover:text-gray-900'
 							} focus:z-10 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
 						>
-							USDT Deposit
+							واریز USDT
 						</button>
 						<button
 							type="button"
@@ -141,7 +132,7 @@
 									: 'text-gray-600 hover:text-gray-900'
 							} focus:z-10 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
 						>
-							IRT Deposit
+							واریز IRT
 						</button>
 					</div>
 				</div>
@@ -154,7 +145,7 @@
 								<span class="icon-[heroicons--exclamation-circle] h-5 w-5 text-red-400"></span>
 							</div>
 							<div class="ms-3">
-								<h3 class="text-sm font-medium text-red-800">Error</h3>
+								<h3 class="text-sm font-medium text-red-800">خطا</h3>
 								<div class="mt-2 text-sm text-red-700">
 									<p>{error}</p>
 								</div>
@@ -168,7 +159,7 @@
 					<div class="space-y-6">
 						<!-- Network selector -->
 						<div>
-							<label class="block text-sm font-medium text-gray-700">Network</label>
+							<label class="block text-sm font-medium text-gray-700">شبکه</label>
 							<div class="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-4">
 								{#each networks as network}
 									<button
@@ -188,7 +179,7 @@
 
 						<!-- Wallet address display with QR code -->
 						<div>
-							<label class="block text-sm font-medium text-gray-700">Wallet Address</label>
+							<label class="block text-sm font-medium text-gray-700">آدرس کیف پول</label>
 							<div class="mt-2">
 								{#if walletAddressLoading}
 									<div
@@ -213,7 +204,7 @@
 												size={200}
 												className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm"
 											/>
-											<p class="mt-2 text-sm text-gray-600">Scan QR code to deposit</p>
+											<p class="mt-2 text-sm text-gray-600">برای واریز، کد QR را اسکن کنید</p>
 										</div>
 
 										<!-- Wallet address -->
@@ -236,16 +227,14 @@
 													}}
 												>
 													<span class="icon-[heroicons--clipboard-document] h-5 w-5"></span>
-													<span class="ms-2">Copy</span>
+													<span class="ms-2">کپی</span>
 												</button>
 											</div>
 										</div>
 									</div>
 								{:else}
 									<div class="rounded-lg border border-gray-300 bg-gray-50 px-4 py-8 text-center">
-										<p class="text-sm text-gray-500">
-											No active wallet address available for this network.
-										</p>
+										<p class="text-sm text-gray-500">آدرس فعالی برای این شبکه موجود نیست.</p>
 									</div>
 								{/if}
 							</div>
@@ -259,12 +248,12 @@
 						<!-- Bank card selector -->
 						<div>
 							<div class="flex items-center justify-between">
-								<label class="block text-sm font-medium text-gray-700">Bank Card</label>
+								<label class="block text-sm font-medium text-gray-700">کارت بانکی</label>
 								<a
 									href="/panel/cards"
 									class="text-sm font-medium text-blue-600 hover:text-blue-500"
 								>
-									Manage Cards
+									مدیریت کارت‌ها
 								</a>
 							</div>
 							<div class="mt-2">
@@ -285,6 +274,8 @@
 								{:else if bankCards.length > 0}
 									<div class="space-y-3">
 										{#each bankCards as card}
+											<!-- svelte-ignore a11y_click_events_have_key_events -->
+											<!-- svelte-ignore a11y_no_static_element_interactions -->
 											<div
 												class={`relative flex cursor-pointer rounded-lg border p-4 transition-all duration-200 focus:outline-none ${
 													selectedCardId === card.id
@@ -304,21 +295,23 @@
 														on:change={() => (selectedCardId = card.id)}
 													/>
 													<label for={`card-${card.id}`} class="ms-3 flex flex-col">
-														<span class="block text-sm font-medium text-gray-700">
-															{#if detectIranianBank(card.cardNumber)}
-																<img
-																	src="/img/banks/{detectIranianBank(card.cardNumber)?.id}.svg"
-																	alt={detectIranianBank(card.cardNumber)?.name}
-																	class="me-2 inline-block h-6 w-6"
-																/>
-															{/if}
-															{formatCardNumber(card.cardNumber)}
-														</span>
+														<BankCardInfo cardNumber={card.cardNumber} let:bank let:formattedNumber>
+															<span class="block text-sm font-medium text-gray-700">
+																{#if bank}
+																	<img
+																		src="/img/banks/{bank?.id}.svg"
+																		alt={bank?.name}
+																		class="me-2 inline-block h-6 w-6"
+																	/>
+																{/if}
+																{formattedNumber}
+															</span>
+														</BankCardInfo>
 														{#if card.isDefault}
 															<span
 																class="mt-1 inline-flex w-fit items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
 															>
-																Default
+																پیش‌فرض
 															</span>
 														{/if}
 													</label>
@@ -328,12 +321,12 @@
 									</div>
 								{:else}
 									<div class="rounded-lg border border-gray-300 bg-gray-50 px-4 py-8 text-center">
-										<p class="text-sm text-gray-500">You don't have any bank cards saved.</p>
+										<p class="text-sm text-gray-500">شما هیچ کارت بانکی ذخیره نکرده‌اید.</p>
 										<a
 											href="/panel/cards"
 											class="mt-2 inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-500"
 										>
-											Add a bank card
+											افزودن کارت بانکی
 											<span class="icon-[heroicons--arrow-right] ms-1 h-4 w-4"></span>
 										</a>
 									</div>
@@ -349,7 +342,7 @@
 								</div>
 								<div class="ms-3 flex-1 md:flex md:justify-between">
 									<p class="text-sm text-blue-700">
-										IRT deposit functionality will be implemented in a future update.
+										قابلیت واریز IRT در بروزرسانی‌های آینده پیاده‌سازی خواهد شد.
 									</p>
 								</div>
 							</div>
@@ -365,7 +358,7 @@
 			<Card variant="flat">
 				<h3 class="flex items-center text-sm font-semibold text-gray-800">
 					<span class="icon-[heroicons--information-circle] me-2 h-5 w-5 text-blue-500"></span>
-					Deposit Instructions
+					دستورالعمل‌های واریز
 				</h3>
 				<div class="mt-4 space-y-4">
 					{#if activeTab === 'usdt'}
@@ -374,28 +367,29 @@
 								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
 								></span>
 								<span class="text-sm text-gray-600">
-									Send your USDT to the address above using the {selectedNetwork.toUpperCase()} network
+									USDT خود را با استفاده از شبکه‌ی {selectedNetwork.toUpperCase()} به آدرس بالا ارسال
+									کنید
 								</span>
 							</li>
 							<li class="flex items-start">
 								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
 								></span>
 								<span class="text-sm text-gray-600">
-									Make sure to use the correct network to avoid loss of funds
+									برای جلوگیری از از دست دادن وجه، مطمئن شوید از شبکه صحیح استفاده می‌کنید
 								</span>
 							</li>
 							<li class="flex items-start">
 								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
 								></span>
 								<span class="text-sm text-gray-600">
-									Your deposit will be processed automatically after confirmation
+									واریز شما پس از تایید به صورت خودکار پردازش خواهد شد
 								</span>
 							</li>
 							<li class="flex items-start">
 								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
 								></span>
 								<span class="text-sm text-gray-600">
-									No amount or description is needed - just send to this address
+									نیازی به مبلغ یا توضیحات نیست - فقط به این آدرس ارسال کنید
 								</span>
 							</li>
 						</ul>
@@ -404,19 +398,17 @@
 							<li class="flex items-start">
 								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
 								></span>
-								<span class="text-sm text-gray-600"> Select your bank card from the list </span>
+								<span class="text-sm text-gray-600"> کارت بانکی خود را از لیست انتخاب کنید </span>
 							</li>
 							<li class="flex items-start">
 								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
 								></span>
-								<span class="text-sm text-gray-600"> Transfer funds to the selected account </span>
+								<span class="text-sm text-gray-600"> انتقال وجه به حساب انتخاب شده </span>
 							</li>
 							<li class="flex items-start">
 								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
 								></span>
-								<span class="text-sm text-gray-600">
-									Submit transaction details for verification
-								</span>
+								<span class="text-sm text-gray-600"> ارسال جزئیات تراکنش برای تایید </span>
 							</li>
 						</ul>
 					{/if}
@@ -427,24 +419,23 @@
 			<Card variant="flat">
 				<h3 class="flex items-center text-sm font-semibold text-gray-800">
 					<span class="icon-[heroicons--exclamation-triangle] me-2 h-5 w-5 text-yellow-500"></span>
-					Important Notes
+					نکات مهم
 				</h3>
 				<div class="mt-4 space-y-4">
 					<div class="rounded-lg bg-yellow-50 p-3">
 						<p class="text-sm text-yellow-700">
 							{#if activeTab === 'usdt'}
-								Only send USDT (TRC20) to this address. Sending any other cryptocurrency or using a
-								different network may result in permanent loss of funds.
+								فقط USDT (TRC20) را به این آدرس ارسال کنید. ارسال هر ارز دیجیتال دیگر یا استفاده از
+								شبکه متفاوت ممکن است منجر به از دست دادن دائمی وجه شود.
 							{:else}
-								IRT deposits are currently under development. This feature will be available in the
-								next update.
+								واریز IRT در حال توسعه است. این قابلیت در بروزرسانی بعدی در دسترس خواهد بود.
 							{/if}
 						</p>
 					</div>
 					<div class="rounded-lg bg-blue-50 p-3">
 						<p class="text-sm text-blue-700">
-							Deposits are typically processed within 10 minutes. Large transactions may require
-							additional verification.
+							واریزها معمولاً طی ۱۰ دقیقه پردازش می‌شوند. تراکنش‌های بزرگ ممکن است نیاز به تایید
+							اضافی داشته باشند.
 						</p>
 					</div>
 				</div>

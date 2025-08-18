@@ -4,68 +4,68 @@ import { hashPassword } from '../src/lib/auth';
 const prisma = new PrismaClient();
 
 async function main() {
-	console.log('🌱 Starting database seed...');
+	console.log('🌱 شروع عملیات پر کردن پایگاه داده...');
 
-	// Check if roles already exist
+	// بررسی وجود نقش‌ها
 	const existingRoles = await prisma.role.count();
 	if (existingRoles === 0) {
-		console.log('👥 Creating default roles...');
+		console.log('👥 ایجاد نقش‌های پیش‌فرض...');
 
-		// Create default roles
+		// ایجاد نقش‌های پیش‌فرض
 		const userRole = await prisma.role.create({
 			data: {
 				name: 'user',
-				description: 'Default user role with basic permissions'
+				description: 'نقش کاربر عادی با مجوزهای پایه'
 			}
 		});
 
 		const adminRole = await prisma.role.create({
 			data: {
 				name: 'admin',
-				description: 'Administrator role with full permissions'
+				description: 'نقش مدیر با مجوزهای کامل'
 			}
 		});
 
-		console.log('✅ Default roles created!');
+		console.log('✅ نقش‌های پیش‌فرض ایجاد شدند!');
 
-		// Create default permissions
-		console.log('🔐 Creating default permissions...');
+		// ایجاد مجوزهای پیش‌فرض
+		console.log('🔐 ایجاد مجوزهای پیش‌فرض...');
 
 		const permissions = [
-			// User permissions
-			{ name: 'user:manage', description: 'Manage users', resource: 'user', action: 'manage' },
+			// مجوزهای کاربر
+			{ name: 'user:manage', description: 'مدیریت کاربران', resource: 'user', action: 'manage' },
 
-			// Wallet permissions
+			// مجوزهای کیف پول
 			{
 				name: 'wallet:manage',
-				description: 'Manage wallet addresses',
+				description: 'مدیریت آدرس‌های کیف پول',
 				resource: 'wallet',
 				action: 'manage'
 			},
 
-			// Admin permissions
+			// مجوزهای مدیر
 			{
 				name: 'admin:manage',
-				description: 'Full admin access',
+				description: 'دسترسی کامل مدیر',
 				resource: 'admin',
 				action: 'manage'
 			},
-			{ name: 'role:manage', description: 'Manage roles', resource: 'role', action: 'manage' },
+			{ name: 'role:manage', description: 'مدیریت نقش‌ها', resource: 'role', action: 'manage' },
 			{
 				name: 'permission:manage',
-				description: 'Manage permissions',
+				description: 'مدیریت مجوزها',
 				resource: 'permission',
 				action: 'manage'
 			},
 			{
 				name: 'media:manage',
-				description: 'Manage media files',
+				description: 'مدیریت فایل‌های رسانه',
 				resource: 'media',
 				action: 'manage'
 			},
 			{
 				name: 'kyc:manage',
-				description: 'Manage KYC verifications',
+				description: 'مدیریت تأییدیه‌های احراز هویت',
 				resource: 'kyc',
 				action: 'manage'
 			}
@@ -75,12 +75,12 @@ async function main() {
 			permissions.map((permission) => prisma.permission.create({ data: permission }))
 		);
 
-		console.log('✅ Default permissions created!');
+		console.log('✅ مجوزهای پیش‌فرض ایجاد شدند!');
 
-		// Assign permissions to roles
-		console.log('🔗 Assigning permissions to roles...');
+		// اختصاص مجوزها به نقش‌ها
+		console.log('🔗 اختصاص مجوزها به نقش‌ها...');
 
-		// Admin role gets all permissions
+		// نقش مدیر همه مجوزها را دریافت می‌کند
 		await Promise.all(
 			createdPermissions.map((permission) =>
 				prisma.rolePermission.create({
@@ -92,85 +92,28 @@ async function main() {
 			)
 		);
 
-		console.log('✅ Permissions assigned to roles!');
+		console.log('✅ مجوزها به نقش‌ها اختصاص داده شدند!');
 	} else {
-		console.log('👥 Roles already exist, checking for new permissions...');
-
-		// Check if media:manage permission exists, if not create it
-		let mediaPermission = await prisma.permission.findUnique({
-			where: { name: 'media:manage' }
-		});
-
-		// Track if the permission existed before
-		const permissionExisted = !!mediaPermission;
-
-		if (!mediaPermission) {
-			console.log('🔐 Creating media management permission...');
-
-			mediaPermission = await prisma.permission.create({
-				data: {
-					name: 'media:manage',
-					description: 'Manage media files',
-					resource: 'media',
-					action: 'manage'
-				}
-			});
-		}
-
-		// Ensure the media:manage permission is assigned to the admin role
-		if (mediaPermission) {
-			const adminRole = await prisma.role.findUnique({
-				where: { name: 'admin' }
-			});
-
-			if (adminRole) {
-				// Check if the permission is already assigned to the admin role
-				const existingRolePermission = await prisma.rolePermission.findUnique({
-					where: {
-						roleId_permissionId: {
-							roleId: adminRole.id,
-							permissionId: mediaPermission.id
-						}
-					}
-				});
-
-				if (!existingRolePermission) {
-					await prisma.rolePermission.create({
-						data: {
-							roleId: adminRole.id,
-							permissionId: mediaPermission.id
-						}
-					});
-
-					if (!permissionExisted) {
-						console.log('✅ Media management permission created and assigned to admin role!');
-					} else {
-						console.log('✅ Media management permission assigned to admin role!');
-					}
-				} else {
-					console.log('✅ Media management permission already assigned to admin role.');
-				}
-			}
-		}
+		console.log('👥 نقش‌ها قبلاً ایجاد شده‌اند، بررسی مجوزهای جدید...');
 	}
 
-	// Check if users already exist
+	// بررسی وجود کاربران
 	const existingUsers = await prisma.user.count();
 	if (existingUsers === 0) {
-		console.log('👤 Creating sample users...');
+		console.log('👤 ایجاد کاربران نمونه...');
 
-		// Get existing roles
+		// دریافت نقش‌های موجود
 		const userRole = await prisma.role.findUnique({ where: { name: 'user' } });
 		const adminRole = await prisma.role.findUnique({ where: { name: 'admin' } });
 
 		if (!userRole || !adminRole) {
-			throw new Error('Required roles not found');
+			throw new Error('نقش‌های مورد نیاز یافت نشدند');
 		}
 
-		// Hash passwords for sample users
+		// هش کردن رمز عبور برای کاربران نمونه
 		const hashedPassword = await hashPassword('123456');
 
-		// Create sample users
+		// ایجاد کاربران نمونه
 		const regularUser = await prisma.user.create({
 			data: {
 				username: 'user',
@@ -187,19 +130,19 @@ async function main() {
 			}
 		});
 
-		console.log('✅ Sample users created and assigned roles!');
-		console.log(`   👤 Regular user: ${regularUser.username} (password: 123456)`);
-		console.log(`   👤 Admin user: ${adminUser.username} (password: 123456)`);
+		console.log('✅ کاربران نمونه ایجاد و نقش‌ها به آن‌ها اختصاص داده شد!');
+		console.log(`   👤 کاربر عادی: ${regularUser.username} (رمز عبور: 123456)`);
+		console.log(`   👤 کاربر مدیر: ${adminUser.username} (رمز عبور: 123456)`);
 	} else {
-		console.log('👤 Users already exist, skipping user creation.');
+		console.log('👤 کاربران قبلاً ایجاد شده‌اند، از ایجاد کاربر جدید صرف نظر شد.');
 	}
 
-	// Check if bank cards already exist
+	// بررسی وجود کارت‌های بانکی
 	const existingBankCards = await prisma.bankCard.count();
 	if (existingBankCards === 0) {
-		console.log('💳 Creating sample bank cards...');
+		console.log('💳 ایجاد کارت‌های بانکی نمونه...');
 
-		// Get users for bank cards
+		// دریافت کاربران برای کارت‌های بانکی
 		const users = await prisma.user.findMany();
 		if (users.length > 0) {
 			await prisma.bankCard.createMany({
@@ -222,31 +165,31 @@ async function main() {
 				]
 			});
 
-			console.log('✅ Sample bank cards created!');
+			console.log('✅ کارت‌های بانکی نمونه ایجاد شدند!');
 		}
 	} else {
-		console.log('💳 Bank cards already exist, skipping bank card creation.');
+		console.log('💳 کارت‌های بانکی قبلاً ایجاد شده‌اند، از ایجاد کارت بانکی جدید صرف نظر شد.');
 	}
 
-	// Check if transactions already exist
+	// بررسی وجود تراکنش‌ها
 	const existingTransactions = await prisma.transaction.count();
 	if (existingTransactions === 0) {
-		console.log('💰 Creating sample transactions...');
+		console.log('💰 ایجاد تراکنش‌های نمونه...');
 
-		// Get users and bank cards for transactions
+		// دریافت کاربران و کارت‌های بانکی برای تراکنش‌ها
 		const users = await prisma.user.findMany();
 		const bankCards = await prisma.bankCard.findMany();
 
 		if (users.length > 0) {
 			const transactionData = [
-				// IRT Deposits
+				// واریزهای ریالی
 				{
 					userId: users[1].id,
 					type: 'DEPOSIT' as const,
 					currency: 'IRT' as const,
 					amount: 1000000,
 					status: 'COMPLETED' as const,
-					description: 'Initial deposit',
+					description: 'واریز اولیه',
 					bankCardId: bankCards.length > 0 ? bankCards[0].id : null
 				},
 				{
@@ -255,7 +198,7 @@ async function main() {
 					currency: 'IRT' as const,
 					amount: 500000,
 					status: 'COMPLETED' as const,
-					description: 'Monthly salary deposit',
+					description: 'واریز حقوق ماهانه',
 					bankCardId: bankCards.length > 0 ? bankCards[0].id : null
 				},
 				{
@@ -264,17 +207,17 @@ async function main() {
 					currency: 'IRT' as const,
 					amount: 250000,
 					status: 'PENDING' as const,
-					description: 'Bank transfer pending',
+					description: 'واریز بانکی در انتظار تأیید',
 					bankCardId: bankCards.length > 0 ? bankCards[0].id : null
 				},
-				// USDT Deposits
+				// واریزهای تتر
 				{
 					userId: users[1].id,
 					type: 'DEPOSIT' as const,
 					currency: 'USDT' as const,
 					amount: 100.5,
 					status: 'COMPLETED' as const,
-					description: 'USDT deposit from external wallet',
+					description: 'واریز تتر از کیف پول خارجی',
 					transactionHash: '0x1234567890abcdef1234567890abcdef12345678',
 					fromAddress: '0xabcdef1234567890abcdef1234567890abcdef12',
 					toAddress: '0x1234567890abcdef1234567890abcdef12345678'
@@ -285,19 +228,19 @@ async function main() {
 					currency: 'USDT' as const,
 					amount: 50.25,
 					status: 'COMPLETED' as const,
-					description: 'USDT deposit from exchange',
+					description: 'واریز تتر از صرافی',
 					transactionHash: '0xabcdef1234567890abcdef1234567890abcdef12',
 					fromAddress: '0x9876543210fedcba9876543210fedcba98765432',
 					toAddress: '0x1234567890abcdef1234567890abcdef12345678'
 				},
-				// IRT Withdrawals
+				// برداشت‌های ریالی
 				{
 					userId: users[1].id,
 					type: 'WITHDRAWAL' as const,
 					currency: 'IRT' as const,
 					amount: 200000,
 					status: 'COMPLETED' as const,
-					description: 'ATM withdrawal',
+					description: 'برداشت از خودپرداز',
 					bankCardId: bankCards.length > 0 ? bankCards[0].id : null
 				},
 				{
@@ -306,17 +249,17 @@ async function main() {
 					currency: 'IRT' as const,
 					amount: 150000,
 					status: 'FAILED' as const,
-					description: 'Failed withdrawal - insufficient funds',
+					description: 'برداشت ناموفق - موجودی ناکافی',
 					bankCardId: bankCards.length > 0 ? bankCards[0].id : null
 				},
-				// USDT Withdrawals
+				// برداشت‌های تتر
 				{
 					userId: users[1].id,
 					type: 'WITHDRAWAL' as const,
 					currency: 'USDT' as const,
 					amount: 25.75,
 					status: 'COMPLETED' as const,
-					description: 'USDT withdrawal to external wallet',
+					description: 'برداشت تتر به کیف پول خارجی',
 					transactionHash: '0xfedcba0987654321fedcba0987654321fedcba09',
 					fromAddress: '0x1234567890abcdef1234567890abcdef12345678',
 					toAddress: '0xabcdef1234567890abcdef1234567890abcdef12'
@@ -327,7 +270,7 @@ async function main() {
 					currency: 'USDT' as const,
 					amount: 75.0,
 					status: 'PENDING' as const,
-					description: 'USDT withdrawal pending confirmation',
+					description: 'برداشت تتر در انتظار تأیید',
 					transactionHash: '0x1111222233334444555566667777888899990000',
 					fromAddress: '0x1234567890abcdef1234567890abcdef12345678',
 					toAddress: '0x0000999988887777666655554444333322221111'
@@ -339,7 +282,7 @@ async function main() {
 					currency: 'IRT' as const,
 					amount: 2000000,
 					status: 'COMPLETED' as const,
-					description: 'Large deposit',
+					description: 'واریز بزرگ',
 					bankCardId:
 						bankCards.length > 2 ? bankCards[2].id : bankCards.length > 0 ? bankCards[0].id : null
 				},
@@ -349,7 +292,7 @@ async function main() {
 					currency: 'USDT' as const,
 					amount: 200.0,
 					status: 'COMPLETED' as const,
-					description: 'USDT deposit',
+					description: 'واریز تتر',
 					transactionHash: '0xaaaaaabbbbbbccccccddddddeeeeeeffffffffff',
 					fromAddress: '0xbbbbbbccccccddddddeeeeeeffffffffaaaaaaaa',
 					toAddress: '0x1234567890abcdef1234567890abcdef12345678'
@@ -360,7 +303,7 @@ async function main() {
 					currency: 'IRT' as const,
 					amount: 300000,
 					status: 'COMPLETED' as const,
-					description: 'Regular withdrawal',
+					description: 'برداشت عادی',
 					bankCardId:
 						bankCards.length > 2 ? bankCards[2].id : bankCards.length > 0 ? bankCards[0].id : null
 				},
@@ -370,7 +313,7 @@ async function main() {
 					currency: 'IRT' as const,
 					amount: 100000,
 					status: 'COMPLETED' as const,
-					description: 'Internal transfer',
+					description: 'انتقال داخلی',
 					bankCardId:
 						bankCards.length > 2 ? bankCards[2].id : bankCards.length > 0 ? bankCards[0].id : null
 				},
@@ -380,7 +323,7 @@ async function main() {
 					currency: 'USDT' as const,
 					amount: 50.0,
 					status: 'COMPLETED' as const,
-					description: 'USDT internal transfer',
+					description: 'انتقال داخلی تتر',
 					transactionHash: '0xccccccddddddeeeeeeffffffffaaaaaaaabbbbbb',
 					fromAddress: '0x1234567890abcdef1234567890abcdef12345678',
 					toAddress: '0xddddddeeeeeeffffffffaaaaaaaabbbbbbcccccc'
@@ -391,7 +334,7 @@ async function main() {
 					currency: 'IRT' as const,
 					amount: 750000,
 					status: 'CANCELLED' as const,
-					description: 'Cancelled deposit',
+					description: 'واریز لغو شده',
 					bankCardId:
 						bankCards.length > 2 ? bankCards[2].id : bankCards.length > 0 ? bankCards[0].id : null
 				},
@@ -401,7 +344,7 @@ async function main() {
 					currency: 'USDT' as const,
 					amount: 125.5,
 					status: 'FAILED' as const,
-					description: 'Failed USDT withdrawal',
+					description: 'برداشت تتر ناموفق',
 					transactionHash: '0xeeeeeeffffffffaaaaaaaabbbbbbccccccdddddd',
 					fromAddress: '0x1234567890abcdef1234567890abcdef12345678',
 					toAddress: '0xffffffffaaaaaaaabbbbbbccccccddddddeeeeee'
@@ -412,7 +355,7 @@ async function main() {
 					currency: 'IRT' as const,
 					amount: 1250000,
 					status: 'PENDING' as const,
-					description: 'Large pending deposit',
+					description: 'واریز بزرگ در انتظار تأیید',
 					bankCardId:
 						bankCards.length > 2 ? bankCards[2].id : bankCards.length > 0 ? bankCards[0].id : null
 				},
@@ -422,7 +365,7 @@ async function main() {
 					currency: 'IRT' as const,
 					amount: 450000,
 					status: 'COMPLETED' as const,
-					description: 'Monthly expenses withdrawal',
+					description: 'برداشت هزینه‌های ماهانه',
 					bankCardId:
 						bankCards.length > 2 ? bankCards[2].id : bankCards.length > 0 ? bankCards[0].id : null
 				},
@@ -432,7 +375,7 @@ async function main() {
 					currency: 'USDT' as const,
 					amount: 300.75,
 					status: 'COMPLETED' as const,
-					description: 'Large USDT deposit',
+					description: 'واریز بزرگ تتر',
 					transactionHash: '0xffffffffffffffffffffffffffffffffffffff',
 					fromAddress: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
 					toAddress: '0x1234567890abcdef1234567890abcdef12345678'
@@ -443,13 +386,13 @@ async function main() {
 				data: transactionData
 			});
 
-			console.log('✅ Sample transactions created!');
+			console.log('✅ تراکنش‌های نمونه ایجاد شدند!');
 		}
 	} else {
-		console.log('💰 Transactions already exist, skipping transaction creation.');
+		console.log('💰 تراکنش‌ها قبلاً ایجاد شده‌اند، از ایجاد تراکنش جدید صرف نظر شد.');
 	}
 
-	console.log('✅ Database seeded successfully!');
+	console.log('✅ عملیات پر کردن پایگاه داده با موفقیت انجام شد!');
 }
 
 main()
@@ -457,7 +400,7 @@ main()
 		await prisma.$disconnect();
 	})
 	.catch(async (e) => {
-		console.error('❌ Error seeding database:', e);
+		console.error('❌ خطا در عملیات پر کردن پایگاه داده:', e);
 		await prisma.$disconnect();
 		if (typeof process !== 'undefined') {
 			process.exit(1);

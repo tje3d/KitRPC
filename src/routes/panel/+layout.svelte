@@ -298,7 +298,7 @@
 												<KycStatusIndicator status={getStep1Status()} size="md" showLabel={false} />
 												<div>
 													<h3 class="text-sm font-medium text-gray-900">
-														{#if $authUser?.kycVerification === undefined || getStep1Status() === 'REJECTED'}
+														{#if !$authUser?.kycVerification || getStep1Status() === 'REJECTED'}
 															نیاز به احراز هویت مرحله ۱
 														{:else if getStep1Status() === 'PENDING'}
 															احراز هویت مرحله ۱ در حال انجام
@@ -320,7 +320,7 @@
 													/>
 												{/if}
 												<Button href="{base}/panel/kyc" variant="primary" size="sm">
-													{#if $authUser?.kycVerification === undefined || getStep1Status() === 'REJECTED' || getStep1Status() === null}
+													{#if !$authUser?.kycVerification || getStep1Status() === 'REJECTED' || getStep1Status() === null}
 														شروع مرحله ۱ احراز هویت
 													{:else}
 														مشاهده وضعیت
