@@ -488,6 +488,7 @@
 						totalItems={totalCount}
 						{currentPage}
 						showPagination={totalCount > itemsPerPage}
+						showSearch={false}
 						onPageChange={(page) => {
 							if (page < 1 || page > Math.ceil(totalCount / itemsPerPage)) return;
 							currentPage = page;

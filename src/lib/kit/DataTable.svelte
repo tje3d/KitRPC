@@ -31,6 +31,7 @@
 	export let onSortChange: ((key: string, direction: 'asc' | 'desc') => void) | null = null;
 	export let searchTerm: string = '';
 	export let loading: boolean = false;
+	export let showSearch = true;
 
 	// State for client-side sorting (when server-side callbacks are not provided)
 	let sortKey: string | null = null;
@@ -158,17 +159,19 @@
 <!-- Search and filter controls -->
 <div class="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 	<!-- Global search -->
-	<div class="w-full md:w-64">
-		<Input
-			id="datatable-search"
-			name="datatable-search"
-			type="text"
-			placeholder="جستجو"
-			bind:value={searchTerm}
-			onChange={handleSearchChange}
-			className="w-full"
-		/>
-	</div>
+	{#if showSearch}
+		<div class="w-full md:w-64">
+			<Input
+				id="datatable-search"
+				name="datatable-search"
+				type="text"
+				placeholder="جستجو"
+				bind:value={searchTerm}
+				onChange={handleSearchChange}
+				className="w-full"
+			/>
+		</div>
+	{/if}
 
 	<!-- Column filters -->
 	<div class="flex flex-wrap gap-2">

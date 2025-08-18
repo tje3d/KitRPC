@@ -1,4 +1,6 @@
 <script lang="ts">
+	import cardNumberInput from '$lib/actions/cardNumberInput.action';
+
 	/** @type {string} - Input ID (required) */
 	export let id: string;
 
@@ -47,6 +49,9 @@
 	/** @type {boolean} - Whether the input is required */
 	export let required: boolean = false;
 
+	/** @type {boolean} - Whether to format input as card number */
+	export let formatCard: boolean = false;
+
 	// Base input classes with modern styling
 	const baseInputClasses =
 		'w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 placeholder-gray-400 shadow-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:shadow-md disabled:opacity-50 disabled:cursor-not-allowed';
@@ -93,6 +98,7 @@
 		on:blur={onBlur}
 		on:change={onChange}
 		on:input={handleInput}
+		use:cardNumberInput={{ disable: !formatCard }}
 	/>
 	{#if error && errorMessage}
 		<p class="text-sm text-red-600" id={`${id}-error`}>

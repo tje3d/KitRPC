@@ -1,3 +1,5 @@
+Primary language is persian.
+
 Backend requirements:
 
 - Use bun, bunx instead of node, npm and npx
@@ -19,7 +21,9 @@ Frontend requirements:
 Implementation pattern:
 
 - To call API, first implement the provider pattern in providers folder, then use it in components
-- When you need to call a method of provider, use Svelte bind:this syntax and have reference to instance, then you can use all methods
+- When you need to call a method of provider, use Svelte `let:` directive to expose methods and data from providers (e.g., `let:createWalletAddress`, `let:loading`, `let:data`)
+- Use event handler props like `onSuccess` and `onError` instead of Svelte event listeners (e.g., `onSuccess={(data) => {...}}` instead of `on:success`)
+- Nest providers in template to access multiple provider methods in the same component
 - Create comprehensive list page with search, filtering, and pagination
 - Implement create/edit forms with proper validation
 - Add confirmation dialogs for delete operations
@@ -27,6 +31,32 @@ Implementation pattern:
 - Use proper loading states and error handling throughout
 - Implement proper TypeScript types for all components and providers
 - Always define one request per provider ( its mean only one useTrpcRequest )
+
+Form validation pattern:
+
+- Import `{ rules, useForm, type FormConfig }` from `$lib/helpers/form.helper`
+- Define form configuration with validation rules:
+  ```typescript
+  const formConfig: FormConfig = {
+    fieldName: {
+      rules: [rules.required, rules.email, etc.],
+      label: 'Field Label'
+    }
+  };
+  ```
+- Initialize form helper: `const { errors, validate, reset: resetValidation } = useForm(formConfig);`
+- Use FormGroup component with error handling:
+  ```svelte
+  <FormGroup
+    label="Field Label"
+    error={$errors?.fieldName || ''}
+    showError={!!$errors?.fieldName}
+  >
+    <Input bind:value={fieldValue} />
+  </FormGroup>
+  ```
+- Validate on form submit: `if (!validate({ fieldName: fieldValue })) return;`
+- Reset validation when needed: `resetValidation();`
 
 Global:
 

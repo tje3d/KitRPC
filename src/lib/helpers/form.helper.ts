@@ -94,6 +94,19 @@ export const rules = {
 		message: MESSAGES.nationalId
 	},
 
+	cardNumber: {
+		validate: (value: string) => {
+			if (!value) return true;
+
+			// Remove any spaces or dashes
+			const cleaned = value.replace(/[\s-]/g, '');
+
+			// Check if it's exactly 16 digits
+			return /^\d{16}$/.test(cleaned);
+		},
+		message: (label: string) => `${label} باید دقیقاً ۱۶ رقم باشد`
+	},
+
 	jalaliDate: (formats: string[] = ['jYYYY/jMM/jDD']) => ({
 		validate: (value: string) => {
 			if (!value) return true;

@@ -36,35 +36,35 @@
 
 	// Navigation items
 	$: navItems = [
-		{ name: 'Dashboard', href: `${base}/panel`, icon: 'dashboard', category: 'General' },
+		{ name: 'داشبورد', href: `${base}/panel`, icon: 'dashboard', category: 'General' },
 
 		// Financial
-		{ name: 'Cards', href: `${base}/panel/cards`, icon: 'credit-card', category: 'Financial' },
+		{ name: 'کارت‌ها', href: `${base}/panel/cards`, icon: 'credit-card', category: 'مالی' },
 		{
-			name: 'Transactions',
+			name: 'تراکنش‌ها',
 			href: `${base}/panel/transactions`,
 			icon: 'banknotes',
-			category: 'Financial'
+			category: 'مالی'
 		},
 		{
-			name: 'Deposit',
+			name: 'واریز',
 			href: `${base}/panel/deposit`,
 			icon: 'arrow-down-tray',
-			category: 'Financial'
+			category: 'مالی'
 		},
 
 		// Account & Security
 		{
-			name: 'KYC Verification',
+			name: 'احراز هویت',
 			href: `${base}/panel/kyc`,
 			icon: 'identification',
-			category: 'Account'
+			category: 'اکانت'
 		},
 		{
-			name: 'Sessions',
+			name: 'نشست‌ها',
 			href: `${base}/panel/sessions`,
 			icon: 'device-phone-mobile',
-			category: 'Account'
+			category: 'اکانت'
 		},
 		// Add wallet management link for admin users
 		...(($authUser?.role?.permissions || []).some(
@@ -72,10 +72,10 @@
 		)
 			? [
 					{
-						name: 'Wallets',
+						name: 'کیف پول‌ها',
 						href: `${base}/panel/admin/wallets`,
 						icon: 'wallet',
-						category: 'Admin'
+						category: 'مدیریت'
 					}
 				]
 			: []),
@@ -83,7 +83,7 @@
 		...(($authUser?.role?.permissions || []).some(
 			(p) => p.permission.resource === 'user' && p.permission.action === 'manage'
 		)
-			? [{ name: 'Users', href: `${base}/panel/admin/users`, icon: 'users', category: 'Admin' }]
+			? [{ name: 'کاربران', href: `${base}/panel/admin/users`, icon: 'users', category: 'مدیریت' }]
 			: []),
 		// Add role management link for users with appropriate permissions
 		...(($authUser?.role?.permissions || []).some(
@@ -91,10 +91,10 @@
 		)
 			? [
 					{
-						name: 'Roles',
+						name: 'نقش‌ها',
 						href: `${base}/panel/admin/roles`,
 						icon: 'user-group',
-						category: 'Admin'
+						category: 'مدیریت'
 					}
 				]
 			: []),
@@ -104,10 +104,10 @@
 		)
 			? [
 					{
-						name: 'Permissions',
+						name: 'مجوزها',
 						href: `${base}/panel/admin/permissions`,
 						icon: 'shield-check',
-						category: 'Admin'
+						category: 'مدیریت'
 					}
 				]
 			: []),
@@ -115,7 +115,7 @@
 		...(($authUser?.role?.permissions || []).some(
 			(p) => p.permission.resource === 'media' && p.permission.action === 'manage'
 		)
-			? [{ name: 'Media', href: `${base}/panel/admin/media`, icon: 'photo', category: 'Admin' }]
+			? [{ name: 'رسانه‌ها', href: `${base}/panel/admin/media`, icon: 'photo', category: 'مدیریت' }]
 			: []),
 		// Add KYC management link for users with appropriate permissions
 		...(($authUser?.role?.permissions || []).some(
@@ -123,10 +123,10 @@
 		)
 			? [
 					{
-						name: 'KYC',
+						name: 'احراز هویت',
 						href: `${base}/panel/admin/kyc`,
 						icon: 'identification',
-						category: 'Admin'
+						category: 'مدیریت'
 					}
 				]
 			: [])
@@ -185,21 +185,21 @@
 
 	// Get messages for each step
 	$: step1Message = !$authUser?.kycVerification
-		? 'Please complete your KYC verification step 1 to continue.'
+		? 'لطفاً احراز هویت مرحله ۱ خود را برای ادامه تکمیل کنید.'
 		: getStep1Status() === 'REJECTED'
-			? 'Your KYC step 1 verification was rejected. Please try again.'
+			? 'احراز هویت مرحله ۱ شما رد شد. لطفاً دوباره تلاش کنید.'
 			: getStep1Status() === 'PENDING'
-				? 'Your KYC step 1 verification is in progress. You can check the status in the KYC page.'
-				: 'Complete KYC step 1 to continue.';
+				? 'احراز هویت مرحله ۱ شما در حال انجام است. می‌توانید وضعیت را در صفحه احراز هویت بررسی کنید.'
+				: 'برای ادامه، احراز هویت مرحله ۱ را تکمیل کنید.';
 
 	$: step2Message =
 		!$authUser?.kycVerification || getStep1Status() !== 'APPROVED'
-			? 'Please complete KYC step 1 first to unlock step 2.'
+			? 'لطفاً ابتدا مرحله ۱ احراز هویت را تکمیل کنید تا مرحله ۲ فعال شود.'
 			: getStep2Status() === 'REJECTED'
-				? 'Your KYC step 2 verification was rejected. Please try again.'
+				? 'احراز هویت مرحله ۲ شما رد شد. لطفاً دوباره تلاش کنید.'
 				: getStep2Status() === 'PENDING'
-					? 'Your KYC step 2 verification is in progress. You can check the status in the KYC page.'
-					: 'Complete KYC step 2 to finish verification.';
+					? 'احراز هویت مرحله ۲ شما در حال انجام است. می‌توانید وضعیت را در صفحه احراز هویت بررسی کنید.'
+					: 'برای تکمیل احراز هویت، مرحله ۲ را تکمیل کنید.';
 </script>
 
 <svelte:window on:resize={checkMobile} />
@@ -256,7 +256,7 @@
 										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
 									>
 										<span class="icon-[heroicons--cog-6-tooth] mr-2 inline h-4 w-4"></span>
-										Profile
+										پروفایل
 									</a>
 									<button
 										class="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
@@ -264,7 +264,7 @@
 									>
 										<span class="icon-[heroicons--arrow-right-on-rectangle] mr-2 inline h-4 w-4"
 										></span>
-										Logout
+										خروج
 									</button>
 								</div>
 							</div>
@@ -299,11 +299,11 @@
 												<div>
 													<h3 class="text-sm font-medium text-gray-900">
 														{#if $authUser?.kycVerification === undefined || getStep1Status() === 'REJECTED'}
-															KYC Step 1 Verification Required
+															نیاز به احراز هویت مرحله ۱
 														{:else if getStep1Status() === 'PENDING'}
-															KYC Step 1 Verification in Progress
+															احراز هویت مرحله ۱ در حال انجام
 														{:else}
-															KYC Step 1 Complete
+															مرحله ۱ احراز هویت تکمیل شد
 														{/if}
 													</h3>
 													<p class="mt-1 text-sm text-gray-600">{step1Message}</p>
@@ -321,9 +321,9 @@
 												{/if}
 												<Button href="{base}/panel/kyc" variant="primary" size="sm">
 													{#if $authUser?.kycVerification === undefined || getStep1Status() === 'REJECTED' || getStep1Status() === null}
-														Start KYC Step 1
+														شروع مرحله ۱ احراز هویت
 													{:else}
-														View Status
+														مشاهده وضعیت
 													{/if}
 												</Button>
 											</div>
@@ -338,11 +338,11 @@
 												<div>
 													<h3 class="text-sm font-medium text-gray-900">
 														{#if getStep2Status() === 'REJECTED'}
-															KYC Step 2 Verification Required
+															نیاز به احراز هویت مرحله ۲
 														{:else if getStep2Status() === 'PENDING'}
-															KYC Step 2 Verification in Progress
+															احراز هویت مرحله ۲ در حال انجام
 														{:else}
-															KYC Step 2 Not Started
+															مرحله ۲ احراز هویت شروع نشده
 														{/if}
 													</h3>
 													<p class="mt-1 text-sm text-gray-600">{step2Message}</p>
@@ -360,9 +360,9 @@
 												{/if}
 												<Button href="{base}/panel/kyc" variant="primary" size="sm">
 													{#if getStep2Status() === 'REJECTED' || getStep2Status() === null}
-														Start KYC Step 2
+														شروع مرحله ۲ احراز هویت
 													{:else}
-														View Status
+														مشاهده وضعیت
 													{/if}
 												</Button>
 											</div>
