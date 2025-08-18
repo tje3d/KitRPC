@@ -1,4 +1,3 @@
-export { default as BackgroundDecoration } from './BackgroundDecoration.svelte';
 export { default as BankCardInfo } from './BankCardInfo.svelte';
 export { default as Button } from './Button.svelte';
 export { default as Card } from './Card.svelte';

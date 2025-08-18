@@ -7,7 +7,7 @@
 	<div class="mb-3 flex items-center justify-between">
 		<h3 class="flex items-center gap-2 text-sm font-semibold text-gray-700">
 			<span class="icon-[heroicons--currency-dollar] h-4 w-4 text-blue-600"></span>
-			Balances
+			موجودی‌ها
 		</h3>
 	</div>
 

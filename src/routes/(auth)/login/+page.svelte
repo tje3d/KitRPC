@@ -94,13 +94,12 @@
 </script>
 
 <svelte:head>
-	<title>ورود - مدیر وظایف</title>
-	<meta name="description" content="ورود به مدیر وظایف - دسترسی به وظایف خود و سازماندهی" />
+	<title>ورود</title>
 </svelte:head>
 
-<div class="mb-4 text-center">
-	<h1 class="mb-2 text-3xl font-bold text-gray-900">خوش آمدید</h1>
-	<p class="text-gray-600">
+<div class="mb-6 text-center">
+	<h1 class="mb-2 text-2xl font-bold text-gray-900">خوش آمدید</h1>
+	<p class="text-sm text-gray-600">
 		حساب کاربری ندارید؟
 		<Link href="/register">اکنون یکی ایجاد کنید</Link>
 	</p>
@@ -108,8 +107,8 @@
 
 <LoginProvider {onLoggedIn} let:login let:clearError let:errorMessage let:loading>
 	<!-- Main Form Card -->
-	<Card>
-		<form on:submit={(e) => handleFormSubmit(e, login)} class="space-y-6" novalidate>
+	<Card variant="glass">
+		<form on:submit={(e) => handleFormSubmit(e, login)} class="space-y-5" novalidate>
 			<!-- Error Display -->
 			{#if errorMessage}
 				<ErrorDisplay message={errorMessage} onDismiss={clearError} />

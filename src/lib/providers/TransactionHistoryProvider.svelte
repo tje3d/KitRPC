@@ -18,7 +18,11 @@
 	const { clearError, errorMessage, loading, trigger, responseSuccess } = useTrpcRequest(
 		createTrpcRequestFn((filters: RequestParams) => {
 			return trpc(page).transactions.getHistory.query(filters);
-		})
+		}),
+		{
+			initialData: {},
+			requestOnSubscribe: true
+		}
 	);
 
 	const totalCount = responseSuccess.pipe(

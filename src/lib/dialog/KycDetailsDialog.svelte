@@ -97,7 +97,7 @@
 								<p class="text-sm text-gray-500">تاریخ ثبت نام</p>
 								<p class="text-sm font-medium text-gray-900">
 									{kycDetails.userCreatedAt
-										? new Date(kycDetails.userCreatedAt).toLocaleDateString('fa-IR')
+										? kycDetails.userCreatedAt.toLocaleDateString('fa-IR')
 										: 'نامشخص'}
 								</p>
 							</div>
@@ -273,7 +273,7 @@
 								{#if kycDetails.step1Status === 'REJECTED' && kycDetails.step1RejectedAt}
 									<div class="mt-1">
 										<p class="text-xs text-gray-500">
-											تاریخ رد: {new Date(kycDetails.step1RejectedAt).toLocaleDateString('fa-IR')}
+											تاریخ رد: {kycDetails.step1RejectedAt.toLocaleDateString('fa-IR')}
 										</p>
 									</div>
 								{/if}
@@ -297,7 +297,7 @@
 								{#if kycDetails.step2Status === 'REJECTED' && kycDetails.step2RejectedAt}
 									<div class="mt-1">
 										<p class="text-xs text-gray-500">
-											تاریخ رد: {new Date(kycDetails.step2RejectedAt).toLocaleDateString('fa-IR')}
+											تاریخ رد: {kycDetails.step2RejectedAt.toLocaleDateString('fa-IR')}
 										</p>
 									</div>
 								{/if}

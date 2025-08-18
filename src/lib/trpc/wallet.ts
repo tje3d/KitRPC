@@ -13,8 +13,8 @@ import { t } from './trpc';
 
 // Input validation schemas
 const createWalletAddressSchema = z.object({
-	network: z.string().min(1, 'Network is required'),
-	address: z.string().min(1, 'Address is required'),
+	network: z.string().min(1, 'شبکه الزامی است'),
+	address: z.string().min(1, 'آدرس الزامی است'),
 	isActive: z.boolean().default(true)
 });
 
@@ -24,11 +24,11 @@ const getWalletAddressesSchema = z.object({
 });
 
 const getActiveWalletAddressByNetworkSchema = z.object({
-	network: z.string().min(1, 'Network is required')
+	network: z.string().min(1, 'شبکه الزامی است')
 });
 
 const updateWalletAddressSchema = z.object({
-	id: z.string().min(1, 'Wallet address ID is required'),
+	id: z.string().min(1, 'شناسه آدرس کیف پول الزامی است'),
 	data: z
 		.object({
 			network: z.string().optional(),
@@ -39,11 +39,11 @@ const updateWalletAddressSchema = z.object({
 });
 
 const deleteWalletAddressSchema = z.object({
-	id: z.string().min(1, 'Wallet address ID is required')
+	id: z.string().min(1, 'شناسه آدرس کیف پول الزامی است')
 });
 
 const activateWalletAddressSchema = z.object({
-	id: z.string().min(1, 'Wallet address ID is required')
+	id: z.string().min(1, 'شناسه آدرس کیف پول الزامی است')
 });
 
 // Protected procedures
@@ -72,7 +72,7 @@ export const walletRouter = t.router({
 			} catch (error: any) {
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: error.message || 'Failed to create wallet address',
+					message: error.message || 'ایجاد آدرس کیف پول ناموفق بود',
 					cause: error
 				});
 			}
@@ -94,7 +94,7 @@ export const walletRouter = t.router({
 		} catch (error: any) {
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: error.message || 'Failed to fetch wallet addresses',
+				message: error.message || 'دریافت آدرس‌های کیف پول ناموفق بود',
 				cause: error
 			});
 		}
@@ -110,7 +110,7 @@ export const walletRouter = t.router({
 				if (!walletAddress) {
 					throw new TRPCError({
 						code: 'NOT_FOUND',
-						message: 'No active wallet address found for this network'
+						message: 'هیچ آدرس کیف پول فعالی برای این شبکه یافت نشد'
 					});
 				}
 
@@ -126,7 +126,7 @@ export const walletRouter = t.router({
 
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: error.message || 'Failed to fetch active wallet address',
+					message: error.message || 'دریافت آدرس کیف پول فعال ناموفق بود',
 					cause: error
 				});
 			}
@@ -147,7 +147,7 @@ export const walletRouter = t.router({
 			} catch (error: any) {
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: error.message || 'Failed to update wallet address',
+					message: error.message || 'بروزرسانی آدرس کیف پول ناموفق بود',
 					cause: error
 				});
 			}
@@ -163,7 +163,7 @@ export const walletRouter = t.router({
 			} catch (error: any) {
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: error.message || 'Failed to delete wallet address',
+					message: error.message || 'حذف آدرس کیف پول ناموفق بود',
 					cause: error
 				});
 			}
@@ -184,7 +184,7 @@ export const walletRouter = t.router({
 			} catch (error: any) {
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: error.message || 'Failed to activate wallet address',
+					message: error.message || 'فعال‌سازی آدرس کیف پول ناموفق بود',
 					cause: error
 				});
 			}

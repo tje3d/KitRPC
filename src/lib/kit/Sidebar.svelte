@@ -255,15 +255,7 @@
 								class="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700/50"
 							>
 								<span class={getIcon('profile') + ' h-5 w-5'}></span>
-								<span>Profile & Settings</span>
-							</a>
-
-							<a
-								href="{base}/panel/help"
-								class="flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-700 transition-colors duration-200 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700/50"
-							>
-								<span class={getIcon('help') + ' h-5 w-5'}></span>
-								<span>Help & Support</span>
+								<span>پروفایل و تنظیمات</span>
 							</a>
 						</div>
 
@@ -277,11 +269,11 @@
 									dialogStore.open({
 										component: ConfirmDialog,
 										props: {
-											title: 'Confirm Logout',
+											title: 'تأیید خروج',
 											message:
-												'Are you sure you want to log out? You will need to sign in again to access your tasks.',
-											confirm: 'Logout',
-											cancel: 'Cancel',
+												'آیا مطمئن هستید که می‌خواهید خارج شوید؟ برای دسترسی به وظایف خود باید دوباره وارد شوید.',
+											confirm: 'خروج',
+											cancel: 'لغو',
 											color: 'red',
 											onConfirm() {
 												history.back();
@@ -304,10 +296,10 @@
 												class="iconify h-4 w-4 animate-spin"
 												data-icon="svg-spinners:bars-scale-fade"
 											></span>
-											Logging out...
+											در حال خروج...
 										</span>
 									{:else}
-										Logout
+										خروج
 									{/if}
 								</span>
 							</button>

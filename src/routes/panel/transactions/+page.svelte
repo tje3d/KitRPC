@@ -220,11 +220,6 @@
 			`
 		}
 	];
-
-	// Load transactions when component mounts
-	onMount(() => {
-		fetchTransactions();
-	});
 </script>
 
 <TransactionHistoryProvider

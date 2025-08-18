@@ -93,11 +93,7 @@
 </script>
 
 <svelte:head>
-	<title>ایجاد حساب کاربری - مدیر وظایف</title>
-	<meta
-		name="description"
-		content="عضویت در مدیر وظایف - ایجاد حساب کاربری برای سازماندهی کارآمد وظایف"
-	/>
+	<title>ثبت نام</title>
 </svelte:head>
 
 <div class="mb-4 text-center">

@@ -49,7 +49,7 @@
 		</div>
 	{/if}
 
-	<div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+	<div class="grid grid-cols-1 gap-6 md:grid-cols-1">
 		<KycFileUploadSection
 			fileType="signedImage"
 			title="سند امضا شده"

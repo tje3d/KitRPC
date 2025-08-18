@@ -6,10 +6,10 @@
 	import ErrorDisplay from '$lib/kit/ErrorDisplay.svelte';
 	import KycStatusIndicator from '$lib/kit/KycStatusIndicator.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
-	import SuccessDisplay from '$lib/kit/SuccessDisplay.svelte';
 	import FinalizeKycStep2Provider from '$lib/providers/FinalizeKycStep2Provider.svelte';
 	import GetKycStatusProvider from '$lib/providers/GetKycStatusProvider.svelte';
 	import SubmitKycInfoProvider from '$lib/providers/SubmitKycInfoProvider.svelte';
+	import { toast } from '$lib/toast/store';
 
 	// Form state for step 1
 	let nationalId = '';
@@ -65,6 +65,13 @@
 				break;
 		}
 	}
+
+	// Helper function to convert Date to string for birthDate binding
+	function formatDateForInput(date: Date | string | undefined): string {
+		if (!date) return '';
+		if (typeof date === 'string') return date;
+		return date.toISOString().split('T')[0];
+	}
 </script>
 
 <PanelPageWrapper title="احراز هویت" description="فرآیند احراز هویت خود را تکمیل کنید">
@@ -76,7 +83,7 @@
 		onSuccess={(r) => {
 			mobile = r?.mobile || '';
 			nationalId = r?.nationalId || '';
-			birthDate = r?.birthDate || '';
+			birthDate = formatDateForInput(r?.birthDate);
 		}}
 	>
 		{@const bothStepsApproved =
@@ -105,7 +112,7 @@
 			{/if}
 
 			<!-- Step 1: اطلاعات شخصی -->
-			{#if !bothStepsApproved}
+			{#if !bothStepsApproved && kycStatus?.step2Status !== 'PENDING'}
 				<Card
 					className={kycStatus?.step1Status === 'APPROVED' || kycStatus?.step1Status === 'PENDING'
 						? 'opacity-60'
@@ -145,13 +152,9 @@
 			{/if}
 
 			<!-- Step 2: Document Upload -->
-			{#if !bothStepsApproved}
+			{#if !bothStepsApproved && kycStatus?.step2Status !== 'PENDING'}
 				<Card
-					className={step2Disabled ||
-					kycStatus?.step2Status === 'PENDING' ||
-					kycStatus?.step2Status === 'APPROVED'
-						? 'opacity-60'
-						: ''}
+					className={step2Disabled || kycStatus?.step2Status === 'APPROVED' ? 'opacity-60' : ''}
 				>
 					<FinalizeKycStep2Provider
 						let:finalizeKycStep2
@@ -160,6 +163,8 @@
 						onSuccess={(e) => {
 							// Refresh KYC status after successful finalization
 							getKycStatus();
+							// Show success toast
+							toast.success('مرحله دوم احراز هویت با موفقیت تکمیل شد!');
 						}}
 						onError={(e) => {
 							// Handle error
@@ -178,17 +183,46 @@
 				</Card>
 			{/if}
 
-			<!-- Information Summary for Approved Steps -->
-			{#if kycStatus && kycStatus.step1Status === 'APPROVED' && kycStatus.step2Status === 'APPROVED'}
+			<!-- Information Summary for Approved Steps or Pending Step 2 -->
+			{#if kycStatus && kycStatus.step1Status === 'APPROVED' && (kycStatus.step2Status === 'APPROVED' || kycStatus.step2Status === 'PENDING')}
 				<Card>
-					<div class="mb-6 rounded-lg bg-green-50 p-4">
+					<div
+						class="mb-6 rounded-lg p-4"
+						class:bg-green-50={kycStatus.step2Status === 'APPROVED'}
+						class:bg-yellow-50={kycStatus.step2Status === 'PENDING'}
+					>
 						<div class="flex items-center">
-							<span class="icon-[heroicons--check-circle] me-2 h-6 w-6 text-green-500"></span>
-							<h2 class="text-lg font-medium text-green-800">تأیید هویت تکمیل شد!</h2>
+							<span
+								class="me-2 h-6 w-6"
+								class:icon-[heroicons--check-circle]={kycStatus.step2Status === 'APPROVED'}
+								class:icon-[heroicons--clock]={kycStatus.step2Status === 'PENDING'}
+								class:text-green-500={kycStatus.step2Status === 'APPROVED'}
+								class:text-yellow-500={kycStatus.step2Status === 'PENDING'}
+							></span>
+							<h2
+								class="text-lg font-medium"
+								class:text-green-800={kycStatus.step2Status === 'APPROVED'}
+								class:text-yellow-800={kycStatus.step2Status === 'PENDING'}
+							>
+								{#if kycStatus.step2Status === 'APPROVED'}
+									تأیید هویت تکمیل شد!
+								{:else}
+									اطلاعات احراز هویت ارسال شد
+								{/if}
+							</h2>
 						</div>
-						<p class="mt-2 text-green-700">
-							احراز هویت شما تأیید شده است. اکنون به تمام ویژگی‌های پلتفرم دسترسی کامل دارید. لذت
-							ببرید!
+						<p
+							class="mt-2"
+							class:text-green-700={kycStatus.step2Status === 'APPROVED'}
+							class:text-yellow-700={kycStatus.step2Status === 'PENDING'}
+						>
+							{#if kycStatus.step2Status === 'APPROVED'}
+								احراز هویت شما تأیید شده است. اکنون به تمام ویژگی‌های پلتفرم دسترسی کامل دارید. لذت
+								ببرید!
+							{:else}
+								مرحله دوم احراز هویت تکمیل شد و در انتظار بررسی است. پس از تأیید، به تمام ویژگی‌های
+								پلتفرم دسترسی خواهید داشت.
+							{/if}
 						</p>
 					</div>
 
@@ -211,7 +245,9 @@
 							</div>
 							<div>
 								<p class="text-sm text-gray-500">تاریخ تولد</p>
-								<p class="font-medium">{new Date(kycStatus.birthDate).toLocaleDateString()}</p>
+								<p class="font-medium">
+									{kycStatus.birthDate?.toLocaleDateString('fa-IR')}
+								</p>
 							</div>
 						</div>
 					</div>
