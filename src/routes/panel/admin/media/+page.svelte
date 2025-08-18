@@ -79,7 +79,7 @@
 	}
 
 	function formatDate(date: string | Date) {
-		return new Date(date).toLocaleDateString('en-US', {
+		return new Date(date).toLocaleDateString('fa-IR', {
 			year: 'numeric',
 			month: 'short',
 			day: 'numeric'
@@ -87,9 +87,9 @@
 	}
 
 	function formatFileSize(bytes: number): string {
-		if (bytes === 0) return '0 Bytes';
+		if (bytes === 0) return '0 بایت';
 		const k = 1024;
-		const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+		const sizes = ['بایت', 'کیلوبایت', 'مگابایت', 'گیگابایت'];
 		const i = Math.floor(Math.log(bytes) / Math.log(k));
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 	}
@@ -99,10 +99,10 @@
 		dialogStore.open({
 			component: ConfirmDialog,
 			props: {
-				title: 'Delete Media',
-				message: `Are you sure you want to delete the media "${media.originalName}"? This action cannot be undone.`,
-				confirm: 'Delete',
-				cancel: 'Cancel',
+				title: 'حذف رسانه',
+				message: `آیا مطمئن هستید که می‌خواهید رسانه "${media.originalName}" را حذف کنید؟ این عمل قابل بازگشت نیست.`,
+				confirm: 'حذف',
+				cancel: 'لغو',
 				color: 'red',
 				onConfirm: () => {
 					history.back();
@@ -124,13 +124,12 @@
 
 	// Handle delete success
 	function handleDeleteSuccess() {
-		toast.success('Media deleted successfully');
-		loadMedia(); // Refresh the list
+		toast.success('رسانه با موفقیت حذف شد');
+		loadMedia();
 	}
 
-	// Handle delete error
 	function handleDeleteError(error: string) {
-		toast.error(error || 'Failed to delete media');
+		toast.error(error || 'حذف رسانه با خطا مواجه شد');
 	}
 
 	// Handle row actions
@@ -186,7 +185,7 @@
 	const columns = [
 		{
 			key: 'id',
-			label: 'ID',
+			label: 'شناسه',
 			sortable: true,
 			render: (value: any, row: Media) => {
 				return `
@@ -198,7 +197,7 @@
 		},
 		{
 			key: 'filename',
-			label: 'Filename',
+			label: 'نام فایل',
 			sortable: true,
 			render: (value: any, row: Media) => {
 				return `
@@ -222,7 +221,7 @@
 		},
 		{
 			key: 'reason',
-			label: 'Reason',
+			label: 'دلیل',
 			sortable: true,
 			render: (value: any, row: Media) => {
 				return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">${row.reason}</span>`;
@@ -230,7 +229,7 @@
 		},
 		{
 			key: 'visibility',
-			label: 'Visibility',
+			label: 'نمایش',
 			sortable: true,
 			render: (value: any, row: Media) => {
 				const isPublic = row.visibility === MediaVisibility.PUBLIC;
@@ -239,7 +238,7 @@
 		},
 		{
 			key: 'owner',
-			label: 'Owner',
+			label: 'مالک',
 			sortable: true,
 			render: (value: any, row: Media) => {
 				return row.owner
@@ -247,12 +246,12 @@
 					<div class="text-sm font-medium text-gray-900">${row.owner.username}</div>
 					<div class="text-sm text-gray-500">${row.owner.id.substring(0, 8)}</div>
 				`
-					: '<span class="text-gray-500">Unknown</span>';
+					: '<span class="text-gray-500">نامشخص</span>';
 			}
 		},
 		{
 			key: 'fileSize',
-			label: 'Size',
+			label: 'اندازه',
 			sortable: true,
 			render: (value: any, row: Media) => {
 				return `<span class="text-sm text-gray-900">${formatFileSize(row.fileSize)}</span>`;
@@ -260,7 +259,7 @@
 		},
 		{
 			key: 'createdAt',
-			label: 'Uploaded',
+			label: 'آپلود شده',
 			sortable: true,
 			render: (value: any, row: Media) => {
 				return formatDate(row.createdAt);
@@ -268,7 +267,7 @@
 		},
 		{
 			key: 'actions',
-			label: 'Actions',
+			label: 'عملیات',
 			render: (value: any, row: Media) => {
 				return `
 					<div class="flex items-center justify-end gap-2">
@@ -276,7 +275,7 @@
 							class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
 							data-action="view"
 							data-id="${row.id}"
-							title="View media"
+							title="مشاهده رسانه"
 						>
 							<span class="icon-[heroicons--magnifying-glass] w-4 h-4"></span>
 						</button>
@@ -284,7 +283,7 @@
 							class="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
 							data-action="delete"
 							data-id="${row.id}"
-							title="Delete media"
+							title="حذف رسانه"
 						>
 							<span class="icon-[heroicons--x-mark] w-4 h-4"></span>
 						</button>
@@ -307,7 +306,7 @@
 	}));
 </script>
 
-<PanelPageWrapper title="Media Management" description="Manage all media files in the system">
+<PanelPageWrapper title="مدیریت رسانه" description="مدیریت تمام فایل‌های رسانه‌ای در سیستم">
 	<MediaProvider
 		bind:this={mediaProvider}
 		onDeleteSuccess={handleDeleteSuccess}
@@ -330,7 +329,7 @@
 						<span class="icon-[heroicons--photo] block h-6 w-6 text-blue-600"></span>
 					</div>
 					<div class="ms-4">
-						<p class="text-sm font-medium text-gray-500">Total Media</p>
+						<p class="text-sm font-medium text-gray-500">کل رسانه‌ها</p>
 						{#if statsLoading}
 							<div class="mt-1 h-6 w-20 animate-pulse rounded bg-gray-200"></div>
 						{:else}
@@ -347,7 +346,7 @@
 						<span class="icon-[heroicons--server-stack] block h-6 w-6 text-green-600"></span>
 					</div>
 					<div class="ms-4">
-						<p class="text-sm font-medium text-gray-500">Total Size</p>
+						<p class="text-sm font-medium text-gray-500">حجم کل</p>
 						{#if statsLoading}
 							<div class="mt-1 h-6 w-20 animate-pulse rounded bg-gray-200"></div>
 						{:else}
@@ -366,7 +365,7 @@
 						<span class="icon-[heroicons--eye] block h-6 w-6 text-yellow-600"></span>
 					</div>
 					<div class="ms-4">
-						<p class="text-sm font-medium text-gray-500">Public Media</p>
+						<p class="text-sm font-medium text-gray-500">رسانه‌های عمومی</p>
 						{#if statsLoading}
 							<div class="mt-1 h-6 w-20 animate-pulse rounded bg-gray-200"></div>
 						{:else}
@@ -385,7 +384,7 @@
 						<span class="icon-[heroicons--lock-closed] block h-6 w-6 text-purple-600"></span>
 					</div>
 					<div class="ms-4">
-						<p class="text-sm font-medium text-gray-500">Private Media</p>
+						<p class="text-sm font-medium text-gray-500">رسانه‌های خصوصی</p>
 						{#if statsLoading}
 							<div class="mt-1 h-6 w-20 animate-pulse rounded bg-gray-200"></div>
 						{:else}
@@ -414,7 +413,7 @@
 					id="search"
 					name="search"
 					type="text"
-					placeholder="Search by filename or owner ID"
+					placeholder="جستجو بر اساس نام فایل یا شناسه مالک"
 					bind:value={searchTerm}
 					className="w-full"
 				/>
@@ -422,7 +421,7 @@
 				<Select
 					id="reason"
 					name="reason"
-					placeholder="Filter by reason"
+					placeholder="فیلتر بر اساس دلیل"
 					value={selectedReason || ''}
 					onChange={(value) => (selectedReason = value as MediaReason)}
 					options={reasonOptions}
@@ -432,7 +431,7 @@
 				<Select
 					id="visibility"
 					name="visibility"
-					placeholder="Filter by visibility"
+					placeholder="فیلتر بر اساس نمایش"
 					value={selectedVisibility || ''}
 					onChange={(value) => (selectedVisibility = value as MediaVisibility)}
 					options={visibilityOptions}
@@ -443,7 +442,7 @@
 					id="ownerId"
 					name="ownerId"
 					type="text"
-					placeholder="Filter by owner ID"
+					placeholder="فیلتر بر اساس شناسه مالک"
 					bind:value={ownerId}
 					className="w-full"
 				/>
@@ -455,7 +454,7 @@
 					id="startDate"
 					name="startDate"
 					type="date"
-					label="Start Date"
+					label="تاریخ شروع"
 					bind:value={startDate}
 					className="w-full"
 				/>
@@ -464,14 +463,14 @@
 					id="endDate"
 					name="endDate"
 					type="date"
-					label="End Date"
+					label="تاریخ پایان"
 					bind:value={endDate}
 					className="w-full"
 				/>
 
 				<div class="flex items-end space-x-2">
-					<Button onClick={applyFilters} variant="primary" className="flex-1">Apply Filters</Button>
-					<Button onClick={resetFilters} variant="secondary" className="flex-1">Reset</Button>
+					<Button onClick={applyFilters} variant="primary" className="flex-1">اعمال فیلترها</Button>
+					<Button onClick={resetFilters} variant="secondary" className="flex-1">بازنشانی</Button>
 				</div>
 			</div>
 
@@ -497,8 +496,8 @@
 				>
 					<div slot="empty" class="py-8 text-center">
 						<span class="icon-[heroicons--folder-open] mx-auto h-12 w-12 text-gray-400"></span>
-						<h3 class="mt-2 text-sm font-medium text-gray-900">No media files</h3>
-						<p class="mt-1 text-sm text-gray-500">Get started by uploading some media files.</p>
+						<h3 class="mt-2 text-sm font-medium text-gray-900">فایل رسانه‌ای وجود ندارد</h3>
+						<p class="mt-1 text-sm text-gray-500">با آپلود فایل‌های رسانه‌ای شروع کنید.</p>
 					</div>
 				</DataTable>
 			</div>

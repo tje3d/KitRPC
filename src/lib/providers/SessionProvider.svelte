@@ -19,7 +19,11 @@
 	const { clearError, errorMessage, loading, trigger, responseSuccess } = useTrpcRequest(
 		createTrpcRequestFn(() => {
 			return trpc(page).sessions.getSessions.query();
-		})
+		}),
+		{
+			initialData: {},
+			requestOnSubscribe: true
+		}
 	);
 
 	const sessions = responseSuccess.pipe(

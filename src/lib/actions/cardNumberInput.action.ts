@@ -26,10 +26,12 @@ export default function cardNumberInput(node: HTMLInputElement, vars?: CardNumbe
 	}
 
 	// Apply formatting on initialize
-	const initialValue = formatValue(node.value);
-	node.value = initialValue.formatted;
-	if (onUpdate) {
-		onUpdate(initialValue.formatted, initialValue.cleaned);
+	if (!disable) {
+		const initialValue = formatValue(node.value);
+		node.value = initialValue.formatted;
+		if (onUpdate) {
+			onUpdate(initialValue.formatted, initialValue.cleaned);
+		}
 	}
 
 	function handleInput(event: Event) {

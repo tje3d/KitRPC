@@ -5,23 +5,19 @@
 	import DataTable from '$lib/kit/DataTable.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 	import SessionProvider from '$lib/providers/SessionProvider.svelte';
+	import StatusBadge from '$lib/kit/StatusBadge.svelte';
 	import { toast } from '$lib/toast/store';
 	import type { RouterOutputs } from '$lib/trpc/router';
-	import { onMount, tick } from 'svelte';
+	import { tick } from 'svelte';
 
 	type Session = RouterOutputs['sessions']['getSessions'][number];
 
 	// Provider reference
 	let sessionProvider: SessionProvider;
 
-	// State
-	let error: string | null = null;
-	let currentSessionError: string | null = null;
-	let deleteError: string | null = null;
-
 	// Format date for display
 	function formatDate(date: Date): string {
-		return new Date(date).toLocaleString();
+		return date.toLocaleString('FA-IR');
 	}
 
 	// Format device type for display
@@ -187,11 +183,6 @@
 			`
 		}
 	];
-
-	// Load sessions when component mounts
-	onMount(() => {
-		sessionProvider.getSessions();
-	});
 </script>
 
 <SessionProvider
@@ -215,11 +206,19 @@
 		description="مشاهده و مدیریت نشست‌های فعال خود در دستگاه‌ها."
 	>
 		<!-- Current Session Section -->
-		<Card variant="flat" className="mb-6">
-			<div class="flex items-center justify-between border-b border-gray-200 pb-4">
+		<Card
+			variant="flat"
+			className="mb-6 border-2 border-green-300 bg-green-50 shadow-md ring-2 ring-green-100 ring-opacity-50"
+		>
+			<div
+				class="flex flex-col justify-between border-b border-green-200 pb-4 sm:flex-row sm:items-center"
+			>
 				<div class="flex items-center space-x-2">
-					<span class="icon-[heroicons--computer-desktop] h-5 w-5 text-gray-500"></span>
+					<span class="icon-[heroicons--computer-desktop] h-5 w-5 text-green-600"></span>
 					<h2 class="text-lg font-semibold text-gray-800">نشست فعلی</h2>
+				</div>
+				<div class="mt-2 sm:mt-0">
+					<StatusBadge status="success" label="فعال" variant="default" />
 				</div>
 			</div>
 
@@ -229,42 +228,45 @@
 				</div>
 			{:else if currentSession}
 				<div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-					<div class="rounded-lg border border-gray-200 p-4">
+					<div class="rounded-lg border border-green-200 bg-white p-4 shadow-sm">
 						<div class="flex items-center">
-							<span class="{getDeviceIcon(currentSession.deviceType || null)} h-6 w-6 text-gray-500"
+							<span
+								class="{getDeviceIcon(currentSession.deviceType || null)} h-6 w-6 text-green-600"
 							></span>
 							<span class="ms-2 text-sm font-medium text-gray-900">دستگاه</span>
 						</div>
-						<p class="mt-1 text-sm text-gray-500">
+						<p class="mt-1 text-sm font-medium text-gray-700">
 							{formatDeviceType(currentSession.deviceType || null)}
 						</p>
 					</div>
 
-					<div class="rounded-lg border border-gray-200 p-4">
+					<div class="rounded-lg border border-green-200 bg-white p-4 shadow-sm">
 						<div class="flex items-center">
-							<span class="{getBrowserIcon(currentSession.browser || null)} h-6 w-6 text-gray-500"
+							<span class="{getBrowserIcon(currentSession.browser || null)} h-6 w-6 text-green-600"
 							></span>
 							<span class="ms-2 text-sm font-medium text-gray-900">مرورگر</span>
 						</div>
-						<p class="mt-1 text-sm text-gray-500">
+						<p class="mt-1 text-sm font-medium text-gray-700">
 							{formatBrowser(currentSession.browser || null)}
 						</p>
 					</div>
 
-					<div class="rounded-lg border border-gray-200 p-4">
+					<div class="rounded-lg border border-green-200 bg-white p-4 shadow-sm">
 						<div class="flex items-center">
-							<span class="icon-[heroicons--globe-alt] h-6 w-6 text-gray-500"></span>
+							<span class="icon-[heroicons--globe-alt] h-6 w-6 text-green-600"></span>
 							<span class="ms-2 text-sm font-medium text-gray-900">آدرس IP</span>
 						</div>
-						<p class="mt-1 text-sm text-gray-500">{currentSession.ipAddress || 'Unknown'}</p>
+						<p class="mt-1 text-sm font-medium text-gray-700">
+							{currentSession.ipAddress || 'Unknown'}
+						</p>
 					</div>
 
-					<div class="rounded-lg border border-gray-200 p-4">
+					<div class="rounded-lg border border-green-200 bg-white p-4 shadow-sm">
 						<div class="flex items-center">
-							<span class="icon-[heroicons--clock] h-6 w-6 text-gray-500"></span>
+							<span class="icon-[heroicons--clock] h-6 w-6 text-green-600"></span>
 							<span class="ms-2 text-sm font-medium text-gray-900">زمان ورود</span>
 						</div>
-						<p class="mt-1 text-sm text-gray-500">
+						<p class="mt-1 text-sm font-medium text-gray-700">
 							{formatDate(new Date(currentSession.createdAt))}
 						</p>
 					</div>

@@ -303,15 +303,7 @@ export const kycRouter = t.router({
 
 			// Format the response
 			return {
-				kycRequests: kycVerifications.map((kyc) => ({
-					id: kyc.id,
-					userId: kyc.userId,
-					username: kyc.user?.username || null,
-					email: kyc.user?.email || null,
-					nationalId: kyc.nationalId,
-					mobile: kyc.mobile,
-					birthDate: kyc.birthDate.toISOString()
-				})),
+				kycRequests: kycVerifications,
 				totalCount,
 				limit: input.limit,
 				offset: input.offset

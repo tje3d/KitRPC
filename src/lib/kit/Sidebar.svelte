@@ -19,28 +19,6 @@
 	// Dispatch events
 	const dispatch = createEventDispatcher();
 
-	// Handle logout with confirmation dialog
-	async function handleLogout(logout: () => void) {
-		dialogStore.open({
-			component: ConfirmDialog,
-			props: {
-				title: 'Confirm Logout',
-				message:
-					'Are you sure you want to log out? You will need to sign in again to access your tasks.',
-				confirm: 'Logout',
-				cancel: 'Cancel',
-				color: 'red',
-				onConfirm() {
-					history.back();
-
-					tick().then(() => {
-						logout();
-					});
-				}
-			}
-		});
-	}
-
 	function onLoggedOut() {
 		invalidateAll();
 	}
@@ -295,7 +273,26 @@
 						<!-- Logout section -->
 						<div class="py-1">
 							<button
-								on:click={() => handleLogout(logout)}
+								on:click={() => {
+									dialogStore.open({
+										component: ConfirmDialog,
+										props: {
+											title: 'Confirm Logout',
+											message:
+												'Are you sure you want to log out? You will need to sign in again to access your tasks.',
+											confirm: 'Logout',
+											cancel: 'Cancel',
+											color: 'red',
+											onConfirm() {
+												history.back();
+
+												tick().then(() => {
+													logout();
+												});
+											}
+										}
+									});
+								}}
 								disabled={loading}
 								class="flex w-full items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 transition-colors duration-200 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-900/20"
 							>

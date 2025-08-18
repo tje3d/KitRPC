@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { shareIt } from '$lib/helpers/rxjs.helper';
 	import { subscribe } from '$lib/helpers/svelte-rxjs.helper';
 	import { createTrpcRequestFn, useTrpcRequest } from '$lib/helpers/useTrpcRequest.helper';
 	import { trpc } from '$lib/trpc/client';
 	import type { RouterInputs, RouterOutputs } from '$lib/trpc/router';
-	import { map } from 'rxjs';
 
 	type RequestParams = RouterInputs['kyc']['approveKycRequest'];
 	type ResponseData = RouterOutputs['kyc']['approveKycRequest'];

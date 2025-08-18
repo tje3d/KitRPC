@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { authUser } from '$lib/flow/auth.flow';
+	import { calculatePasswordStrength } from '$lib/helpers/password.helper';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
 	import ErrorDisplay from '$lib/kit/ErrorDisplay.svelte';
@@ -9,7 +10,6 @@
 	import PasswordInput from '$lib/kit/PasswordInput.svelte';
 	import PasswordStrengthIndicator from '$lib/kit/PasswordStrengthIndicator.svelte';
 	import SuccessDisplay from '$lib/kit/SuccessDisplay.svelte';
-	import { onMount } from 'svelte';
 	import ChangeOwnPasswordProvider from '$lib/providers/ChangeOwnPasswordProvider.svelte';
 
 	// Form state
@@ -30,8 +30,6 @@
 
 	// Password strength (0-5)
 	$: passwordStrength = calculatePasswordStrength(newPassword).score;
-
-	import { calculatePasswordStrength } from '$lib/helpers/password.helper';
 
 	// Validate form
 	function validateForm(): boolean {

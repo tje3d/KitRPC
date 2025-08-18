@@ -4,45 +4,29 @@
 	import { createTrpcRequestFn, useTrpcRequest } from '$lib/helpers/useTrpcRequest.helper';
 	import { trpc } from '$lib/trpc/client';
 	import type { RouterInputs, RouterOutputs } from '$lib/trpc/router';
-	import { map, startWith } from 'rxjs';
 
-	type RequestParams = RouterInputs['kyc']['getKycDetails'];
-	type ResponseData = RouterOutputs['kyc']['getKycDetails'];
-
-	export let kycId: string | undefined = undefined;
+	type RequestParams = RouterInputs['media']['getById'];
+	type ResponseData = RouterOutputs['media']['getById'];
 
 	// Props
+	export let id: string | undefined = undefined;
 	export let onSuccess: ((data: ResponseData) => void) | undefined = undefined;
 	export let onError: ((error: string) => void) | undefined = undefined;
 
-	// Request for getting KYC details
+	// Request for getting media by ID
 	const { clearError, errorMessage, loading, trigger, responseSuccess } = useTrpcRequest(
 		createTrpcRequestFn((input: RequestParams) => {
-			return trpc(page).kyc.getKycDetails.query(input);
+			return trpc(page).media.getById.query(input);
 		})
 	);
 
-	const level = responseSuccess.pipe(
-		map((r) => (r?.step1Status !== 'APPROVED' ? 1 : r?.step2Status !== 'APPROVED' ? 2 : null))
-	);
-	const isDone = responseSuccess.pipe(
-		map((r) => r?.step1Status === 'APPROVED' && r?.step2Status === 'APPROVED'),
-		startWith(false)
-	);
-
 	// Actions
-	export function getKycDetails(input: RequestParams) {
+	export function getMediaById(input: RequestParams) {
 		trigger.next(input);
 	}
 
-	export function refresh() {
-		if (!kycId) return;
-
-		getKycDetails({ kycId });
-	}
-
-	$: if (kycId) {
-		getKycDetails({ kycId });
+	$: if (id) {
+		getMediaById({ id });
 	}
 
 	subscribe(responseSuccess, (result) => {
@@ -63,9 +47,5 @@
 	loading={$loading}
 	errorMessage={$errorMessage}
 	{clearError}
-	{getKycDetails}
-	kycDetails={$responseSuccess}
-	{refresh}
-	level={$level}
-	isDone={$isDone}
+	{getMediaById}
 />
