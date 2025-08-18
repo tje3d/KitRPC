@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE `KycVerification` MODIFY `step1Status` ENUM('PENDING', 'APPROVED', 'REJECTED') NULL,
+    MODIFY `step2Status` ENUM('PENDING', 'APPROVED', 'REJECTED') NULL;

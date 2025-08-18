@@ -65,6 +65,8 @@
 			users: 'icon-[heroicons--users]',
 			'user-group': 'icon-[heroicons--user-group]',
 			'shield-check': 'icon-[heroicons--shield-check]',
+			identification: 'icon-[heroicons--identification]',
+			photo: 'icon-[heroicons--photo]',
 			cog: 'icon-[heroicons--cog-6-tooth]',
 			// Legacy icons for backward compatibility
 			folder: 'icon-[heroicons--folder]',

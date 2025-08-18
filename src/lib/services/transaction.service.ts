@@ -19,7 +19,7 @@ export const createTransaction = async (
 ) => {
 	// Validate amount
 	if (!validateAmount(amount, currency)) {
-		throw new Error('Invalid amount');
+		throw new Error('مبلغ نامعتبر');
 	}
 
 	// Validate currency-specific data

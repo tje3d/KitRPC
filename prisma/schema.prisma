@@ -8,26 +8,29 @@ datasource db {
 }
 
 model User {
-  id          String           @id @default(cuid())
-  username    String           @unique
-  email       String?
-  password    String
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  roleId      String
-  balanceIRT  Float            @default(0)
-  balanceUSDT Float            @default(0)
-  bankCards   BankCard[]
-  media       Media[]
-  sessions    Session[]
-  todos       Todo[]
-  Transaction Transaction[]
-  role        Role             @relation(fields: [roleId], references: [id])
-  permissions UserPermission[]
+  id              String            @id @default(cuid())
+  username        String            @unique
+  email           String?
+  password        String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  roleId          String
+  balanceIRT      Float             @default(0)
+  balanceUSDT     Float             @default(0)
+  bankCards       BankCard[]
+  media           Media[]
+  sessions        Session[]
+  Transaction     Transaction[]
+  role            Role              @relation(fields: [roleId], references: [id])
+  permissions     UserPermission[]
+  kycVerification KycVerification?  @relation(name: "KycUser")
+  approvedKycs    KycVerification[] @relation(name: "KycApprovedBy")
+  rejectedKycs    KycVerification[] @relation(name: "KycRejectedBy")
+  otps            Otp[]
 
   @@index([username])
   @@index([email])
-  @@index([roleId], map: "User_roleId_fkey")
+  @@index([roleId])
 }
 
 model Role {
@@ -63,7 +66,7 @@ model RolePermission {
   role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
 
   @@unique([roleId, permissionId])
-  @@index([permissionId], map: "RolePermission_permissionId_fkey")
+  @@index([permissionId])
 }
 
 model UserPermission {
@@ -75,7 +78,6 @@ model UserPermission {
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, permissionId])
-  @@index([permissionId], map: "UserPermission_permissionId_fkey")
 }
 
 model Session {
@@ -97,18 +99,7 @@ model Session {
   @@index([ipAddress])
   @@index([deviceType])
   @@index([browser])
-  @@index([userId], map: "Session_userId_fkey")
-}
-
-model Todo {
-  id        String   @id @default(cuid())
-  text      String
-  completed Boolean  @default(false)
-  createdAt DateTime @default(now())
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId], map: "Todo_userId_fkey")
+  @@index([userId])
 }
 
 model BankCard {
@@ -148,7 +139,7 @@ model Transaction {
   @@index([currency])
   @@index([status])
   @@index([createdAt])
-  @@index([bankCardId], map: "Transaction_bankCardId_fkey")
+  @@index([bankCardId])
 }
 
 model WalletAddress {
@@ -185,6 +176,17 @@ model Media {
   @@index([createdAt])
 }
 
+model Otp {
+  id        String   @id @default(cuid())
+  userId    String
+  code      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 enum TransactionType {
   DEPOSIT
   WITHDRAWAL
@@ -213,4 +215,44 @@ enum MediaReason {
 enum MediaVisibility {
   PUBLIC
   PRIVATE
+}
+
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model KycVerification {
+  id                   String     @id @default(cuid())
+  userId               String
+  step1Status          KycStatus?
+  step2Status          KycStatus?
+  step1VerifiedAt      DateTime?
+  step2VerifiedAt      DateTime?
+  step1RejectedAt      DateTime?
+  step2RejectedAt      DateTime?
+  step1RejectionReason String?
+  step2RejectionReason String?
+  adminNotes           String?
+  lastStepUpdatedAt    DateTime   @default(now())
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  nationalId           String
+  mobile               String
+  birthDate            DateTime
+  selfieMediaId        String?
+  signedTextMediaId    String?
+  nationalCardMediaId  String?
+  approvedById         String?
+  rejectedById         String?
+  approvedBy           User?      @relation(fields: [approvedById], references: [id], name: "KycApprovedBy")
+  rejectedBy           User?      @relation(fields: [rejectedById], references: [id], name: "KycRejectedBy")
+
+  // روابط
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, name: "KycUser")
+
+  @@unique([userId])
+  @@index([userId])
+  @@index([createdAt])
 }

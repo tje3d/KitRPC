@@ -11,7 +11,7 @@ export const createWalletAddress = async (
 ) => {
 	// Validate inputs
 	if (!network || !address) {
-		throw new Error('Network and address are required');
+		throw new Error('شبکه و آدرس الزامی هستند');
 	}
 
 	// Check if a wallet address with the same network and address already exists

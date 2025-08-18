@@ -16,7 +16,7 @@ export async function saveToLocalStorage(key: string, data: any) {
 			});
 		});
 	} catch (e) {
-		console.error('Failed to save data to localStorage', e);
+		console.error('ذخیره داده در localStorage ناموفق بود', e);
 		return false;
 	}
 }

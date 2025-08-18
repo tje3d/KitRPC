@@ -28,9 +28,9 @@
 
 	// Filter options
 	const transactionTypes = [
-		{ value: 'DEPOSIT', label: 'Deposit' },
-		{ value: 'WITHDRAWAL', label: 'Withdrawal' },
-		{ value: 'TRANSFER', label: 'Transfer' }
+		{ value: 'DEPOSIT', label: 'واریز' },
+		{ value: 'WITHDRAWAL', label: 'برداشت' },
+		{ value: 'TRANSFER', label: 'انتقال' }
 	];
 
 	const currencyTypes = [
@@ -39,10 +39,10 @@
 	];
 
 	const transactionStatuses = [
-		{ value: 'PENDING', label: 'Pending' },
-		{ value: 'COMPLETED', label: 'Completed' },
-		{ value: 'FAILED', label: 'Failed' },
-		{ value: 'CANCELLED', label: 'Cancelled' }
+		{ value: 'PENDING', label: 'در انتظار' },
+		{ value: 'COMPLETED', label: 'تکمیل شده' },
+		{ value: 'FAILED', label: 'ناموفق' },
+		{ value: 'CANCELLED', label: 'لغو شده' }
 	];
 
 	// Selected filter values
@@ -143,7 +143,7 @@
 	const columns = [
 		{
 			key: 'type',
-			label: 'Type',
+			label: 'نوع',
 			render: (value: string, row: any) => `
 				<div class="flex items-center">
 					<span class="${getTypeIcon(value)} h-5 w-5 text-gray-500"></span>
@@ -153,14 +153,14 @@
 		},
 		{
 			key: 'amount',
-			label: 'Amount',
+			label: 'مبلغ',
 			render: (value: number, row: any) => {
 				return formatCurrency(value, row.currency);
 			}
 		},
 		{
 			key: 'status',
-			label: 'Status',
+			label: 'وضعیت',
 			sortable: true,
 			render: (value: string) => {
 				// Map status values to badge variants
@@ -202,7 +202,7 @@
 		},
 		{
 			key: 'createdAt',
-			label: 'Date',
+			label: 'تاریخ',
 			sortable: true,
 			render: (value: Date) => `
 				<div class="text-sm whitespace-nowrap text-gray-500">
@@ -212,7 +212,7 @@
 		},
 		{
 			key: 'description',
-			label: 'Description',
+			label: 'توضیحات',
 			render: (value: string) => `
 				<div class="text-sm text-gray-500">
 					${value || '-'}
@@ -235,26 +235,23 @@
 	let:totalCount
 	onError={(message) => toast.error(message || 'Failed to fetch transactions')}
 >
-	<PanelPageWrapper
-		title="Transaction History"
-		description="View and filter your transaction history."
-	>
+	<PanelPageWrapper title="تاریخچه تراکنش‌ها" description="مشاهده و فیلتر تاریخچه تراکنش‌های شما.">
 		<!-- Filters Section -->
 		<Card variant="flat" className="mb-6">
 			<!-- Filter Header with Toggle -->
 			<div class="flex items-center justify-between border-b border-gray-200 pb-4">
 				<div class="flex items-center space-x-2">
 					<span class="icon-[heroicons--funnel] h-5 w-5 text-gray-500"></span>
-					<h2 class="text-lg font-semibold text-gray-800">Filters</h2>
+					<h2 class="text-lg font-semibold text-gray-800">فیلترها</h2>
 				</div>
 				<div class="flex items-center space-x-3">
 					<Button size="sm" variant="secondary" onClick={resetFilters}>
 						<span class="icon-[heroicons--arrow-path] me-1 h-4 w-4"></span>
-						Reset
+						بازنشانی
 					</Button>
 					<Button size="sm" onClick={applyFilters}>
 						<span class="icon-[heroicons--magnifying-glass] me-1 h-4 w-4"></span>
-						Apply
+						اعمال
 					</Button>
 				</div>
 			</div>
@@ -264,7 +261,7 @@
 				<div class="flex flex-wrap items-center gap-3">
 					<!-- Transaction Type Pills -->
 					<div class="flex items-center space-x-2">
-						<span class="text-sm font-medium text-gray-600">Type:</span>
+						<span class="text-sm font-medium text-gray-600">نوع:</span>
 						<div class="flex space-x-1">
 							{#each transactionTypes as type}
 								<button
@@ -288,7 +285,7 @@
 
 					<!-- Currency Pills -->
 					<div class="flex items-center space-x-2">
-						<span class="text-sm font-medium text-gray-600">Currency:</span>
+						<span class="text-sm font-medium text-gray-600">ارز:</span>
 						<div class="flex space-x-1">
 							{#each currencyTypes as currency}
 								<button
@@ -312,7 +309,7 @@
 
 					<!-- Status Pills -->
 					<div class="flex items-center space-x-2">
-						<span class="text-sm font-medium text-gray-600">Status:</span>
+						<span class="text-sm font-medium text-gray-600">وضعیت:</span>
 						<div class="flex space-x-1">
 							{#each transactionStatuses as status}
 								<button
@@ -357,7 +354,7 @@
 					<div class="flex-1">
 						<label class="mb-2 block text-sm font-medium text-gray-700">
 							<span class="icon-[heroicons--calendar-days] me-1 h-4 w-4"></span>
-							Date Range
+							بازه زمانی
 						</label>
 						<div class="flex space-x-2">
 							<div class="flex-1">
@@ -366,12 +363,12 @@
 									id="fromDate"
 									name="fromDate"
 									bind:value={fromDate}
-									placeholder="From date"
+									placeholder="از تاریخ"
 									className="text-sm"
 								/>
 							</div>
 							<div class="flex items-center">
-								<span class="text-gray-400">to</span>
+								<span class="text-gray-400">تا</span>
 							</div>
 							<div class="flex-1">
 								<Input
@@ -379,7 +376,7 @@
 									id="toDate"
 									name="toDate"
 									bind:value={toDate}
-									placeholder="To date"
+									placeholder="تا تاریخ"
 									className="text-sm"
 								/>
 							</div>
@@ -397,7 +394,7 @@
 								toDate = today.toISOString().split('T')[0];
 							}}
 						>
-							Last 7 days
+							۷ روز گذشته
 						</button>
 						<button
 							class="rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
@@ -408,7 +405,7 @@
 								toDate = today.toISOString().split('T')[0];
 							}}
 						>
-							Last 30 days
+							۳۰ روز گذشته
 						</button>
 						<button
 							class="rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
@@ -417,7 +414,7 @@
 								toDate = '';
 							}}
 						>
-							Clear
+							پاک کردن
 						</button>
 					</div>
 				</div>
@@ -440,7 +437,7 @@
 							<span class="icon-[heroicons--x-circle] h-5 w-5 text-red-400"></span>
 						</div>
 						<div class="ms-3">
-							<h3 class="text-sm font-medium text-red-800">Error loading transactions</h3>
+							<h3 class="text-sm font-medium text-red-800">خطا در بارگذاری تراکنش‌ها</h3>
 							<div class="mt-2 text-sm text-red-700">
 								<p>{error}</p>
 								<button
@@ -450,7 +447,7 @@
 										clearError();
 									}}
 								>
-									Dismiss
+									رد
 								</button>
 							</div>
 						</div>
@@ -464,8 +461,8 @@
 			<Card variant="flat">
 				<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
 					<div>
-						<h2 class="text-lg font-bold text-gray-800">Transactions</h2>
-						<p class="mt-1 text-sm text-gray-600">List of your transaction history</p>
+						<h2 class="text-lg font-bold text-gray-800">تراکنش‌ها</h2>
+						<p class="mt-1 text-sm text-gray-600">فهرست تاریخچه تراکنش‌های شما</p>
 					</div>
 				</div>
 
@@ -474,9 +471,9 @@
 						<div class="mx-auto h-12 w-12 text-gray-400">
 							<span class="icon-[heroicons--document-text] h-12 w-12"></span>
 						</div>
-						<h3 class="mt-2 text-sm font-medium text-gray-900">No transactions found</h3>
+						<h3 class="mt-2 text-sm font-medium text-gray-900">هیچ تراکنشی یافت نشد</h3>
 						<p class="mt-1 text-sm text-gray-500">
-							Try adjusting your filters to find what you're looking for.
+							سعی کنید فیلترهای خود را تغییر دهید تا آنچه را که به دنبالش هستید پیدا کنید.
 						</p>
 					</div>
 				{:else}

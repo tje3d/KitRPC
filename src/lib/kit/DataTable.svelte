@@ -1,19 +1,23 @@
-<script lang="ts">
-	import { fade } from 'svelte/transition';
-	import Checkbox from './Checkbox.svelte';
-	import Input from './Input.svelte';
-	import Pagination from './Pagination.svelte';
-
+<script lang="ts" module>
 	// Define types
-	type Column = {
+	export type Column = {
 		key: string;
 		label: string;
 		sortable?: boolean;
 		filterable?: boolean;
 		render?: (value: any, row: any) => any;
+		component?: LegacyComponentType;
 	};
 
 	type Row = Record<string, any>;
+</script>
+
+<script lang="ts">
+	import type { LegacyComponentType } from 'svelte/legacy';
+	import { fade } from 'svelte/transition';
+	import Checkbox from './Checkbox.svelte';
+	import Input from './Input.svelte';
+	import Pagination from './Pagination.svelte';
 
 	// Define props using Svelte 4 syntax
 	export let data: Array<Row> = [];
@@ -159,7 +163,7 @@
 			id="datatable-search"
 			name="datatable-search"
 			type="text"
-			placeholder="Search..."
+			placeholder="جستجو"
 			bind:value={searchTerm}
 			onChange={handleSearchChange}
 			className="w-full"
@@ -175,7 +179,7 @@
 						id={`filter-${column.key}`}
 						name={`filter-${column.key}`}
 						type="text"
-						placeholder={`Filter ${column.label}`}
+						placeholder={`فیلتر ${column.label}`}
 						value={columnFilters[column.key] || ''}
 						onChange={() => handleFilterChange(column.key)}
 						className="w-full"
@@ -230,7 +234,9 @@
 					</td>
 					{#each columns as column (column.key)}
 						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
-							{#if column.render}
+							{#if column.component}
+								<svelte:component this={column.component} value={row[column.key]} {row} {column} />
+							{:else if column.render}
 								{@html column.render(row[column.key], row)}
 							{:else}
 								{row[column.key]}
@@ -241,7 +247,7 @@
 			{:else}
 				<tr>
 					<td colspan={columns.length + 1} class="px-6 py-4 text-center text-gray-500">
-						<slot name="empty">No data available</slot>
+						<slot name="empty">داده‌ای در دسترس نیست</slot>
 					</td>
 				</tr>
 			{/each}

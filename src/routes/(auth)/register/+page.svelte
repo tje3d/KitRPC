@@ -93,18 +93,18 @@
 </script>
 
 <svelte:head>
-	<title>Create Account - Todo Manager</title>
+	<title>ایجاد حساب کاربری - مدیر وظایف</title>
 	<meta
 		name="description"
-		content="Join Todo Manager - Create your account to start organizing your tasks efficiently"
+		content="عضویت در مدیر وظایف - ایجاد حساب کاربری برای سازماندهی کارآمد وظایف"
 	/>
 </svelte:head>
 
 <div class="mb-4 text-center">
-	<h1 class="mb-2 text-3xl font-bold text-gray-900">Create your account</h1>
+	<h1 class="mb-2 text-3xl font-bold text-gray-900">ایجاد حساب کاربری</h1>
 	<p class="text-gray-600">
-		Already have an account?
-		<Link href="/login">Sign in</Link>
+		قبلاً حساب کاربری داشته‌اید؟
+		<Link href="/login">ورود</Link>
 	</p>
 </div>
 
@@ -120,9 +120,9 @@
 
 			<!-- Username Input -->
 			<FormGroup
-				label="Username"
+				label="نام کاربری"
 				forAttr="username"
-				error="Username is required"
+				error="نام کاربری الزامی است"
 				required
 				showError={usernameTouched && !usernameValid}
 			>
@@ -134,15 +134,15 @@
 					bind:value={$username$}
 					onBlur={() => handleInputBlur('username')}
 					error={usernameTouched && !usernameValid}
-					placeholder="Enter your username"
+					placeholder="نام کاربری خود را وارد کنید"
 				/>
 			</FormGroup>
 
 			<!-- Password Input -->
 			<FormGroup
-				label="Password"
+				label="رمز عبور"
 				forAttr="password"
-				error="Password must be at least 6 characters long"
+				error="رمز عبور باید حداقل ۶ کاراکتر باشد"
 				required
 				showError={passwordTouched && !passwordValid}
 			>
@@ -153,7 +153,7 @@
 					bind:value={$password$}
 					onBlur={() => handleInputBlur('password')}
 					error={passwordTouched && !passwordValid}
-					placeholder="Create a strong password"
+					placeholder="رمز عبور قوی‌ای ایجاد کنید"
 					{showPassword}
 					onToggle={togglePassword}
 				/>
@@ -168,9 +168,9 @@
 
 			<!-- Confirm Password Input -->
 			<FormGroup
-				label="Confirm Password"
+				label="تأیید رمز عبور"
 				forAttr="confirmPassword"
-				error="Passwords do not match"
+				error="رمزهای عبور مطابقت ندارند"
 				required
 				showError={confirmPasswordTouched && !passwordsMatch}
 			>
@@ -181,7 +181,7 @@
 					bind:value={$confirmPassword$}
 					onBlur={() => handleInputBlur('confirmPassword')}
 					error={confirmPasswordTouched && !passwordsMatch}
-					placeholder="Confirm your password"
+					placeholder="رمز عبور خود را تأیید کنید"
 					originalPassword={$password$}
 					showPassword={showConfirmPassword}
 					onToggle={toggleConfirmPassword}
@@ -192,18 +192,19 @@
 			<!-- Submit Button -->
 			<Button type="submit" {loading} disabled={!formValid} variant="gradient" fullWidth size="lg">
 				{#if loading}
-					<slot name="loading-text">Creating your account...</slot>
+					<slot name="loading-text">در حال ایجاد حساب کاربری...</slot>
 				{:else}
-					Create account
+					ایجاد حساب کاربری
 				{/if}
 			</Button>
 
 			<!-- Terms -->
 			<p class="text-center text-xs leading-relaxed text-gray-500">
-				By creating an account, you agree to our
-				<Link href="/terms" external>Terms of Service</Link>
-				and
-				<Link href="/privacy" external>Privacy Policy</Link>
+				با ایجاد حساب کاربری، با
+				<Link href="/terms" external>شرایط خدمات</Link>
+				و
+				<Link href="/privacy" external>سیاست حفظ حریم خصوصی</Link>
+				ما موافقت می‌کنید
 			</p>
 		</form>
 	</Card>

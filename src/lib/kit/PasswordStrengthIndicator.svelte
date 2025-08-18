@@ -6,7 +6,7 @@
 	export let className: string = '';
 
 	// Strength labels
-	const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong', 'Very Strong'];
+	const strengthLabels = ['بسیار ضعیف', 'ضعیف', 'متوسط', 'خوب', 'قوی', 'بسیار قوی'];
 
 	// Strength colors
 	const strengthColors = [
@@ -30,7 +30,7 @@
 
 <div class={`space-y-2 ${className}`}>
 	<div class="flex justify-between">
-		<span class="text-sm font-medium text-gray-700">Password Strength</span>
+		<span class="text-sm font-medium text-gray-700">قدرت رمز عبور</span>
 		<span
 			class={`text-sm font-medium ${strength < 2 ? 'text-red-500' : strength < 4 ? 'text-yellow-500' : 'text-green-500'}`}
 		>
@@ -45,13 +45,13 @@
 	</div>
 	<div class="text-xs text-gray-500">
 		{#if strength < 2}
-			Use at least 8 characters with a mix of letters, numbers, and symbols.
+			از حداقل ۸ کاراکتر با ترکیبی از حروف، اعداد و نمادها استفاده کنید.
 		{:else if strength < 4}
-			Getting stronger! Try adding more character variety.
+			در حال قوی‌تر شدن است! سعی کنید تنوع کاراکترهای بیشتری اضافه کنید.
 		{:else if strength < 6}
-			Great password! It meets all security requirements.
+			رمز عبور عالی! تمام الزامات امنیتی را برآورده می‌کند.
 		{:else}
-			Excellent password! Maximum security achieved.
+			رمز عبور بسیار عالی! حداکثر امنیت حاصل شده است.
 		{/if}
 	</div>
 </div>

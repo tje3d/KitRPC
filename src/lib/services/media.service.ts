@@ -43,7 +43,7 @@ export const saveMediaFile = async (
 ): Promise<{ filePath: string; fileName: string }> => {
 	// Validate required fields
 	if (!fileBuffer || !userId || !originalName) {
-		throw new Error('File buffer, user ID, and original name are required');
+		throw new Error('بافر فایل، شناسه کاربر و نام اصلی الزامی هستند');
 	}
 
 	try {

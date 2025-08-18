@@ -2,18 +2,18 @@ import {
 	createSession,
 	deleteSession,
 	hashPassword,
-	hasPermission,
+	validateSession,
 	verifyPassword
 } from '$lib/auth';
-import { prisma } from '$lib/prisma';
 import { extractDeviceInfo } from '$lib/helpers/utils.helper';
+import { prisma } from '$lib/prisma';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { t } from './trpc';
 
 // Input validation schemas
 const loginSchema = z.object({
-	username: z.string().min(1, 'Username is required'),
+	username: z.string().min(1, 'نام کاربری الزامی است'),
 	password: z.string().min(6)
 });
 
@@ -56,7 +56,7 @@ export const authRouter = t.router({
 			if (existingUser) {
 				throw new TRPCError({
 					code: 'CONFLICT',
-					message: 'User with this username already exists'
+					message: 'کاربر با این نام کاربری قبلاً وجود دارد'
 				});
 			}
 
@@ -122,18 +122,16 @@ export const authRouter = t.router({
 				path: '/'
 			});
 
-			return {
-				success: true,
-				user: {
-					id: user.id,
-					username: user.username,
-					balanceIRT: user.balanceIRT,
-					balanceUSDT: user.balanceUSDT,
-					role: user.role,
-					permissions: user.permissions
-				},
-				token
-			};
+			// Validate and return the session
+			const session = await validateSession(token);
+			if (!session) {
+				throw new TRPCError({
+					code: 'INTERNAL_SERVER_ERROR',
+					message: 'Failed to create session'
+				});
+			}
+
+			return session;
 		} catch (error) {
 			if (error instanceof TRPCError) {
 				throw error;
@@ -208,18 +206,16 @@ export const authRouter = t.router({
 				path: '/'
 			});
 
-			return {
-				success: true,
-				user: {
-					id: user.id,
-					username: user.username,
-					balanceIRT: user.balanceIRT,
-					balanceUSDT: user.balanceUSDT,
-					role: user.role,
-					permissions: user.permissions
-				},
-				token
-			};
+			// Validate and return the session
+			const session = await validateSession(token);
+			if (!session) {
+				throw new TRPCError({
+					code: 'INTERNAL_SERVER_ERROR',
+					message: 'Failed to create session'
+				});
+			}
+
+			return session;
 		} catch (error) {
 			if (error instanceof TRPCError) {
 				throw error;
@@ -249,54 +245,6 @@ export const authRouter = t.router({
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
 				message: 'Failed to logout',
-				cause: error
-			});
-		}
-	}),
-
-	// Get current user
-	me: protectedProcedure.query(async ({ ctx }) => {
-		try {
-			return {
-				id: ctx.user.id,
-				username: ctx.user.username,
-				role: ctx.user.role,
-				permissions: ctx.user.permissions,
-				balanceIRT: ctx.user.balanceIRT,
-				balanceUSDT: ctx.user.balanceUSDT
-			};
-		} catch (error) {
-			throw new TRPCError({
-				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to fetch user data',
-				cause: error
-			});
-		}
-	}),
-
-	// Check if user has permission
-	checkPermission: protectedProcedure
-		.input(
-			z.object({
-				resource: z.string(),
-				action: z.string()
-			})
-		)
-		.query(async ({ ctx, input }) => {
-			return hasPermission(ctx.user, input.resource, input.action);
-		}),
-
-	// Get user balances
-	balances: protectedProcedure.query(async ({ ctx }) => {
-		try {
-			return {
-				balanceIRT: ctx.user.balanceIRT,
-				balanceUSDT: ctx.user.balanceUSDT
-			};
-		} catch (error) {
-			throw new TRPCError({
-				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to fetch balances',
 				cause: error
 			});
 		}

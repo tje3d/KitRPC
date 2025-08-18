@@ -73,10 +73,10 @@
 		dialogStore.open({
 			component: ConfirmDialog,
 			props: {
-				title: 'Terminate Session',
-				message: `Are you sure you want to terminate the session from ${formatDeviceType(session.deviceType)} on ${formatDate(new Date(session.createdAt))}? This action cannot be undone.`,
-				confirm: 'Terminate',
-				cancel: 'Cancel',
+				title: 'پایان دادن به نشست',
+				message: `آیا مطمئن هستید که می‌خواهید نشست از ${formatDeviceType(session.deviceType)} در ${formatDate(new Date(session.createdAt))} را پایان دهید؟ این عمل قابل بازگشت نیست.`,
+				confirm: 'پایان دادن',
+				cancel: 'لغو',
 				color: 'red',
 				onConfirm: () => {
 					history.back();
@@ -98,13 +98,13 @@
 
 	// Handle delete success
 	function handleDeleteSuccess() {
-		toast.success('Session terminated successfully');
+		toast.success('نشست با موفقیت پایان یافت');
 		sessionProvider.getSessions(); // Refresh the list
 	}
 
 	// Handle delete error
 	function handleDeleteError(error: string) {
-		toast.error(error || 'Failed to terminate session');
+		toast.error(error || 'پایان دادن به نشست ناموفق بود');
 	}
 
 	// Handle row actions
@@ -134,7 +134,7 @@
 	const columns = [
 		{
 			key: 'deviceType',
-			label: 'Device',
+			label: 'دستگاه',
 			render: (value: string, row: Session) => `
 				<div class="flex items-center">
 					<span class="${getDeviceIcon(row.deviceType)} h-5 w-5 text-gray-500"></span>
@@ -144,7 +144,7 @@
 		},
 		{
 			key: 'browser',
-			label: 'Browser',
+			label: 'مرورگر',
 			render: (value: string, row: Session) => `
 				<div class="flex items-center">
 					<span class="${getBrowserIcon(row.browser)} h-5 w-5 text-gray-500"></span>
@@ -154,7 +154,7 @@
 		},
 		{
 			key: 'ipAddress',
-			label: 'IP Address',
+			label: 'آدرس IP',
 			render: (value: string) => `
 				<div class="text-sm text-gray-500">
 					${value || 'Unknown'}
@@ -163,7 +163,7 @@
 		},
 		{
 			key: 'createdAt',
-			label: 'Login Time',
+			label: 'زمان ورود',
 			render: (value: Date) => `
 				<div class="text-sm text-gray-500">
 					${formatDate(value)}
@@ -172,14 +172,14 @@
 		},
 		{
 			key: 'actions',
-			label: 'Actions',
+			label: 'عملیات',
 			render: (value: any, row: Session) => `
 				<div class="flex items-center justify-end gap-2">
 					<button
 						class="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
 						data-action="delete"
 						data-id="${row.id}"
-						title="Terminate session"
+						title="پایان دادن به نشست"
 					>
 						<span class="icon-[heroicons--trash] w-4 h-4"></span>
 					</button>
@@ -211,15 +211,15 @@
 	onError={(message) => toast.error(message || 'Failed to fetch sessions')}
 >
 	<PanelPageWrapper
-		title="Session Management"
-		description="View and manage your active sessions across devices."
+		title="مدیریت نشست‌ها"
+		description="مشاهده و مدیریت نشست‌های فعال خود در دستگاه‌ها."
 	>
 		<!-- Current Session Section -->
 		<Card variant="flat" className="mb-6">
 			<div class="flex items-center justify-between border-b border-gray-200 pb-4">
 				<div class="flex items-center space-x-2">
 					<span class="icon-[heroicons--computer-desktop] h-5 w-5 text-gray-500"></span>
-					<h2 class="text-lg font-semibold text-gray-800">Current Session</h2>
+					<h2 class="text-lg font-semibold text-gray-800">نشست فعلی</h2>
 				</div>
 			</div>
 
@@ -233,7 +233,7 @@
 						<div class="flex items-center">
 							<span class="{getDeviceIcon(currentSession.deviceType || null)} h-6 w-6 text-gray-500"
 							></span>
-							<span class="ms-2 text-sm font-medium text-gray-900">Device</span>
+							<span class="ms-2 text-sm font-medium text-gray-900">دستگاه</span>
 						</div>
 						<p class="mt-1 text-sm text-gray-500">
 							{formatDeviceType(currentSession.deviceType || null)}
@@ -244,7 +244,7 @@
 						<div class="flex items-center">
 							<span class="{getBrowserIcon(currentSession.browser || null)} h-6 w-6 text-gray-500"
 							></span>
-							<span class="ms-2 text-sm font-medium text-gray-900">Browser</span>
+							<span class="ms-2 text-sm font-medium text-gray-900">مرورگر</span>
 						</div>
 						<p class="mt-1 text-sm text-gray-500">
 							{formatBrowser(currentSession.browser || null)}
@@ -254,7 +254,7 @@
 					<div class="rounded-lg border border-gray-200 p-4">
 						<div class="flex items-center">
 							<span class="icon-[heroicons--globe-alt] h-6 w-6 text-gray-500"></span>
-							<span class="ms-2 text-sm font-medium text-gray-900">IP Address</span>
+							<span class="ms-2 text-sm font-medium text-gray-900">آدرس IP</span>
 						</div>
 						<p class="mt-1 text-sm text-gray-500">{currentSession.ipAddress || 'Unknown'}</p>
 					</div>
@@ -262,7 +262,7 @@
 					<div class="rounded-lg border border-gray-200 p-4">
 						<div class="flex items-center">
 							<span class="icon-[heroicons--clock] h-6 w-6 text-gray-500"></span>
-							<span class="ms-2 text-sm font-medium text-gray-900">Login Time</span>
+							<span class="ms-2 text-sm font-medium text-gray-900">زمان ورود</span>
 						</div>
 						<p class="mt-1 text-sm text-gray-500">
 							{formatDate(new Date(currentSession.createdAt))}
@@ -274,10 +274,8 @@
 					<div class="mx-auto h-12 w-12 text-gray-400">
 						<span class="icon-[heroicons--exclamation-triangle] h-12 w-12"></span>
 					</div>
-					<h3 class="mt-2 text-sm font-medium text-gray-900">Current session not found</h3>
-					<p class="mt-1 text-sm text-gray-500">
-						Unable to retrieve information about your current session.
-					</p>
+					<h3 class="mt-2 text-sm font-medium text-gray-900">نشست فعلی یافت نشد</h3>
+					<p class="mt-1 text-sm text-gray-500">امکان دریافت اطلاعات نشست فعلی شما وجود ندارد.</p>
 				</div>
 			{/if}
 		</Card>
@@ -286,8 +284,8 @@
 		<Card variant="flat">
 			<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
 				<div>
-					<h2 class="text-lg font-bold text-gray-800">Active Sessions</h2>
-					<p class="mt-1 text-sm text-gray-600">List of all your active sessions across devices</p>
+					<h2 class="text-lg font-bold text-gray-800">نشست‌های فعال</h2>
+					<p class="mt-1 text-sm text-gray-600">فهرست تمام نشست‌های فعال شما در دستگاه‌ها</p>
 				</div>
 			</div>
 
@@ -307,7 +305,7 @@
 								<span class="icon-[heroicons--x-circle] h-5 w-5 text-red-400"></span>
 							</div>
 							<div class="ms-3">
-								<h3 class="text-sm font-medium text-red-800">Error loading sessions</h3>
+								<h3 class="text-sm font-medium text-red-800">خطا در بارگذاری نشست‌ها</h3>
 								<div class="mt-2 text-sm text-red-700">
 									<p>{errorMessage}</p>
 									<button
@@ -316,7 +314,7 @@
 											clearError();
 										}}
 									>
-										Dismiss
+										رد
 									</button>
 								</div>
 							</div>
@@ -332,10 +330,8 @@
 						<div class="mx-auto h-12 w-12 text-gray-400">
 							<span class="icon-[heroicons--document-text] h-12 w-12"></span>
 						</div>
-						<h3 class="mt-2 text-sm font-medium text-gray-900">No active sessions</h3>
-						<p class="mt-1 text-sm text-gray-500">
-							You don't have any active sessions besides the current one.
-						</p>
+						<h3 class="mt-2 text-sm font-medium text-gray-900">نشست فعالی وجود ندارد</h3>
+						<p class="mt-1 text-sm text-gray-500">شما هیچ نشست فعالی به جز نشست فعلی ندارید.</p>
 					</div>
 				{:else}
 					<div on:click={(e) => handleRowAction(e, sessions?.filter((s) => !s.isCurrent) || [])}>

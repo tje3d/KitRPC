@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { base } from '$app/paths';
 	import { page } from '$app/state';
+	import { uploadFileWithXhr } from '$lib/helpers/fileUpload.helper';
 	import { shareIt } from '$lib/helpers/rxjs.helper';
 	import { subscribe } from '$lib/helpers/svelte-rxjs.helper';
 	import {
@@ -113,37 +113,9 @@
 	const uploadFormDataResponseSuccess = new Subject<UploadMediaResponseData | undefined>();
 	const uploadFormDataErrorMessage = new Subject<string | undefined>();
 
-	// Custom XHR request for FormData upload
+	// Custom XHR request for FormData upload using the helper
 	async function uploadMediaWithFormData(formData: FormData): Promise<UploadMediaResponseData> {
-		return new Promise((resolve, reject) => {
-			const xhr = new XMLHttpRequest();
-
-			xhr.open('POST', base + '/api/media.upload', true);
-
-			xhr.onload = function () {
-				if (xhr.status >= 200 && xhr.status < 300) {
-					try {
-						const response = JSON.parse(xhr.responseText);
-						resolve(response.result.data);
-					} catch (e) {
-						reject(new Error('Failed to parse response'));
-					}
-				} else {
-					try {
-						const errorResponse = JSON.parse(xhr.responseText);
-						reject(new Error(errorResponse.error?.message || 'Upload failed'));
-					} catch (e) {
-						reject(new Error('Upload failed'));
-					}
-				}
-			};
-
-			xhr.onerror = function () {
-				reject(new Error('Network error'));
-			};
-
-			xhr.send(formData);
-		});
+		return uploadFileWithXhr<UploadMediaResponseData>(formData, '/api/media.upload');
 	}
 	// Actions
 	export function adminListMedia(input: AdminListMediaRequestParams) {

@@ -296,14 +296,14 @@
 												<div class="flex items-center">
 													<input
 														type="radio"
-														id={`card-{card.id}`}
+														id={`card-${card.id}`}
 														name="card-selection"
 														value={card.id}
 														checked={selectedCardId === card.id}
 														class="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
 														on:change={() => (selectedCardId = card.id)}
 													/>
-													<label for={`card-{card.id}`} class="ms-3 flex flex-col">
+													<label for={`card-${card.id}`} class="ms-3 flex flex-col">
 														<span class="block text-sm font-medium text-gray-700">
 															{#if detectIranianBank(card.cardNumber)}
 																<img

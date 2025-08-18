@@ -112,39 +112,39 @@
 	}
 </script>
 
-<PanelPageWrapper title="User Profile" description="View your account information.">
+<PanelPageWrapper title="پروفایل کاربری" description="مشاهده اطلاعات حساب شما.">
 	<div class="space-y-6">
 		<Card variant="flat">
-			<h2 class="text-lg font-bold text-gray-800">Profile Information</h2>
-			<p class="mt-1 text-sm text-gray-600">Your account details are displayed below.</p>
+			<h2 class="text-lg font-bold text-gray-800">اطلاعات پروفایل</h2>
+			<p class="mt-1 text-sm text-gray-600">جزئیات حساب شما در زیر نمایش داده شده است.</p>
 
 			<div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
-				<FormGroup label="Username" forAttr="username">
+				<FormGroup label="نام کاربری" forAttr="username">
 					<Input
 						id="username"
 						name="username"
 						value={$authUser?.username || ''}
 						disabled
-						placeholder="Your username"
+						placeholder="نام کاربری شما"
 					/>
 				</FormGroup>
 
-				<FormGroup label="Email" forAttr="email">
+				<FormGroup label="ایمیل" forAttr="email">
 					<Input
 						id="email"
 						name="email"
 						type="email"
 						value={$authUser?.email || ''}
 						disabled
-						placeholder="Your email address"
+						placeholder="آدرس ایمیل شما"
 					/>
 				</FormGroup>
 			</div>
 		</Card>
 
 		<Card variant="flat">
-			<h2 class="text-lg font-bold text-gray-800">Change Password</h2>
-			<p class="mt-1 text-sm text-gray-600">Update your account password.</p>
+			<h2 class="text-lg font-bold text-gray-800">تغییر رمز عبور</h2>
+			<p class="mt-1 text-sm text-gray-600">رمز عبور حساب خود را به‌روزرسانی کنید.</p>
 
 			<ChangeOwnPasswordProvider
 				onSuccess={(data: { success: boolean; message: string }) => {
@@ -181,7 +181,7 @@
 						class="mt-6 space-y-6"
 					>
 						<FormGroup
-							label="Current Password"
+							label="رمز عبور فعلی"
 							forAttr="current-password"
 							error={currentPasswordError}
 						>
@@ -189,19 +189,19 @@
 								id="current-password"
 								name="currentPassword"
 								bind:value={currentPassword}
-								placeholder="Enter your current password"
+								placeholder="رمز عبور فعلی خود را وارد کنید"
 								error={!!currentPasswordError}
 								bind:showPassword={showCurrentPassword}
 								onToggle={() => togglePasswordVisibility('current')}
 							/>
 						</FormGroup>
 
-						<FormGroup label="New Password" forAttr="new-password" error={newPasswordError}>
+						<FormGroup label="رمز عبور جدید" forAttr="new-password" error={newPasswordError}>
 							<PasswordInput
 								id="new-password"
 								name="newPassword"
 								bind:value={newPassword}
-								placeholder="Enter your new password"
+								placeholder="رمز عبور جدید خود را وارد کنید"
 								error={!!newPasswordError}
 								bind:showPassword={showNewPassword}
 								onToggle={() => togglePasswordVisibility('new')}
@@ -210,7 +210,7 @@
 						</FormGroup>
 
 						<FormGroup
-							label="Confirm New Password"
+							label="تأیید رمز عبور جدید"
 							forAttr="confirm-password"
 							error={confirmNewPasswordError}
 						>
@@ -218,7 +218,7 @@
 								id="confirm-password"
 								name="confirmNewPassword"
 								bind:value={confirmNewPassword}
-								placeholder="Confirm your new password"
+								placeholder="رمز عبور جدید خود را تأیید کنید"
 								error={!!confirmNewPasswordError}
 								bind:showPassword={showConfirmPassword}
 								onToggle={() => togglePasswordVisibility('confirm')}
@@ -232,7 +232,7 @@
 								loading={loading || isSubmitting}
 								disabled={loading || isSubmitting}
 							>
-								Change Password
+								تغییر رمز عبور
 							</Button>
 						</div>
 					</form>

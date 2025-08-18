@@ -3,8 +3,9 @@
 import type {
 	Permission as PrismaPermission,
 	Role as PrismaRole,
-	Todo as PrismaTodo,
-	User as PrismaUser
+	User as PrismaUser,
+	KycStatus,
+	KycVerification as PrismaKycVerification
 } from '@prisma/client';
 
 declare global {
@@ -12,12 +13,7 @@ declare global {
 		// interface Error {}
 		interface Locals {
 			user: App.AuthUser | null;
-			fileData?: {
-				filename: string;
-				mimeType: string;
-				encoding: string;
-				buffer: Buffer;
-			} | null;
+			fileData?: SingleFileData | null;
 			formData?: Record<string, string>;
 		}
 		// interface PageData {}
@@ -25,10 +21,6 @@ declare global {
 		// interface Platform {}
 
 		// Shared types - using Prisma-generated types with timestamps converted to string or excluded
-		type Todo = Omit<PrismaTodo, 'createdAt'> & {
-			createdAt: string;
-		};
-
 		type Permission = Omit<PrismaPermission, 'createdAt' | 'updatedAt'>;
 
 		type Role = Omit<PrismaRole, 'createdAt' | 'updatedAt'>;
@@ -37,6 +29,7 @@ declare global {
 		type AuthUser = Pick<PrismaUser, 'id' | 'username' | 'email'> & {
 			balanceIRT?: number;
 			balanceUSDT?: number;
+			kycVerification?: PrismaKycVerification | null;
 			role?: Role & {
 				permissions: Array<{
 					permission: Permission;
@@ -93,6 +86,13 @@ declare global {
 			name: string;
 			swift: string;
 			color: string;
+		}
+
+		interface SingleFileData {
+			filename: string;
+			mimeType: string;
+			encoding: string;
+			buffer: Buffer;
 		}
 	}
 }

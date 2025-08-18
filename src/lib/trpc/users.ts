@@ -12,9 +12,9 @@ const paginationSchema = z.object({
 
 // User schemas
 const createUserSchema = z.object({
-	username: z.string().min(1, 'Username is required'),
+	username: z.string().min(1, 'نام کاربری الزامی است'),
 	email: z.string().email().optional(),
-	password: z.string().min(6, 'Password must be at least 6 characters'),
+	password: z.string().min(6, 'رمز عبور باید حداقل ۶ کاراکتر باشد'),
 	roleId: z.string().optional()
 });
 
@@ -244,7 +244,7 @@ export const usersRouter = t.router({
 				if (userWithSameUsername) {
 					throw new TRPCError({
 						code: 'CONFLICT',
-						message: 'User with this username already exists'
+						message: 'کاربر با این نام کاربری قبلاً وجود دارد'
 					});
 				}
 			}
@@ -336,7 +336,7 @@ export const usersRouter = t.router({
 			if (isNewPasswordSame) {
 				throw new TRPCError({
 					code: 'BAD_REQUEST',
-					message: 'New password cannot be the same as current password'
+					message: 'رمز عبور جدید نمی‌تواند با رمز عبور فعلی یکسان باشد'
 				});
 			}
 

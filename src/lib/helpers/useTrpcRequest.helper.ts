@@ -70,7 +70,7 @@ function isTrpcRetriableError(error: TRPCClientError<any>): boolean {
 	if (isNetworkDisconnectedError(error)) {
 		return false;
 	}
-	
+
 	// Retry on network errors or server errors (5xx)
 	return (
 		error.data?.code === 'INTERNAL_SERVER_ERROR' ||
@@ -83,7 +83,7 @@ function isNetworkDisconnectedError(error: any): boolean {
 	// Check for common network disconnection error patterns
 	const errorMessage = error?.message?.toLowerCase() || '';
 	const errorCause = error?.cause?.message?.toLowerCase() || '';
-	
+
 	return (
 		errorMessage.includes('net::err_internet_disconnected') ||
 		errorMessage.includes('network error') ||
@@ -136,15 +136,15 @@ function formatValidationError(error: ValidationError): string {
 	switch (error.code) {
 		case 'too_small':
 			if (error.type === 'string') {
-				return `${capitalizedField} must be at least ${error.minimum} characters long`;
+				return `${capitalizedField} باید حداقل ${error.minimum} کاراکتر باشد`;
 			}
 			if (error.type === 'number') {
-				return `${capitalizedField} must be at least ${error.minimum}`;
+				return `${capitalizedField} باید حداقل ${error.minimum} باشد`;
 			}
 			if (error.type === 'array') {
-				return `${capitalizedField} must contain at least ${error.minimum} items`;
+				return `${capitalizedField} باید حداقل شامل ${error.minimum} مورد باشد`;
 			}
-			return `${capitalizedField} is too small`;
+			return `${capitalizedField} بسیار کوتاه است`;
 
 		case 'too_big':
 			if (error.type === 'string') {

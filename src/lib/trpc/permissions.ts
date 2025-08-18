@@ -12,10 +12,10 @@ const paginationSchema = z.object({
 
 // Permission schemas
 const createPermissionSchema = z.object({
-	name: z.string().min(1, 'Permission name is required'),
+	name: z.string().min(1, 'نام مجوز الزامی است'),
 	description: z.string().optional(),
-	resource: z.string().min(1, 'Resource is required'),
-	action: z.string().min(1, 'Action is required')
+	resource: z.string().min(1, 'منبع الزامی است'),
+	action: z.string().min(1, 'عملیات الزامی است')
 });
 
 const updatePermissionSchema = z.object({
@@ -187,7 +187,7 @@ export const permissionsRouter = t.router({
 				if (permissionWithSameName) {
 					throw new TRPCError({
 						code: 'CONFLICT',
-						message: 'Permission with this name already exists'
+						message: 'مجوز با این نام قبلاً وجود دارد'
 					});
 				}
 			}

@@ -1,15 +1,15 @@
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 import { authRouter } from './auth';
 import { bankCardsRouter } from './bankCards';
-import { todosRouter } from './todos';
-import { transactionsRouter } from './transactions';
-import { usersRouter } from './users';
-import { rolesRouter } from './roles';
-import { permissionsRouter } from './permissions';
-import { walletRouter } from './wallet';
-import { sessionsRouter } from './sessions';
+import { kycRouter } from './kyc';
 import { mediaRouter } from './media';
+import { permissionsRouter } from './permissions';
+import { rolesRouter } from './roles';
+import { sessionsRouter } from './sessions';
+import { transactionsRouter } from './transactions';
 import { t } from './trpc';
+import { usersRouter } from './users';
+import { walletRouter } from './wallet';
 
 export const router = t.router({
 	greeting: t.procedure.query(async () => {
@@ -18,9 +18,6 @@ export const router = t.router({
 
 	// Authentication procedures
 	auth: authRouter,
-
-	// Todo procedures
-	todos: todosRouter,
 
 	// Bank card procedures
 	bankCards: bankCardsRouter,
@@ -44,7 +41,10 @@ export const router = t.router({
 	sessions: sessionsRouter,
 
 	// Media management procedures
-	media: mediaRouter
+	media: mediaRouter,
+
+	// KYC procedures
+	kyc: kycRouter
 });
 
 export type Router = typeof router;

@@ -64,7 +64,8 @@ export async function validateSession(token: string) {
 						include: {
 							permission: true
 						}
-					}
+					},
+					kycVerification: true
 				}
 			}
 		}
@@ -78,7 +79,6 @@ export async function validateSession(token: string) {
 		return null;
 	}
 
-	// Add balances to user object
 	return session;
 }
 
@@ -91,23 +91,23 @@ export async function deleteSession(token: string): Promise<void> {
 // Permission utilities
 export function hasPermission(
 	user: {
-		role: {
-			permissions: { permission: { resource: string; action: string } }[];
+		role?: {
+			permissions?: { permission: { resource: string; action: string } }[];
 		};
-		permissions: { permission: { resource: string; action: string } }[];
+		permissions?: { permission: { resource: string; action: string } }[];
 	},
 	resource: string,
 	action: string
 ): boolean {
 	// Check role permissions
-	const hasRolePermission = user.role.permissions.some(
+	const hasRolePermission = user.role?.permissions?.some(
 		(rp) => rp.permission.resource === resource && rp.permission.action === action
 	);
 
 	// Check user-specific permissions
-	const hasUserPermission = user.permissions.some(
+	const hasUserPermission = user.permissions?.some(
 		(up) => up.permission.resource === resource && up.permission.action === action
 	);
 
-	return hasRolePermission || hasUserPermission;
+	return !!hasRolePermission || !!hasUserPermission;
 }

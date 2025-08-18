@@ -41,6 +41,12 @@
 	/** @type {"ltr" | "rtl" | "auto" | null | undefined} */
 	export let dir: 'ltr' | 'rtl' | 'auto' | null | undefined = undefined;
 
+	/** @type {number} - Maximum length of input */
+	export let maxlength: number | undefined = undefined;
+
+	/** @type {boolean} - Whether the input is required */
+	export let required: boolean = false;
+
 	// Base input classes with modern styling
 	const baseInputClasses =
 		'w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 placeholder-gray-400 shadow-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:shadow-md disabled:opacity-50 disabled:cursor-not-allowed';
@@ -77,6 +83,8 @@
 		{placeholder}
 		{autocomplete}
 		{disabled}
+		{maxlength}
+		{required}
 		bind:value
 		class={inputClasses}
 		aria-invalid={error}

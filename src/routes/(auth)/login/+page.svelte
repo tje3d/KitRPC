@@ -94,18 +94,15 @@
 </script>
 
 <svelte:head>
-	<title>Sign In - Todo Manager</title>
-	<meta
-		name="description"
-		content="Sign in to Todo Manager - Access your tasks and stay organized"
-	/>
+	<title>ورود - مدیر وظایف</title>
+	<meta name="description" content="ورود به مدیر وظایف - دسترسی به وظایف خود و سازماندهی" />
 </svelte:head>
 
 <div class="mb-4 text-center">
-	<h1 class="mb-2 text-3xl font-bold text-gray-900">Welcome back</h1>
+	<h1 class="mb-2 text-3xl font-bold text-gray-900">خوش آمدید</h1>
 	<p class="text-gray-600">
-		Don't have an account?
-		<Link href="/register">Create one now</Link>
+		حساب کاربری ندارید؟
+		<Link href="/register">اکنون یکی ایجاد کنید</Link>
 	</p>
 </div>
 
@@ -120,9 +117,9 @@
 
 			<!-- Username Input -->
 			<FormGroup
-				label="Username"
+				label="نام کاربری"
 				forAttr="username"
-				error="Username is required"
+				error="نام کاربری الزامی است"
 				showError={usernameTouched && !usernameValid}
 				required
 			>
@@ -134,19 +131,21 @@
 					bind:value={$username$}
 					onBlur={() => handleInputBlur('username')}
 					error={usernameTouched && !usernameValid}
-					placeholder="Enter your username"
+					placeholder="نام کاربری خود را وارد کنید"
 				/>
 			</FormGroup>
 
 			<!-- Password Input -->
 			<FormGroup
-				label="Password"
+				label="رمز عبور"
 				forAttr="password"
-				error="Password is required"
+				error="رمز عبور الزامی است"
 				showError={passwordTouched && !passwordValid}
 				required
 			>
-				<Link href="/forgot-password" slot="actions" className="text-xs">Forgot password?</Link>
+				<Link href="/forgot-password" slot="actions" className="text-xs"
+					>رمز عبور را فراموش کرده‌اید؟</Link
+				>
 
 				<PasswordInput
 					id="password"
@@ -155,7 +154,7 @@
 					bind:value={$password$}
 					onBlur={() => handleInputBlur('password')}
 					error={passwordTouched && !passwordValid}
-					placeholder="Enter your password"
+					placeholder="رمز عبور خود را وارد کنید"
 					{showPassword}
 					onToggle={togglePasswordVisibility}
 				/>
@@ -167,7 +166,7 @@
 					id="remember-me"
 					name="remember-me"
 					checked={rememberMe}
-					label="Remember me"
+					label="مرا به خاطر بسپار"
 					onChange={() => (rememberMe = !rememberMe)}
 				/>
 			</div>
@@ -182,7 +181,7 @@
 				variant="gradient"
 			>
 				{#if loading}
-					<slot name="loading-text">Signing you in...</slot>
+					<slot name="loading-text">در حال ورود...</slot>
 				{:else}
 					<div class="flex items-center justify-center">
 						<svg class="me-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -193,13 +192,13 @@
 								d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"
 							/>
 						</svg>
-						Sign in
+						ورود
 					</div>
 				{/if}
 			</Button>
 		</form>
 
-		<Divider text="Or continue with" />
+		<Divider text="یا ادامه با" />
 
 		<!-- Social Login -->
 		<div class="grid grid-cols-2 gap-4">

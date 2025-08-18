@@ -154,7 +154,7 @@ export const processWithdrawal = async (
 	});
 
 	if (!user) {
-		throw new Error('User not found');
+		throw new Error('کاربر یافت نشد');
 	}
 
 	const balance = currency === CurrencyType.IRT ? user.balanceIRT : user.balanceUSDT;

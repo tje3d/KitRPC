@@ -5,12 +5,12 @@
 </script>
 
 <PanelPageWrapper
-	title="Dashboard"
-	description="Welcome back! Here's what's happening with your projects today."
+	title="داشبورد"
+	description="خوش آمدید! اینجا چیزهایی است که امروز با پروژه‌های شما در حال اتفاق افتادن است."
 >
 	<svelte:fragment slot="actions">
-		<Button variant="secondary" className="px-4 py-2">Export Report</Button>
-		<Button className="px-4 py-2">Create New</Button>
+		<Button variant="secondary" className="px-4 py-2">گزارش گیری</Button>
+		<Button className="px-4 py-2">ایجاد جدید</Button>
 	</svelte:fragment>
 
 	<!-- Summary Cards -->
@@ -28,8 +28,8 @@
 					</svg>
 				</div>
 				<div class="ms-4">
-					<p class="text-sm font-medium text-gray-600">Total Projects</p>
-					<p class="text-2xl font-bold text-gray-900">12</p>
+					<p class="text-sm font-medium text-gray-600">مجموع پروژه‌ها</p>
+					<p class="text-2xl font-bold text-gray-900">۱۲</p>
 				</div>
 			</div>
 			<div class="mt-4">
@@ -38,7 +38,7 @@
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"
 						></path>
 					</svg>
-					12.5% from last month
+					۱۲.۵٪ از ماه گذشته
 				</span>
 			</div>
 		</Card>
@@ -56,8 +56,8 @@
 					</svg>
 				</div>
 				<div class="ms-4">
-					<p class="text-sm font-medium text-gray-600">Pending Tasks</p>
-					<p class="text-2xl font-bold text-gray-900">29</p>
+					<p class="text-sm font-medium text-gray-600">وظایف در انتظار</p>
+					<p class="text-2xl font-bold text-gray-900">۲۹</p>
 				</div>
 			</div>
 			<div class="mt-4">
@@ -66,7 +66,7 @@
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"
 						></path>
 					</svg>
-					5 tasks due soon
+					۵ وظیفه نزدیک به سررسید
 				</span>
 			</div>
 		</Card>
@@ -84,8 +84,8 @@
 					</svg>
 				</div>
 				<div class="ms-4">
-					<p class="text-sm font-medium text-gray-600">Completed</p>
-					<p class="text-2xl font-bold text-gray-900">24</p>
+					<p class="text-sm font-medium text-gray-600">تکمیل شده</p>
+					<p class="text-2xl font-bold text-gray-900">۲۴</p>
 				</div>
 			</div>
 			<div class="mt-4">
@@ -94,7 +94,7 @@
 						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"
 						></path>
 					</svg>
-					85% completion rate
+					۸۵٪ نرخ تکمیل
 				</span>
 			</div>
 		</Card>
@@ -112,8 +112,8 @@
 					</svg>
 				</div>
 				<div class="ms-4">
-					<p class="text-sm font-medium text-gray-600">Team Members</p>
-					<p class="text-2xl font-bold text-gray-900">8</p>
+					<p class="text-sm font-medium text-gray-600">اعضای تیم</p>
+					<p class="text-2xl font-bold text-gray-900">۸</p>
 				</div>
 			</div>
 			<div class="mt-4">
@@ -126,7 +126,7 @@
 							d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
 						></path>
 					</svg>
-					2 online now
+					۲ نفر آنلاین
 				</span>
 			</div>
 		</Card>
@@ -137,8 +137,8 @@
 		<!-- Performance Chart -->
 		<Card variant="flat" className="lg:col-span-2">
 			<div class="flex items-center justify-between">
-				<h2 class="text-lg font-bold text-gray-800">Performance Overview</h2>
-				<Button variant="secondary" size="sm">View Report</Button>
+				<h2 class="text-lg font-bold text-gray-800">مرور عملکرد</h2>
+				<Button variant="secondary" size="sm">مشاهده گزارش</Button>
 			</div>
 			<div class="mt-4 h-72">
 				<!-- Chart Placeholder with enhanced design -->
@@ -158,20 +158,20 @@
 								></path>
 							</svg>
 						</div>
-						<h3 class="text-lg font-semibold text-gray-800">Interactive Performance Dashboard</h3>
-						<p class="mt-2 text-gray-600">Track your project progress and team productivity</p>
+						<h3 class="text-lg font-semibold text-gray-800">داشبورد عملکرد تعاملی</h3>
+						<p class="mt-2 text-gray-600">پیگیری پیشرفت پروژه‌ها و بهره‌وری تیم</p>
 						<div class="mt-6 grid grid-cols-3 gap-4">
 							<div class="bg-opacity-70 rounded-lg bg-white p-3 shadow-sm">
-								<p class="text-sm text-gray-600">Completion Rate</p>
-								<p class="text-xl font-bold text-blue-600">82%</p>
+								<p class="text-sm text-gray-600">نرخ تکمیل</p>
+								<p class="text-xl font-bold text-blue-600">۸۲٪</p>
 							</div>
 							<div class="bg-opacity-70 rounded-lg bg-white p-3 shadow-sm">
-								<p class="text-sm text-gray-600">On Time</p>
-								<p class="text-xl font-bold text-green-600">94%</p>
+								<p class="text-sm text-gray-600">به موقع</p>
+								<p class="text-xl font-bold text-green-600">۹۴٪</p>
 							</div>
 							<div class="bg-opacity-70 rounded-lg bg-white p-3 shadow-sm">
-								<p class="text-sm text-gray-600">Avg. Duration</p>
-								<p class="text-xl font-bold text-amber-600">14d</p>
+								<p class="text-sm text-gray-600">مدت متوسط</p>
+								<p class="text-xl font-bold text-amber-600">۱۴ روز</p>
 							</div>
 						</div>
 					</div>
@@ -182,8 +182,8 @@
 		<!-- Recent Activity -->
 		<Card variant="flat">
 			<div class="flex items-center justify-between">
-				<h2 class="text-lg font-bold text-gray-800">Recent Activity</h2>
-				<Button variant="secondary" size="sm">View All</Button>
+				<h2 class="text-lg font-bold text-gray-800">فعالیت اخیر</h2>
+				<Button variant="secondary" size="sm">مشاهده همه</Button>
 			</div>
 			<div class="mt-4 space-y-4">
 				<div class="flex items-start border-b border-gray-100 pb-4 last:border-0 last:pb-0">
@@ -201,9 +201,9 @@
 					</div>
 					<div class="ms-3 min-w-0 flex-1">
 						<p class="truncate text-sm font-medium text-gray-900">
-							Project "Website Redesign" updated
+							پروژه "بازطراحی وب‌سایت" به‌روزرسانی شد
 						</p>
-						<p class="mt-1 text-xs text-gray-500">by Alex Johnson • 2 hours ago</p>
+						<p class="mt-1 text-xs text-gray-500">توسط الکس جانسون • ۲ ساعت پیش</p>
 					</div>
 				</div>
 
@@ -222,9 +222,9 @@
 					</div>
 					<div class="ms-3 min-w-0 flex-1">
 						<p class="truncate text-sm font-medium text-gray-900">
-							Task "Create wireframes" completed
+							وظیفه "ایجاد وایرفریم‌ها" تکمیل شد
 						</p>
-						<p class="mt-1 text-xs text-gray-500">by Sarah Williams • 5 hours ago</p>
+						<p class="mt-1 text-xs text-gray-500">توسط سارا ویلیامز • ۵ ساعت پیش</p>
 					</div>
 				</div>
 
@@ -242,8 +242,8 @@
 						</svg>
 					</div>
 					<div class="ms-3 min-w-0 flex-1">
-						<p class="truncate text-sm font-medium text-gray-900">New task assigned</p>
-						<p class="mt-1 text-xs text-gray-500">by Michael Chen • 1 day ago</p>
+						<p class="truncate text-sm font-medium text-gray-900">وظیفه جدید اختصاص داده شد</p>
+						<p class="mt-1 text-xs text-gray-500">توسط مایکل چن • ۱ روز پیش</p>
 					</div>
 				</div>
 
@@ -261,8 +261,8 @@
 						</svg>
 					</div>
 					<div class="ms-3 min-w-0 flex-1">
-						<p class="truncate text-sm font-medium text-gray-900">Team meeting scheduled</p>
-						<p class="mt-1 text-xs text-gray-500">by Team Admin • 2 days ago</p>
+						<p class="truncate text-sm font-medium text-gray-900">جلسه تیم برنامه‌ریزی شد</p>
+						<p class="mt-1 text-xs text-gray-500">توسط مدیر تیم • ۲ روز پیش</p>
 					</div>
 				</div>
 			</div>
@@ -274,8 +274,8 @@
 		<!-- Projects Overview -->
 		<Card variant="flat">
 			<div class="flex items-center justify-between">
-				<h2 class="text-lg font-bold text-gray-800">Project Status</h2>
-				<Button variant="secondary" size="sm">View All</Button>
+				<h2 class="text-lg font-bold text-gray-800">وضعیت پروژه</h2>
+				<Button variant="secondary" size="sm">مشاهده همه</Button>
 			</div>
 			<div class="mt-4 space-y-4">
 				<div class="flex items-center justify-between rounded-lg border border-gray-200 p-4">
@@ -293,8 +293,8 @@
 							</svg>
 						</div>
 						<div class="ms-4">
-							<h3 class="font-medium text-gray-900">Website Redesign</h3>
-							<p class="text-sm text-gray-500">5/12 tasks completed</p>
+							<h3 class="font-medium text-gray-900">بازطراحی وب‌سایت</h3>
+							<p class="text-sm text-gray-500">۵ از ۱۲ وظیفه تکمیل شده</p>
 						</div>
 					</div>
 					<div class="flex items-center">
@@ -320,8 +320,8 @@
 							</svg>
 						</div>
 						<div class="ms-4">
-							<h3 class="font-medium text-gray-900">Mobile App</h3>
-							<p class="text-sm text-gray-500">8/10 tasks completed</p>
+							<h3 class="font-medium text-gray-900">اپلیکیشن موبایل</h3>
+							<p class="text-sm text-gray-500">۸ از ۱۰ وظیفه تکمیل شده</p>
 						</div>
 					</div>
 					<div class="flex items-center">
@@ -347,8 +347,8 @@
 							</svg>
 						</div>
 						<div class="ms-4">
-							<h3 class="font-medium text-gray-900">Analytics Dashboard</h3>
-							<p class="text-sm text-gray-500">2/15 tasks completed</p>
+							<h3 class="font-medium text-gray-900">داشبورد تحلیلی</h3>
+							<p class="text-sm text-gray-500">۲ از ۱۵ وظیفه تکمیل شده</p>
 						</div>
 					</div>
 					<div class="flex items-center">
@@ -364,8 +364,8 @@
 		<!-- Upcoming Tasks -->
 		<Card variant="flat">
 			<div class="flex items-center justify-between">
-				<h2 class="text-lg font-bold text-gray-800">Upcoming Tasks</h2>
-				<Button variant="secondary" size="sm">View All</Button>
+				<h2 class="text-lg font-bold text-gray-800">وظایف آینده</h2>
+				<Button variant="secondary" size="sm">مشاهده همه</Button>
 			</div>
 			<div class="mt-4 space-y-4">
 				<div class="flex items-center justify-between rounded-lg border border-gray-200 p-4">
@@ -375,7 +375,7 @@
 							class="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 						/>
 						<div class="ms-3">
-							<h3 class="font-medium text-gray-900">Create wireframes for mobile app</h3>
+							<h3 class="font-medium text-gray-900">ایجاد وایرفریم برای اپلیکیشن موبایل</h3>
 							<div class="mt-1 flex items-center">
 								<span class="inline-flex items-center text-xs text-amber-600">
 									<svg class="me-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -386,10 +386,10 @@
 											d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
 										></path>
 									</svg>
-									Due in 2 days
+									سررسید در ۲ روز
 								</span>
 								<span class="mx-2 text-gray-300">•</span>
-								<span class="text-xs text-gray-500">Mobile App</span>
+								<span class="text-xs text-gray-500">اپلیکیشن موبایل</span>
 							</div>
 						</div>
 					</div>
@@ -402,7 +402,7 @@
 							class="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 						/>
 						<div class="ms-3">
-							<h3 class="font-medium text-gray-900">Update documentation for API endpoints</h3>
+							<h3 class="font-medium text-gray-900">به‌روزرسانی مستندات برای نقاط پایانی API</h3>
 							<div class="mt-1 flex items-center">
 								<span class="inline-flex items-center text-xs text-blue-600">
 									<svg class="me-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -413,10 +413,10 @@
 											d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
 										></path>
 									</svg>
-									Due next week
+									سررسید هفته آینده
 								</span>
 								<span class="mx-2 text-gray-300">•</span>
-								<span class="text-xs text-gray-500">API Project</span>
+								<span class="text-xs text-gray-500">پروژه API</span>
 							</div>
 						</div>
 					</div>
@@ -429,7 +429,7 @@
 							class="mt-1 h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
 						/>
 						<div class="ms-3">
-							<h3 class="font-medium text-gray-900">Fix responsive issues on dashboard</h3>
+							<h3 class="font-medium text-gray-900">رفع مشکلات واکنش‌پذیری در داشبورد</h3>
 							<div class="mt-1 flex items-center">
 								<span class="inline-flex items-center text-xs text-amber-600">
 									<svg class="me-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -440,10 +440,10 @@
 											d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
 										></path>
 									</svg>
-									Due in 3 days
+									سررسید در ۳ روز
 								</span>
 								<span class="mx-2 text-gray-300">•</span>
-								<span class="text-xs text-gray-500">Dashboard</span>
+								<span class="text-xs text-gray-500">داشبورد</span>
 							</div>
 						</div>
 					</div>

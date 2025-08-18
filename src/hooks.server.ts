@@ -7,6 +7,39 @@ import { redirect } from '@sveltejs/kit';
 import SuperJSON from 'superjson';
 import { createTRPCHandle } from 'trpc-sveltekit';
 
+// Generic function to process multipart form data and extract the first file
+async function processMultipartFormData(request: Request): Promise<{
+	fields: Record<string, string>;
+	fileData: App.SingleFileData | null;
+}> {
+	const formData = await request.formData();
+
+	// Process form fields and files
+	const fields: Record<string, string> = {};
+	let fileData: App.SingleFileData | null = null;
+
+	// Extract form fields and process the first file found
+	for (const [key, value] of formData.entries()) {
+		if (typeof value === 'string') {
+			fields[key] = value;
+		} else if (fileData === null) {
+			// Process only the first file found
+			const file = value as File;
+			const arrayBuffer = await file.arrayBuffer();
+			const buffer = Buffer.from(arrayBuffer);
+
+			fileData = {
+				filename: file.name || 'unnamed-file',
+				mimeType: file.type || 'application/octet-stream',
+				encoding: '7bit', // Default encoding for web uploads
+				buffer
+			};
+		}
+	}
+
+	return { fields, fileData };
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
 	// Extract token from cookies
 	const token = event.cookies.get('session_token');
@@ -31,42 +64,13 @@ export const handle: Handle = async ({ event, resolve }) => {
 		}
 	}
 
-	// Handle multipart form data for media uploads
-	if (event.url.pathname === base + '/api/media.upload' && event.request.method === 'POST') {
-		const req = event.request.clone();
-		const contentType = req.headers.get('content-type');
+	// Handle multipart form data for any POST request
+	if (event.request.method === 'POST') {
+		const contentType = event.request.headers.get('content-type');
 		if (contentType && contentType.includes('multipart/form-data')) {
 			try {
-				// Use SvelteKit's built-in formData parsing
-				const formData = await req.formData();
-
-				// Process form fields and file
-				const fields: Record<string, string> = {};
-				let fileData: {
-					filename: string;
-					mimeType: string;
-					encoding: string;
-					buffer: Buffer;
-				} | null = null;
-
-				// Extract form fields
-				for (const [key, value] of formData.entries()) {
-					if (typeof value === 'string') {
-						fields[key] = value;
-					} else {
-						// Process file (Blob) - type assertion since TypeScript isn't recognizing File type
-						const file = value as File;
-						const arrayBuffer = await file.arrayBuffer();
-						const buffer = Buffer.from(arrayBuffer);
-
-						fileData = {
-							filename: file.name || 'unnamed-file',
-							mimeType: file.type || 'application/octet-stream',
-							encoding: '7bit', // Default encoding for web uploads
-							buffer
-						};
-					}
-				}
+				// Process form data using generic function
+				const { fields, fileData } = await processMultipartFormData(event.request.clone());
 
 				// Add file data to locals for use in tRPC context
 				event.locals.fileData = fileData;
@@ -81,7 +85,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 					body: SuperJSON.stringify(fields)
 				});
 			} catch (error) {
-				console.error('Error parsing multipart form data:', error);
+				console.error('خطا در تجزیه داده‌های فرم چند بخشی:', error);
 				// Continue with normal processing even if parsing fails
 			}
 		}

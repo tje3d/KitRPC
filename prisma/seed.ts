@@ -32,12 +32,6 @@ async function main() {
 		console.log('🔐 Creating default permissions...');
 
 		const permissions = [
-			// Todo permissions
-			{ name: 'todo:create', description: 'Create todos', resource: 'todo', action: 'create' },
-			{ name: 'todo:read', description: 'Read todos', resource: 'todo', action: 'read' },
-			{ name: 'todo:update', description: 'Update todos', resource: 'todo', action: 'update' },
-			{ name: 'todo:delete', description: 'Delete todos', resource: 'todo', action: 'delete' },
-
 			// User permissions
 			{ name: 'user:manage', description: 'Manage users', resource: 'user', action: 'manage' },
 
@@ -67,6 +61,12 @@ async function main() {
 				name: 'media:manage',
 				description: 'Manage media files',
 				resource: 'media',
+				action: 'manage'
+			},
+			{
+				name: 'kyc:manage',
+				description: 'Manage KYC verifications',
+				resource: 'kyc',
 				action: 'manage'
 			}
 		];
@@ -192,34 +192,6 @@ async function main() {
 		console.log(`   👤 Admin user: ${adminUser.username} (password: 123456)`);
 	} else {
 		console.log('👤 Users already exist, skipping user creation.');
-	}
-
-	// Check if todos already exist
-	const existingTodos = await prisma.todo.count();
-	if (existingTodos === 0) {
-		console.log('📋 Creating sample todos...');
-
-		// Create initial todos
-		await prisma.todo.createMany({
-			data: [
-				{
-					text: 'Learn SvelteKit',
-					completed: false
-				},
-				{
-					text: 'Build a todo app',
-					completed: true
-				},
-				{
-					text: 'Deploy to production',
-					completed: false
-				}
-			]
-		});
-
-		console.log('✅ Sample todos created!');
-	} else {
-		console.log('📋 Todos already exist, skipping todo creation.');
 	}
 
 	// Check if bank cards already exist

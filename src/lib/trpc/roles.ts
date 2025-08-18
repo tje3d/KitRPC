@@ -12,7 +12,7 @@ const paginationSchema = z.object({
 
 // Role schemas
 const createRoleSchema = z.object({
-	name: z.string().min(1, 'Role name is required'),
+	name: z.string().min(1, 'نام نقش الزامی است'),
 	description: z.string().optional()
 });
 
@@ -175,7 +175,7 @@ export const rolesRouter = t.router({
 				if (roleWithSameName) {
 					throw new TRPCError({
 						code: 'CONFLICT',
-						message: 'Role with this name already exists'
+						message: 'نقش با این نام قبلاً وجود دارد'
 					});
 				}
 			}

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { createEventDispatcher } from 'svelte';
+
 	/** @type {string} - Button type (button, submit, reset) */
 	export let type: 'button' | 'submit' | 'reset' = 'button';
 
@@ -9,7 +11,7 @@
 	export let loading: boolean = false;
 
 	/** @type {Function} - Click handler function */
-	export let onClick: () => void = () => {};
+	export let onClick: (() => void) | undefined = undefined;
 
 	/** @type {string} - Additional CSS classes */
 	export let className: string = '';
@@ -34,6 +36,8 @@
 	// Base button classes
 	const baseButtonClasses =
 		'cursor-pointer inline-flex items-center justify-center transform rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+
+	const dispatch = createEventDispatcher();
 
 	// Size classes
 	$: sizeClasses =
@@ -73,7 +77,11 @@
 	// Handle click event
 	function handleClick() {
 		if (!isDisabled && !href) {
-			onClick();
+			if (onClick) {
+				onClick();
+			} else {
+				dispatch('click');
+			}
 		}
 	}
 </script>

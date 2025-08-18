@@ -1,26 +1,17 @@
 import { prisma } from '$lib/prisma';
-import { validateSession } from '$lib/auth';
+import { MediaVisibility } from '@prisma/client';
 import { error, type RequestHandler } from '@sveltejs/kit';
 import * as fs from 'fs';
 import * as path from 'path';
-import { MediaVisibility } from '@prisma/client';
 
-export const GET: RequestHandler = async ({ params, cookies }) => {
+export const GET: RequestHandler = async ({ params, locals, cookies }) => {
 	// Validate media ID format
 	const { id } = params;
 	if (!id || typeof id !== 'string') {
 		throw error(400, 'Invalid media ID');
 	}
 
-	// Validate session to get user
-	const token = cookies.get('session_token');
-	let user = null;
-	if (token) {
-		const session = await validateSession(token);
-		if (session) {
-			user = session.user;
-		}
-	}
+	let user = locals.user;
 
 	try {
 		// Get media record from database
@@ -57,19 +48,19 @@ export const GET: RequestHandler = async ({ params, cookies }) => {
 			if (user.id !== media.ownerId) {
 				// Check if user has media:manage permission
 				const hasMediaManagePermission =
-					user.role.permissions.some(
+					user.role?.permissions.some(
 						(rp) => rp.permission.resource === 'media' && rp.permission.action === 'manage'
 					) ||
-					user.permissions.some(
+					user.permissions?.some(
 						(up) => up.permission.resource === 'media' && up.permission.action === 'manage'
 					);
 
 				// Also check for admin:manage permission for backward compatibility
 				const hasAdminManagePermission =
-					user.role.permissions.some(
+					user.role?.permissions.some(
 						(rp) => rp.permission.resource === 'admin' && rp.permission.action === 'manage'
 					) ||
-					user.permissions.some(
+					user.permissions?.some(
 						(up) => up.permission.resource === 'admin' && up.permission.action === 'manage'
 					);
 

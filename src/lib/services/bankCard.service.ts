@@ -191,7 +191,7 @@ export const createBankCardService = (prisma: PrismaClientType) => {
 	const createCard = async (userId: string, cardNumber: string, isDefault: boolean = false) => {
 		// Validate card number
 		if (!validateCardNumber(cardNumber)) {
-			throw new Error('Card number must be exactly 16 digits and contain only numeric characters');
+			throw new Error('شماره کارت باید دقیقاً ۱۶ رقم و فقط شامل کاراکترهای عددی باشد');
 		}
 
 		// Check if user already has this card
