@@ -32,6 +32,7 @@
 	export let searchTerm: string = '';
 	export let loading: boolean = false;
 	export let showSearch = true;
+	export let showCheckbox = true;
 
 	// State for client-side sorting (when server-side callbacks are not provided)
 	let sortKey: string | null = null;
@@ -198,15 +199,17 @@
 		<thead class="bg-gray-50">
 			<tr>
 				<!-- Selection column -->
-				<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-					<Checkbox
-						id="select-all-checkbox"
-						name="select-all"
-						checked={selectedRowsCount > 0 && selectedRowsCount === paginatedData.length}
-						indeterminate={selectedRowsCount > 0 && selectedRowsCount < paginatedData.length}
-						onChange={handleSelectAll}
-					/>
-				</th>
+				{#if showCheckbox}
+					<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+						<Checkbox
+							id="select-all-checkbox"
+							name="select-all"
+							checked={selectedRowsCount > 0 && selectedRowsCount === paginatedData.length}
+							indeterminate={selectedRowsCount > 0 && selectedRowsCount < paginatedData.length}
+							onChange={handleSelectAll}
+						/>
+					</th>
+				{/if}
 				{#each columns as column (column.key)}
 					<th
 						scope="col"
@@ -228,13 +231,15 @@
 			{#each paginatedData as row, i (row.id || i)}
 				<tr class="hover:bg-gray-50">
 					<!-- Selection cell -->
-					<td class="px-6 py-4 text-sm whitespace-nowrap">
-						<Checkbox
-							id={`select-row-${i}`}
-							name={`select-row-${i}`}
-							bind:checked={selectedRows[row.id]}
-						/>
-					</td>
+					{#if showCheckbox}
+						<td class="px-6 py-4 text-sm whitespace-nowrap">
+							<Checkbox
+								id={`select-row-${i}`}
+								name={`select-row-${i}`}
+								bind:checked={selectedRows[row.id]}
+							/>
+						</td>
+					{/if}
 					{#each columns as column (column.key)}
 						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
 							{#if column.component}
@@ -249,7 +254,10 @@
 				</tr>
 			{:else}
 				<tr>
-					<td colspan={columns.length + 1} class="px-6 py-4 text-center text-gray-500">
+					<td
+						colspan={columns.length + (showCheckbox ? 1 : 0)}
+						class="px-6 py-4 text-center text-gray-500"
+					>
 						<slot name="empty">داده‌ای در دسترس نیست</slot>
 					</td>
 				</tr>

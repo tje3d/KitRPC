@@ -57,6 +57,30 @@ export function formatCurrency(
 	}
 }
 
+// Format date to display on two lines (date and time separately)
+export function formatDateTimeTwoLines(date: Date | string, locale: string = 'fa-IR'): string {
+	const d = typeof date === 'string' ? new Date(date) : date;
+
+	// Format date part
+	const dateOptions: Intl.DateTimeFormatOptions = {
+		year: 'numeric',
+		month: 'numeric',
+		day: 'numeric'
+	};
+
+	// Format time part
+	const timeOptions: Intl.DateTimeFormatOptions = {
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit'
+	};
+
+	const dateString = d.toLocaleDateString(locale, dateOptions);
+	const timeString = d.toLocaleTimeString(locale, timeOptions);
+
+	return `${dateString}<br>${timeString}`;
+}
+
 // Extract device information from request context
 export function extractDeviceInfo(ctx: { request: Request }) {
 	const userAgent = ctx.request.headers.get('user-agent') || undefined;

@@ -206,7 +206,7 @@
 			sortable: true,
 			render: (value: Date) => `
 				<div class="text-sm whitespace-nowrap text-gray-500">
-					${value.toLocaleDateString()}
+					${value.toLocaleString('fa-IR')}
 				</div>
 			`
 		},
