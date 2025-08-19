@@ -4,6 +4,7 @@
 	import Card from '$lib/kit/Card.svelte';
 	import DataTable from '$lib/kit/DataTable.svelte';
 	import Input from '$lib/kit/Input.svelte';
+	import JalaliDateRangePicker from '$lib/kit/JalaliDateRangePicker.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 	import TransactionHistoryProvider from '$lib/providers/TransactionHistoryProvider.svelte';
 	import { toast } from '$lib/toast/store';
@@ -344,75 +345,19 @@
 
 			<!-- Advanced Filters (Collapsible) -->
 			<div class="border-t border-gray-200 pt-4">
-				<div class="flex flex-col space-y-4 sm:flex-row sm:items-end sm:space-y-0 sm:space-x-4">
-					<!-- Date Range -->
-					<div class="flex-1">
-						<label class="mb-2 block text-sm font-medium text-gray-700">
-							<span class="icon-[heroicons--calendar-days] me-1 h-4 w-4"></span>
-							بازه زمانی
-						</label>
-						<div class="flex space-x-2">
-							<div class="flex-1">
-								<Input
-									type="date"
-									id="fromDate"
-									name="fromDate"
-									bind:value={fromDate}
-									placeholder="از تاریخ"
-									className="text-sm"
-								/>
-							</div>
-							<div class="flex items-center">
-								<span class="text-gray-400">تا</span>
-							</div>
-							<div class="flex-1">
-								<Input
-									type="date"
-									id="toDate"
-									name="toDate"
-									bind:value={toDate}
-									placeholder="تا تاریخ"
-									className="text-sm"
-								/>
-							</div>
-						</div>
-					</div>
-
-					<!-- Quick Date Presets -->
-					<div class="flex space-x-2">
-						<button
-							class="rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-							on:click={() => {
-								const today = new Date();
-								const lastWeek = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-								fromDate = lastWeek.toISOString().split('T')[0];
-								toDate = today.toISOString().split('T')[0];
-							}}
-						>
-							۷ روز گذشته
-						</button>
-						<button
-							class="rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-							on:click={() => {
-								const today = new Date();
-								const lastMonth = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
-								fromDate = lastMonth.toISOString().split('T')[0];
-								toDate = today.toISOString().split('T')[0];
-							}}
-						>
-							۳۰ روز گذشته
-						</button>
-						<button
-							class="rounded-md border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
-							on:click={() => {
-								fromDate = '';
-								toDate = '';
-							}}
-						>
-							پاک کردن
-						</button>
-					</div>
-				</div>
+				<!-- Date Range -->
+				<JalaliDateRangePicker
+					bind:startDate={fromDate}
+					bind:endDate={toDate}
+					startLabel="تاریخ شروع"
+					endLabel="تاریخ پایان"
+					startPlaceholder="از تاریخ"
+					endPlaceholder="تا تاریخ"
+					on:change={(e) => {
+						fromDate = e.detail.startDate;
+						toDate = e.detail.endDate;
+					}}
+				/>
 			</div>
 		</Card>
 
