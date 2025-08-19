@@ -3,14 +3,15 @@
 	import { setAuthUser, setIsLoggedIn } from '$lib/flow/auth.flow';
 	import { SvelteSubject } from '$lib/helpers/rxjs.helper';
 	import Button from '$lib/kit/Button.svelte';
-	import Card from '$lib/kit/Card.svelte';
-	import ConfirmPassword from '$lib/kit/ConfirmPassword.svelte';
-	import ErrorDisplay from '$lib/kit/ErrorDisplay.svelte';
-	import FormGroup from '$lib/kit/FormGroup.svelte';
-	import Input from '$lib/kit/Input.svelte';
-	import Link from '$lib/kit/Link.svelte';
-	import PasswordInput from '$lib/kit/PasswordInput.svelte';
-	import PasswordStrengthIndicator from '$lib/kit/PasswordStrengthIndicator.svelte';
+import Card from '$lib/kit/Card.svelte';
+import ConfirmPassword from '$lib/kit/ConfirmPassword.svelte';
+import ErrorDisplay from '$lib/kit/ErrorDisplay.svelte';
+import FormGroup from '$lib/kit/FormGroup.svelte';
+import Input from '$lib/kit/Input.svelte';
+import Link from '$lib/kit/Link.svelte';
+import PageTitle from '$lib/kit/PageTitle.svelte';
+import PasswordInput from '$lib/kit/PasswordInput.svelte';
+import PasswordStrengthIndicator from '$lib/kit/PasswordStrengthIndicator.svelte';
 	import RegisterProvider from '$lib/providers/RegisterProvider.svelte';
 	import { toast } from '$lib/toast/store';
 	import { fade } from 'svelte/transition';
@@ -92,9 +93,7 @@
 	}
 </script>
 
-<svelte:head>
-	<title>ثبت نام</title>
-</svelte:head>
+<PageTitle title="ثبت نام" />
 
 <div class="mb-4 text-center">
 	<h1 class="mb-2 text-3xl font-bold text-gray-900">ایجاد حساب کاربری</h1>

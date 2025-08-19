@@ -11,6 +11,7 @@
 		FormGroup,
 		Input,
 		Link,
+		PageTitle,
 		PasswordInput,
 		SocialButton
 	} from '$lib/kit';
@@ -93,9 +94,7 @@
 	}
 </script>
 
-<svelte:head>
-	<title>ورود</title>
-</svelte:head>
+<PageTitle title="ورود" />
 
 <div class="mb-6 text-center">
 	<h1 class="mb-2 text-2xl font-bold text-gray-900">خوش آمدید</h1>

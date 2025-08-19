@@ -1,4 +1,6 @@
 <script lang="ts">
+	import PageTitle from './PageTitle.svelte';
+
 	/** @type {string} - Page title */
 	export let title: string = '';
 
@@ -40,11 +42,9 @@
 	$: contentClasses = `${baseContentClasses} ${contentClassName}`;
 </script>
 
-<svelte:head>
-	{#if title}
-		<title>{title}</title>
-	{/if}
-</svelte:head>
+{#if title}
+	<PageTitle {title} />
+{/if}
 
 <div class={wrapperClasses}>
 	{#if showHeader && (title || description || $$slots.header)}
