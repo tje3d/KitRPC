@@ -1,6 +1,7 @@
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 import { authRouter } from './auth';
 import { bankCardsRouter } from './bankCards';
+import { capacityRouter } from './capacity';
 import { kycRouter } from './kyc';
 import { mediaRouter } from './media';
 import { permissionsRouter } from './permissions';
@@ -40,7 +41,10 @@ export const router = t.router({
 	media: mediaRouter,
 
 	// KYC procedures
-	kyc: kycRouter
+	kyc: kycRouter,
+
+	// System capacity procedures
+	capacity: capacityRouter
 });
 
 export type Router = typeof router;

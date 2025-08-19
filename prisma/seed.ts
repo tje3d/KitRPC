@@ -32,44 +32,50 @@ async function main() {
 		console.log('🔐 ایجاد مجوزهای پیش‌فرض...');
 
 		const permissions = [
-			// مجوزهای کاربر
-			{ name: 'user:manage', description: 'مدیریت کاربران', resource: 'user', action: 'manage' },
+				// مجوزهای کاربر
+				{ name: 'user:manage', description: 'مدیریت کاربران', resource: 'user', action: 'manage' },
 
-			// مجوزهای کیف پول
-			{
-				name: 'wallet:manage',
-				description: 'مدیریت آدرس‌های کیف پول',
-				resource: 'wallet',
-				action: 'manage'
-			},
+				// مجوزهای کیف پول
+				{
+					name: 'wallet:manage',
+					description: 'مدیریت آدرس‌های کیف پول',
+					resource: 'wallet',
+					action: 'manage'
+				},
 
-			// مجوزهای مدیر
-			{
-				name: 'admin:manage',
-				description: 'دسترسی کامل مدیر',
-				resource: 'admin',
-				action: 'manage'
-			},
-			{ name: 'role:manage', description: 'مدیریت نقش‌ها', resource: 'role', action: 'manage' },
-			{
-				name: 'permission:manage',
-				description: 'مدیریت مجوزها',
-				resource: 'permission',
-				action: 'manage'
-			},
-			{
-				name: 'media:manage',
-				description: 'مدیریت فایل‌های رسانه',
-				resource: 'media',
-				action: 'manage'
-			},
-			{
-				name: 'kyc:manage',
-				description: 'مدیریت تأییدیه‌های احراز هویت',
-				resource: 'kyc',
-				action: 'manage'
-			}
-		];
+				// مجوزهای مدیر
+				{
+					name: 'admin:manage',
+					description: 'دسترسی کامل مدیر',
+					resource: 'admin',
+					action: 'manage'
+				},
+				{ name: 'role:manage', description: 'مدیریت نقش‌ها', resource: 'role', action: 'manage' },
+				{
+					name: 'permission:manage',
+					description: 'مدیریت مجوزها',
+					resource: 'permission',
+					action: 'manage'
+				},
+				{
+					name: 'media:manage',
+					description: 'مدیریت فایل‌های رسانه',
+					resource: 'media',
+					action: 'manage'
+				},
+				{
+					name: 'kyc:manage',
+					description: 'مدیریت تأییدیه‌های احراز هویت',
+					resource: 'kyc',
+					action: 'manage'
+				},
+				{
+					name: 'capacity:manage',
+					description: 'مدیریت ظرفیت سیستم',
+					resource: 'capacity',
+					action: 'manage'
+				}
+			];
 
 		const createdPermissions = await Promise.all(
 			permissions.map((permission) => prisma.permission.create({ data: permission }))
