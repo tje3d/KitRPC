@@ -4,16 +4,13 @@
 	import Card from '$lib/kit/Card.svelte';
 	import DataTable from '$lib/kit/DataTable.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
-	import SessionProvider from '$lib/providers/SessionProvider.svelte';
 	import StatusBadge from '$lib/kit/StatusBadge.svelte';
+	import SessionProvider from '$lib/providers/SessionProvider.svelte';
 	import { toast } from '$lib/toast/store';
 	import type { RouterOutputs } from '$lib/trpc/router';
 	import { tick } from 'svelte';
 
 	type Session = RouterOutputs['sessions']['getSessions'][number];
-
-	// Provider reference
-	let sessionProvider: SessionProvider;
 
 	// Format date for display
 	function formatDate(date: Date): string {
@@ -61,68 +58,6 @@
 			return 'icon-[cib--microsoft-edge]';
 		} else {
 			return 'icon-[heroicons--globe-alt]';
-		}
-	}
-
-	// Show delete confirmation dialog
-	function confirmDelete(session: Session) {
-		dialogStore.open({
-			component: ConfirmDialog,
-			props: {
-				title: 'پایان دادن به نشست',
-				message: `آیا مطمئن هستید که می‌خواهید نشست از ${formatDeviceType(session.deviceType)} در ${formatDate(new Date(session.createdAt))} را پایان دهید؟ این عمل قابل بازگشت نیست.`,
-				confirm: 'پایان دادن',
-				cancel: 'لغو',
-				color: 'red',
-				onConfirm: () => {
-					history.back();
-
-					tick().then(() => {
-						deleteSession(session.id);
-					});
-				}
-			}
-		});
-	}
-
-	// Delete a session
-	function deleteSession(sessionId: string) {
-		if (sessionProvider) {
-			sessionProvider.deleteSession(sessionId);
-		}
-	}
-
-	// Handle delete success
-	function handleDeleteSuccess() {
-		toast.success('نشست با موفقیت پایان یافت');
-		sessionProvider.getSessions(); // Refresh the list
-	}
-
-	// Handle delete error
-	function handleDeleteError(error: string) {
-		toast.error(error || 'پایان دادن به نشست ناموفق بود');
-	}
-
-	// Handle row actions
-	function handleRowAction(event: Event, sessionList: Session[]) {
-		const target = event.target as HTMLElement;
-		const button = target.closest('button[data-action]');
-
-		if (!button) return;
-
-		const action = button.getAttribute('data-action');
-		const id = button.getAttribute('data-id');
-
-		if (!action || !id) return;
-
-		switch (action) {
-			case 'delete':
-				// Find the session in the current list
-				const session = sessionList?.find((s: Session) => s.id === id);
-				if (session) {
-					confirmDelete(session);
-				}
-				break;
 		}
 	}
 
@@ -186,9 +121,15 @@
 </script>
 
 <SessionProvider
-	bind:this={sessionProvider}
-	onDeleteSuccess={handleDeleteSuccess}
-	onDeleteError={handleDeleteError}
+	onDeleteSuccess={(data) => {
+		if (data) {
+			toast.success('نشست با موفقیت پایان یافت');
+		}
+	}}
+	onDeleteError={(error) => {
+		toast.error(error || 'پایان دادن به نشست ناموفق بود');
+	}}
+	onError={(message) => toast.error(message || 'Failed to fetch sessions')}
 	let:sessions
 	let:loading
 	let:errorMessage
@@ -199,7 +140,6 @@
 	let:getSessions
 	let:deleteSession
 	let:currentSession
-	onError={(message) => toast.error(message || 'Failed to fetch sessions')}
 >
 	<PanelPageWrapper
 		title="مدیریت نشست‌ها"
@@ -327,25 +267,64 @@
 
 			<!-- Sessions Table -->
 			{#if !loading && !errorMessage}
-				{#if sessions?.length === 0}
+				{#if sessions?.filter((s) => !s.isCurrent).length === 0}
 					<div class="py-12 text-center">
-						<div class="mx-auto h-12 w-12 text-gray-400">
-							<span class="icon-[heroicons--document-text] h-12 w-12"></span>
+						<div
+							class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-gray-100"
+						>
+							<span class="icon-[heroicons--device-phone-mobile] h-10 w-10 text-gray-400"></span>
 						</div>
-						<h3 class="mt-2 text-sm font-medium text-gray-900">نشست فعالی وجود ندارد</h3>
-						<p class="mt-1 text-sm text-gray-500">شما هیچ نشست فعالی به جز نشست فعلی ندارید.</p>
+						<h3 class="text-lg font-medium text-gray-900">هیچ نشست دیگری یافت نشد</h3>
+						<p class="mx-auto mt-2 max-w-sm text-sm text-gray-500">
+							شما در حال حاضر تنها از این دستگاه وارد شده‌اید. نشست‌های دیگر در اینجا نمایش داده
+							خواهند شد.
+						</p>
 					</div>
 				{:else}
-					<div on:click={(e) => handleRowAction(e, sessions?.filter((s) => !s.isCurrent) || [])}>
+					<div
+						on:click={(e) => {
+							const target = e.target as HTMLElement;
+							const button = target.closest('button[data-action]');
+
+							if (!button) return;
+
+							const action = button.getAttribute('data-action');
+							const id = button.getAttribute('data-id');
+
+							if (!action || !id) return;
+
+							if (action === 'delete') {
+								const session = sessions?.find((s) => s.id === id);
+								if (session) {
+									dialogStore.open({
+										component: ConfirmDialog,
+										props: {
+											title: 'پایان دادن به نشست',
+											message: `آیا مطمئن هستید که می‌خواهید نشست از ${formatDeviceType(session.deviceType)} در ${formatDate(new Date(session.createdAt))} را پایان دهید؟ این عمل قابل بازگشت نیست.`,
+											confirm: 'پایان دادن',
+											cancel: 'لغو',
+											color: 'red',
+											onConfirm: () => {
+												history.back();
+												tick().then(() => {
+													deleteSession(session.id);
+												});
+											}
+										}
+									});
+								}
+							}
+						}}
+					>
 						<DataTable
 							data={sessions?.filter((s) => !s.isCurrent)}
 							{columns}
-							itemsPerPage={10}
+							itemsPerPage={1000}
 							totalItems={sessions?.filter((s) => !s.isCurrent).length || 0}
 							currentPage={1}
 							showPagination={false}
-							onPageChange={() => {}}
-							onSortChange={() => {}}
+							showCheckbox={false}
+							showSearch={false}
 						/>
 					</div>
 				{/if}

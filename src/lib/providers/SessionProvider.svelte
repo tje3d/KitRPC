@@ -80,6 +80,7 @@
 	subscribe(deleteResponseSuccess, (result) => {
 		if (!result) return;
 		onDeleteSuccess?.(result);
+		getSessions();
 	});
 
 	subscribe(deleteErrorMessage, (message) => {
