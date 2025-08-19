@@ -15,6 +15,7 @@ export { default as KycStatusIndicator } from './KycStatusIndicator.svelte';
 export { default as KycStatusTableCell } from './KycStatusTableCell.svelte';
 export { default as Link } from './Link.svelte';
 export { default as MediaPreview } from './MediaPreview.svelte';
+export { default as MobileNavbar } from './MobileNavbar.svelte';
 export { default as Pagination } from './Pagination.svelte';
 export { default as PanelPageWrapper } from './PanelPageWrapper.svelte';
 export { default as PasswordInput } from './PasswordInput.svelte';

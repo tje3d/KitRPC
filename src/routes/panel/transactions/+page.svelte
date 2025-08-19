@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { formatCurrency } from '$lib/helpers/utils.helper';
+	import { renderCurrencyWithIcon } from '$lib/helpers/Currency.helper';
 	import {
+		createDateFilter,
 		FilterManager,
 		getSelectedValue,
-		createDateFilter,
 		type FilterGroup
 	} from '$lib/helpers/filter.helper';
+	import { formatCurrency } from '$lib/helpers/utils.helper';
 	import Card from '$lib/kit/Card.svelte';
 	import DataTable from '$lib/kit/DataTable.svelte';
 	import FilterPanel from '$lib/kit/FilterPanel.svelte';
@@ -57,13 +58,11 @@
 				{
 					value: 'IRT',
 					label: 'IRT',
-					icon: 'icon-[heroicons--currency-dollar]',
 					colorScheme: 'green' as const
 				},
 				{
 					value: 'USDT',
 					label: 'USDT',
-					icon: 'icon-[heroicons--currency-dollar]',
 					colorScheme: 'green' as const
 				}
 			],
@@ -139,7 +138,13 @@
 	// Get reactive state from filter manager
 	const filterStateStore = filterManager.stateStore;
 	$: filterState = $filterStateStore;
-	$: ({ filterGroups: reactiveFilterGroups, inputFields, startDate, endDate, currentPage } = filterState);
+	$: ({
+		filterGroups: reactiveFilterGroups,
+		inputFields,
+		startDate,
+		endDate,
+		currentPage
+	} = filterState);
 
 	// Handle sorting (for future implementation)
 	function handleSortChange(key: string, direction: 'asc' | 'desc') {
@@ -178,7 +183,14 @@
 			key: 'amount',
 			label: 'مبلغ',
 			render: (value: number, row: any) => {
-				return formatCurrency(value, row.currency);
+				return `<span class="font-medium">${formatCurrency(value, row.currency)}</span>`;
+			}
+		},
+		{
+			key: 'currency',
+			label: 'ارز',
+			render: (value: CurrencyType) => {
+				return renderCurrencyWithIcon(value);
 			}
 		},
 		{

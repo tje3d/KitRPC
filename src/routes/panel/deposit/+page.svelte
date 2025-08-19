@@ -3,6 +3,7 @@
 	import Card from '$lib/kit/Card.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 	import QRCode from '$lib/kit/QRCode.svelte';
+	import CurrencyIcon from '$lib/components/CurrencyIcon.svelte';
 	import { trpc } from '$lib/trpc/client';
 	import type { BankCard } from '@prisma/client';
 	import { onMount } from 'svelte';
@@ -113,27 +114,29 @@
 					<p class="mt-1 text-sm text-gray-600">روش افزایش موجودی حساب خود را انتخاب کنید</p>
 					<div class="mt-4 inline-flex rounded-lg bg-gray-100 p-1" role="group">
 						<button
-							type="button"
-							on:click={() => changeTab('usdt')}
-							class={`rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 ${
-								activeTab === 'usdt'
-									? 'bg-white text-blue-600 shadow-sm'
-									: 'text-gray-600 hover:text-gray-900'
-							} focus:z-10 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
-						>
-							واریز USDT
-						</button>
-						<button
-							type="button"
-							on:click={() => changeTab('irt')}
-							class={`rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 ${
-								activeTab === 'irt'
-									? 'bg-white text-blue-600 shadow-sm'
-									: 'text-gray-600 hover:text-gray-900'
-							} focus:z-10 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
-						>
-							واریز IRT
-						</button>
+					type="button"
+					on:click={() => changeTab('usdt')}
+					class={`rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+						activeTab === 'usdt'
+							? 'bg-white text-blue-600 shadow-sm'
+							: 'text-gray-600 hover:text-gray-900'
+					} focus:z-10 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
+				>
+					<CurrencyIcon currency="USDT" size="sm" />
+					واریز USDT
+				</button>
+				<button
+					type="button"
+					on:click={() => changeTab('irt')}
+					class={`rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+						activeTab === 'irt'
+							? 'bg-white text-blue-600 shadow-sm'
+							: 'text-gray-600 hover:text-gray-900'
+					} focus:z-10 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
+				>
+					<CurrencyIcon currency="IRT" size="sm" />
+					واریز IRT
+				</button>
 					</div>
 				</div>
 

@@ -1,4 +1,7 @@
 <script lang="ts">
+	import CurrencyIcon from '$lib/components/CurrencyIcon.svelte';
+	import { renderCurrencyWithIcon } from '$lib/helpers/Currency.helper';
+	import { formatCurrency } from '$lib/helpers/utils.helper';
 	import { Button, Card, DataTable, FormGroup, Input, PanelPageWrapper } from '$lib/kit';
 	import type { Column } from '$lib/kit/DataTable.svelte';
 	import CreateCapacityTransactionProvider from '$lib/providers/CreateCapacityTransactionProvider.svelte';
@@ -8,7 +11,11 @@
 
 	// Form state
 	let showAddForm = false;
-	let formData = {
+	let formData: {
+		currency: 'USDT' | 'IRT' | '';
+		amount: string;
+		description: string;
+	} = {
 		currency: '',
 		amount: '',
 		description: ''
@@ -21,8 +28,18 @@
 	// Currency options
 	const currencyOptions = [
 		{ value: 'USDT', label: 'USDT - Tether' },
-		{ value: 'IRT', label: 'IRT - Iranian Tooman' }
+		{ value: 'IRT', label: 'IRT - تومان' }
 	];
+
+	// Currency display configuration
+	const currencyConfig = {
+		USDT: {
+			color: 'from-green-500 to-emerald-600'
+		},
+		IRT: {
+			color: 'from-blue-500 to-indigo-600'
+		}
+	};
 
 	// Table columns for transactions
 	const transactionColumns: Column[] = [
@@ -34,15 +51,19 @@
 		{
 			key: 'currency',
 			label: 'Currency',
-			sortable: true
+			sortable: true,
+			render: (value) => {
+				return renderCurrencyWithIcon(value);
+			}
 		},
 		{
 			key: 'amount',
 			label: 'Amount',
 			sortable: true,
-			render: (value) => {
+			render: (value, row) => {
 				const num = parseFloat(value);
-				return num >= 0 ? `+${num.toLocaleString()}` : num.toLocaleString();
+				const formatted = formatCurrency(Math.abs(num), row.currency);
+				return num >= 0 ? `+${formatted}` : `-${formatted}`;
 			}
 		},
 		{
@@ -69,7 +90,7 @@
 	// Reset form
 	function resetForm() {
 		formData = {
-			currency: '',
+			currency: '' as 'USDT' | 'IRT' | '',
 			amount: '',
 			description: ''
 		};
@@ -119,36 +140,58 @@
 					let:loading={createLoading}
 				>
 					<!-- Capacity Stats Section -->
-					<div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+					<div class="grid gap-4 md:grid-cols-2">
 						{#if statsLoading}
-							<Card className="col-span-full">
-								<div class="flex items-center justify-center py-8">
-									<span class="icon-[svg-spinners--ring-resize] h-8 w-8 text-blue-600"></span>
-									<span class="ms-2 text-gray-600">Loading capacity stats...</span>
-								</div>
-							</Card>
-						{:else if capacityStats && capacityStats.length > 0}
-							{#each capacityStats as stat}
+							<div class="col-span-full">
 								<Card>
-									<div class="text-center">
-										<div class="text-3xl font-bold text-gray-800">
-											{stat.amount?.toLocaleString() || '0'}
-										</div>
-										<div class="text-lg font-medium text-gray-600">
-											{stat.currency}
-										</div>
-										<div class="mt-2 text-sm text-gray-500">Available Capacity</div>
+									<div class="flex items-center justify-center py-8">
+										<span class="icon-[svg-spinners--ring-resize] h-6 w-6 text-blue-600"></span>
+										<span class="ms-2 text-gray-600">Loading capacity stats...</span>
 									</div>
 								</Card>
+							</div>
+						{:else if capacityStats && capacityStats.length > 0}
+							{#each capacityStats as stat}
+								{@const config = currencyConfig[stat.currency]}
+								{#if config}
+									<div
+										class="relative overflow-hidden rounded-2xl bg-gradient-to-br {config.color} p-6 text-white shadow-lg"
+									>
+										<div class="relative z-10">
+											<div class="flex items-center justify-between">
+												<div class="flex items-center space-x-3">
+													<CurrencyIcon
+														currency={stat.currency}
+														showLabel={true}
+														size="lg"
+														class="text-white"
+													/>
+												</div>
+											</div>
+											<div class="mt-4">
+												<div class="text-3xl font-bold">
+													{formatCurrency(stat.amount || 0, stat.currency)}
+												</div>
+												<p class="mt-1 text-sm text-white/90">Available Balance</p>
+											</div>
+										</div>
+										<!-- Decorative background pattern -->
+										<div class="absolute -top-4 -right-4 h-24 w-24 rounded-full bg-white/10"></div>
+										<div class="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-white/5"></div>
+									</div>
+								{/if}
 							{/each}
 						{:else}
-							<Card className="col-span-full">
-								<div class="py-8 text-center">
-									<span class="icon-[heroicons--information-circle] mx-auto h-12 w-12 text-gray-400"
-									></span>
-									<p class="mt-2 text-gray-600">No capacity data available</p>
-								</div>
-							</Card>
+							<div class="col-span-full">
+								<Card>
+									<div class="py-8 text-center">
+										<span
+											class="icon-[heroicons--information-circle] mx-auto h-12 w-12 text-gray-400"
+										></span>
+										<p class="mt-2 text-gray-600">No capacity data available</p>
+									</div>
+								</Card>
+							</div>
 						{/if}
 					</div>
 
@@ -183,9 +226,9 @@
 							<form
 								class="flex flex-col gap-4"
 								on:submit|preventDefault={() => {
-									if (isFormValid) {
+									if (isFormValid && formData.currency !== '') {
 										createCapacityTransaction({
-											currency: formData.currency,
+											currency: formData.currency as 'USDT' | 'IRT',
 											amount: parseFloat(formData.amount),
 											description: formData.description
 										});

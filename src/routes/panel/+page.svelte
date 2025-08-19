@@ -2,6 +2,7 @@
 	import { base } from '$app/paths';
 	import { authUser } from '$lib/flow/auth.flow';
 	import { formatCurrency, formatDateTimeTwoLines } from '$lib/helpers/utils.helper';
+	import { renderCurrencyWithIcon } from '$lib/helpers/Currency.helper';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
 	import type { Column } from '$lib/kit/DataTable.svelte';
@@ -10,6 +11,7 @@
 	import GetBankProvider from '$lib/providers/GetBankProvider.svelte';
 	import GetCardsProvider from '$lib/providers/GetCardsProvider.svelte';
 	import TransactionHistoryProvider from '$lib/providers/TransactionHistoryProvider.svelte';
+	import CurrencyIcon from '$lib/components/CurrencyIcon.svelte';
 	import type { CurrencyType, TransactionStatus, TransactionType } from '@prisma/client';
 
 	// Transaction history columns
@@ -41,7 +43,7 @@
 			key: 'currency',
 			label: 'واحد پول',
 			render: (value: CurrencyType) => {
-				return value === 'IRT' ? 'IRT' : 'USDT';
+				return renderCurrencyWithIcon(value);
 			}
 		},
 		{
@@ -117,9 +119,9 @@
 		>
 			<div class="flex items-center">
 				<div
-					class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg"
+					class="flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-lg"
 				>
-					<span class="icon-[heroicons--banknotes] h-6 w-6"></span>
+					<CurrencyIcon currency="IRT" size="lg" />
 				</div>
 				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">موجودی ریال</p>
@@ -138,9 +140,9 @@
 		<Card variant="glass" className="bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200">
 			<div class="flex items-center">
 				<div
-					class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg"
+					class="flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-lg"
 				>
-					<span class="icon-[heroicons--currency-dollar] h-6 w-6"></span>
+					<CurrencyIcon currency="USDT" size="lg" />
 				</div>
 				<div class="ms-4">
 					<p class="text-sm font-medium text-gray-600">موجودی USDT</p>

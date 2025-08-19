@@ -4,20 +4,18 @@
 	import { base } from '$app/paths';
 	import { page } from '$app/stores';
 	import { authUser, isLoggedIn } from '$lib/flow/auth.flow';
-	import Button from '$lib/kit/Button.svelte';
-	import Popover from '$lib/kit/Popover.svelte';
+	import MobileNavbar from '$lib/kit/MobileNavbar.svelte';
 	import Sidebar from '$lib/kit/Sidebar.svelte';
 	import LogoutProvider from '$lib/providers/LogoutProvider.svelte';
 
 	// State for sidebar visibility
 	let isSidebarOpen = true;
 	let isMobile = false;
-	let showUserPopover = false;
 
 	const checkMobile = () => {
 		if (!browser) return false;
 
-		isMobile = window.innerWidth < 768;
+		isMobile = window.innerWidth < 900;
 		if (isMobile) {
 			isSidebarOpen = false;
 		} else {
@@ -127,6 +125,19 @@
 						category: 'مدیریت'
 					}
 				]
+			: []),
+		// Add capacity management link for users with appropriate permissions
+		...(($authUser?.role?.permissions || []).some(
+			(p) => p.permission.resource === 'capacity' && p.permission.action === 'manage'
+		)
+			? [
+					{
+						name: 'مدیریت ظرفیت',
+						href: `${base}/panel/admin/capacity`,
+						icon: 'server-stack',
+						category: 'مدیریت'
+					}
+				]
 			: [])
 	];
 
@@ -171,71 +182,8 @@
 {#if $isLoggedIn}
 	<LogoutProvider onLoggedOut={() => invalidateAll()} let:logout>
 		<div class="flex h-screen bg-gray-50">
-			<!-- Mobile navbar -->
-			{#if isMobile}
-				<div
-					class="fixed top-0 right-0 left-0 z-50 border-b border-gray-200 bg-white shadow-sm md:hidden"
-				>
-					<div class="flex items-center justify-between px-4 py-3">
-						<!-- Toggle sidebar button -->
-						<Button
-							variant="secondary"
-							onClick={toggleSidebar}
-							className="p-2 rounded-lg hover:bg-gray-100"
-						>
-							<span class="icon-[heroicons--bars-3] h-6 w-6 text-gray-600"></span>
-						</Button>
-
-						<!-- User avatar with popover -->
-						<Popover
-							bind:visible={showUserPopover}
-							position="bottom"
-							showOnHover={false}
-							showOnClick={true}
-							className="w-48 p-0"
-						>
-							<div
-								slot="trigger"
-								class="flex cursor-pointer touch-manipulation items-center space-x-2"
-							>
-								<!-- User avatar -->
-								<div
-									class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-sm font-medium text-white"
-								>
-									{$authUser?.username.charAt(0)?.toUpperCase() || 'U'}
-								</div>
-							</div>
-
-							<!-- Popover content -->
-							<div class="py-2">
-								<div class="border-b border-gray-100 px-4 py-2">
-									<p class="text-sm font-medium text-gray-900">{$authUser?.username || 'User'}</p>
-									{#if $authUser?.role}
-										<p class="text-xs text-gray-500">{$authUser.role.name}</p>
-									{/if}
-								</div>
-								<div class="py-1">
-									<a
-										href="{base}/panel/settings/profile"
-										class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-									>
-										<span class="icon-[heroicons--cog-6-tooth] mr-2 inline h-4 w-4"></span>
-										پروفایل
-									</a>
-									<button
-										class="w-full px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
-										on:click={logout}
-									>
-										<span class="icon-[heroicons--arrow-right-on-rectangle] mr-2 inline h-4 w-4"
-										></span>
-										خروج
-									</button>
-								</div>
-							</div>
-						</Popover>
-					</div>
-				</div>
-			{/if}
+			<!-- Modern Mobile Navbar -->
+			<MobileNavbar visible={isMobile} onToggleSidebar={toggleSidebar} onLogout={logout} />
 
 			<!-- Sidebar -->
 			<Sidebar
@@ -249,7 +197,7 @@
 			<!-- Main content -->
 			<div class="flex flex-1 flex-col overflow-hidden">
 				<!-- Page content -->
-				<main class="flex-1 overflow-y-auto p-4 pt-4 md:p-6 md:pt-6" class:pt-20={isMobile}>
+				<main class="flex-1 overflow-y-auto p-4 pt-4 md:p-6" class:!pt-20={isMobile}>
 					<div class="mx-auto max-w-7xl">
 						<slot />
 					</div>

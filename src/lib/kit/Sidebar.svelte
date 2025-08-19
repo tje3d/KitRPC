@@ -102,9 +102,9 @@
 
 <!-- Sidebar -->
 <aside
-	class={`fixed inset-y-0 start-0 z-[100] w-64 transform bg-white shadow-xl transition-all duration-300 ease-in-out lg:static lg:translate-x-0
+	class={` inset-y-0 start-0 z-[100] w-64 transform bg-white shadow-xl transition-all duration-300 ease-in-out 
 		${isOpen ? 'translate-x-0' : 'translate-x-full'}
-		${isMobile ? 'h-full' : 'h-screen'}`}
+		${isMobile ? 'fixed h-full' : 'h-screen lg:static lg:translate-x-0'}`}
 >
 	<div class="flex h-full flex-col">
 		<!-- Navigation -->
