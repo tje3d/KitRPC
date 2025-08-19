@@ -1,11 +1,13 @@
 <script lang="ts">
 	import { base } from '$app/paths';
+	import { authUser } from '$lib/flow/auth.flow';
 	import { formatCurrency, formatDateTimeTwoLines } from '$lib/helpers/utils.helper';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
 	import type { Column } from '$lib/kit/DataTable.svelte';
 	import DataTable from '$lib/kit/DataTable.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
+	import GetBankProvider from '$lib/providers/GetBankProvider.svelte';
 	import GetCardsProvider from '$lib/providers/GetCardsProvider.svelte';
 	import TransactionHistoryProvider from '$lib/providers/TransactionHistoryProvider.svelte';
 	import type { CurrencyType, TransactionStatus, TransactionType } from '@prisma/client';
@@ -100,30 +102,196 @@
 
 <PanelPageWrapper title="داشبورد" description="خلاصه‌ای از فعالیت‌های اخیر شما">
 	<svelte:fragment slot="actions">
-		<Button href="{base}/panel/transactions" variant="secondary" className="px-4 py-2">
+		<Button href="{base}/panel/transactions" variant="gradient" className="px-6 py-2.5">
+			<span class="icon-[heroicons--chart-bar] ml-2 h-4 w-4"></span>
 			مشاهده تراکنش‌ها
 		</Button>
 	</svelte:fragment>
 
-	<!-- Quick Actions -->
-	<Card variant="flat" className="mt-6">
-		<h2 class="mb-4 text-lg font-bold text-gray-800">عملیات سریع</h2>
-		<div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
-			{#each quickActions as action}
-				<Button
-					href={action.href}
-					variant="secondary"
-					className="flex h-24 flex-col items-center justify-center"
+	<!-- User Stats -->
+	<div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+		<!-- IRT Balance -->
+		<Card
+			variant="glass"
+			className="bg-gradient-to-br from-green-50 to-emerald-100 border-green-200"
+		>
+			<div class="flex items-center">
+				<div
+					class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg"
 				>
-					<span class="{action.icon} mb-2 h-6 w-6 text-gray-600"></span>
-					<span class="text-sm font-medium text-gray-900">{action.title}</span>
-					<span class="mt-1 text-xs text-gray-500">{action.description}</span>
-				</Button>
+					<span class="icon-[heroicons--banknotes] h-6 w-6"></span>
+				</div>
+				<div class="ms-4">
+					<p class="text-sm font-medium text-gray-600">موجودی ریال</p>
+					<p class="text-2xl font-bold text-gray-900">
+						{#if $authUser?.balanceIRT !== undefined}
+							{formatCurrency($authUser.balanceIRT, 'IRT')}
+						{:else}
+							-
+						{/if}
+					</p>
+				</div>
+			</div>
+		</Card>
+
+		<!-- USDT Balance -->
+		<Card variant="glass" className="bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200">
+			<div class="flex items-center">
+				<div
+					class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg"
+				>
+					<span class="icon-[heroicons--currency-dollar] h-6 w-6"></span>
+				</div>
+				<div class="ms-4">
+					<p class="text-sm font-medium text-gray-600">موجودی USDT</p>
+					<p class="text-2xl font-bold text-gray-900">
+						{#if $authUser?.balanceUSDT !== undefined}
+							{formatCurrency($authUser.balanceUSDT, 'USDT')}
+						{:else}
+							-
+						{/if}
+					</p>
+				</div>
+			</div>
+		</Card>
+
+		<!-- KYC Status -->
+		<Card
+			variant="glass"
+			className="bg-gradient-to-br from-purple-50 to-violet-100 border-purple-200"
+		>
+			<div class="flex items-center">
+				<div
+					class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 text-white shadow-lg"
+				>
+					<span class="icon-[heroicons--identification] h-6 w-6"></span>
+				</div>
+				<div class="ms-4 flex-1">
+					<p class="mb-2 text-sm font-medium text-gray-600">وضعیت احراز هویت</p>
+					{#if $authUser?.kycVerification}
+						{@const kyc = $authUser.kycVerification}
+						<div class="space-y-1">
+							<!-- Step 1 Status -->
+							<div class="flex items-center justify-between">
+								<span class="text-xs text-gray-500">مرحله ۱:</span>
+								{#if kyc.step1Status === 'APPROVED'}
+									<span
+										class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
+									>
+										<span class="icon-[heroicons--check-circle] ml-1 h-3 w-3"></span>
+										تایید شده
+									</span>
+								{:else if kyc.step1Status === 'PENDING'}
+									<span
+										class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800"
+									>
+										<span class="icon-[heroicons--clock] ml-1 h-3 w-3"></span>
+										در انتظار
+									</span>
+								{:else if kyc.step1Status === 'REJECTED'}
+									<span
+										class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800"
+									>
+										<span class="icon-[heroicons--x-circle] ml-1 h-3 w-3"></span>
+										رد شده
+									</span>
+								{:else}
+									<span
+										class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
+									>
+										<span class="icon-[heroicons--minus-circle] ml-1 h-3 w-3"></span>
+										ارسال نشده
+									</span>
+								{/if}
+							</div>
+							<!-- Step 2 Status -->
+							<div class="flex items-center justify-between">
+								<span class="text-xs text-gray-500">مرحله ۲:</span>
+								{#if kyc.step2Status === 'APPROVED'}
+									<span
+										class="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-800"
+									>
+										<span class="icon-[heroicons--check-circle] ml-1 h-3 w-3"></span>
+										تایید شده
+									</span>
+								{:else if kyc.step2Status === 'PENDING'}
+									<span
+										class="inline-flex items-center rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-800"
+									>
+										<span class="icon-[heroicons--clock] ml-1 h-3 w-3"></span>
+										در انتظار
+									</span>
+								{:else if kyc.step2Status === 'REJECTED'}
+									<span
+										class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-800"
+									>
+										<span class="icon-[heroicons--x-circle] ml-1 h-3 w-3"></span>
+										رد شده
+									</span>
+								{:else}
+									<span
+										class="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
+									>
+										<span class="icon-[heroicons--minus-circle] ml-1 h-3 w-3"></span>
+										ارسال نشده
+									</span>
+								{/if}
+							</div>
+						</div>
+					{:else}
+						<span
+							class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700"
+						>
+							<span class="icon-[heroicons--exclamation-triangle] ml-1 h-3 w-3"></span>
+							احراز نشده
+						</span>
+					{/if}
+				</div>
+			</div>
+		</Card>
+	</div>
+
+	<!-- Quick Actions -->
+	<Card variant="flat" className="mt-8">
+		<div class="mb-6 flex items-center">
+			<span class="icon-[heroicons--bolt] ml-3 h-6 w-6 text-blue-600"></span>
+			<h2 class="text-xl font-bold text-gray-800">عملیات سریع</h2>
+		</div>
+		<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+			{#each quickActions as action}
+				<div
+					class="group relative overflow-hidden rounded-xl border border-gray-200 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-blue-300 hover:shadow-lg"
+				>
+					<a href={action.href} class="block">
+						<div class="flex flex-col items-center text-center">
+							<div
+								class="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-50 to-indigo-100 transition-all duration-300 group-hover:from-blue-100 group-hover:to-indigo-200"
+							>
+								<span
+									class="{action.icon} h-6 w-6 text-blue-600 transition-colors duration-300 group-hover:text-blue-700"
+								></span>
+							</div>
+							<h3
+								class="mb-2 text-lg font-semibold text-gray-900 transition-colors duration-300 group-hover:text-blue-700"
+							>
+								{action.title}
+							</h3>
+							<p
+								class="text-sm text-gray-500 transition-colors duration-300 group-hover:text-gray-600"
+							>
+								{action.description}
+							</p>
+						</div>
+						<div
+							class="absolute inset-0 bg-gradient-to-r from-blue-600 to-indigo-600 opacity-0 transition-opacity duration-300 group-hover:opacity-5"
+						></div>
+					</a>
+				</div>
 			{/each}
 		</div>
 	</Card>
 
-	<div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+	<div class="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-2">
 		<!-- Transaction History -->
 		<TransactionHistoryProvider
 			let:transactions
@@ -133,95 +301,185 @@
 			onSuccess={() => {}}
 			onError={() => {}}
 		>
-			<Card variant="flat">
-				<div class="flex items-center justify-between">
-					<h2 class="text-lg font-bold text-gray-800">تاریخچه تراکنش‌ها</h2>
-					<Button href="{base}/panel/transactions" variant="secondary" size="sm">مشاهده همه</Button>
+			<Card variant="flat" className="h-fit">
+				<div class="mb-6 flex items-center justify-between">
+					<div class="flex items-center">
+						<span class="icon-[heroicons--clock] ml-3 h-6 w-6 text-green-600"></span>
+						<h2 class="text-xl font-bold text-gray-800">تاریخچه تراکنش‌ها</h2>
+					</div>
+					<Button href="{base}/panel/transactions" variant="gradient-secondary" size="sm">
+						<span class="icon-[heroicons--arrow-left] ml-1 h-3 w-3"></span>
+						مشاهده همه
+					</Button>
 				</div>
 				{#if loading}
-					<div class="mt-4 space-y-4">
+					<div class="space-y-4">
 						{#each Array(5) as _, i}
-							<div class="animate-pulse">
-								<div class="mb-2 h-4 w-full rounded bg-gray-200"></div>
-								<div class="h-4 w-3/4 rounded bg-gray-200"></div>
+							<div class="flex animate-pulse items-center space-x-4 rounded-lg bg-gray-50 p-4">
+								<div class="h-3 w-16 rounded bg-gray-200"></div>
+								<div class="h-3 w-24 rounded bg-gray-200"></div>
+								<div class="h-3 w-20 rounded bg-gray-200"></div>
+								<div class="h-3 w-16 rounded bg-gray-200"></div>
+								<div class="h-3 w-20 rounded bg-gray-200"></div>
 							</div>
 						{/each}
 					</div>
 				{:else if errorMessage}
-					<div class="mt-4 text-center text-red-600">
-						خطا در بارگذاری تراکنش‌ها: {errorMessage}
+					<div class="flex items-center justify-center p-8 text-center">
+						<div class="rounded-lg border border-red-200 bg-red-50 p-6">
+							<span class="icon-[heroicons--exclamation-triangle] mx-auto mb-3 h-8 w-8 text-red-500"
+							></span>
+							<p class="mb-1 font-medium text-red-700">خطا در بارگذاری تراکنش‌ها</p>
+							<p class="text-sm text-red-600">{errorMessage}</p>
+						</div>
 					</div>
 				{:else if transactions && transactions.length > 0}
-					<DataTable
-						data={transactions}
-						columns={transactionColumns}
-						itemsPerPage={5}
-						showPagination={false}
-						className="mt-4"
-						showSearch={false}
-						showCheckbox={false}
-					/>
+					<div class="overflow-hidden rounded-lg border border-gray-200">
+						<DataTable
+							data={transactions}
+							columns={transactionColumns}
+							itemsPerPage={5}
+							showPagination={false}
+							className=""
+							showSearch={false}
+							showCheckbox={false}
+						/>
+					</div>
 				{:else}
-					<div class="mt-4 text-center text-gray-500">تراکنشی یافت نشد</div>
+					<div class="flex items-center justify-center p-12 text-center">
+						<div class="rounded-lg border border-gray-200 bg-gray-50 p-8">
+							<span class="icon-[heroicons--document-text] mx-auto mb-4 h-12 w-12 text-gray-400"
+							></span>
+							<h3 class="mb-2 text-lg font-medium text-gray-900">هنوز تراکنشی ندارید</h3>
+							<p class="mb-4 text-gray-500">اولین تراکنش خود را انجام دهید</p>
+							<Button href="{base}/panel/deposit" variant="gradient" size="sm">
+								<span class="icon-[heroicons--plus] ml-1 h-4 w-4"></span>
+								شروع کنید
+							</Button>
+						</div>
+					</div>
 				{/if}
 			</Card>
 		</TransactionHistoryProvider>
 
 		<!-- Connected Bank Cards -->
 		<GetCardsProvider let:cards let:loading let:errorMessage let:getCards>
-			<Card variant="flat">
-				<div class="flex items-center justify-between">
-					<h2 class="text-lg font-bold text-gray-800">کارت‌های بانکی متصل</h2>
-					<Button href="{base}/panel/cards" variant="secondary" size="sm">مدیریت کارت‌ها</Button>
+			<Card variant="flat" className="h-fit">
+				<div class="mb-6 flex items-center justify-between">
+					<div class="flex items-center">
+						<span class="icon-[heroicons--credit-card] ml-3 h-6 w-6 text-blue-600"></span>
+						<h2 class="text-xl font-bold text-gray-800">کارت‌های بانکی متصل</h2>
+					</div>
+					<Button href="{base}/panel/cards" variant="gradient-secondary" size="sm">
+						<span class="icon-[heroicons--cog-6-tooth] ml-1 h-3 w-3"></span>
+						مدیریت کارت‌ها
+					</Button>
 				</div>
 				{#if loading}
-					<div class="mt-4 space-y-4">
+					<div class="space-y-4">
 						{#each Array(3) as _, i}
-							<div class="animate-pulse">
-								<div class="mb-2 h-4 w-full rounded bg-gray-200"></div>
-								<div class="h-4 w-3/4 rounded bg-gray-200"></div>
+							<div
+								class="flex animate-pulse items-center rounded-lg border border-gray-200 bg-gray-50 p-4"
+							>
+								<div class="ml-3 h-10 w-10 rounded-lg bg-gray-200"></div>
+								<div class="flex-1">
+									<div class="mb-2 h-4 w-32 rounded bg-gray-200"></div>
+									<div class="h-3 w-20 rounded bg-gray-200"></div>
+								</div>
+								<div class="h-3 w-16 rounded bg-gray-200"></div>
 							</div>
 						{/each}
 					</div>
 				{:else if errorMessage}
-					<div class="mt-4 text-center text-red-600">
-						خطا در بارگذاری کارت‌ها: {errorMessage}
+					<div class="flex items-center justify-center p-8 text-center">
+						<div class="rounded-lg border border-red-200 bg-red-50 p-6">
+							<span class="icon-[heroicons--exclamation-triangle] mx-auto mb-3 h-8 w-8 text-red-500"
+							></span>
+							<p class="mb-1 font-medium text-red-700">خطا در بارگذاری کارت‌ها</p>
+							<p class="text-sm text-red-600">{errorMessage}</p>
+						</div>
 					</div>
 				{:else if cards && cards.length > 0}
-					<div class="mt-4 space-y-3">
+					<div class="space-y-4">
 						{#each cards as card}
-							<div class="flex items-center justify-between rounded-lg border border-gray-200 p-3">
-								<div class="flex items-center">
+							<GetBankProvider cardNumber={card.cardNumber} let:bank>
+								<div
+									class="group relative overflow-hidden rounded-xl border border-gray-200 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+									style="background: {bank ? `linear-gradient(135deg, ${bank.color}10, ${bank.color}20)` : 'linear-gradient(135deg, #f9fafb, #f3f4f6)'}; border-color: {bank ? `${bank.color}40` : '#d1d5db'};"
+								>
+									<div class="flex items-center justify-between">
+										<div class="flex items-center">
+											<div
+												class="flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-lg"
+												style="background: {bank ? `linear-gradient(135deg, ${bank.color}, ${bank.color}dd)` : 'linear-gradient(135deg, #3b82f6, #6366f1)'};"
+											>
+												{#if bank}
+													<img
+														src="/img/banks/{bank.id}.svg"
+														alt={bank.name}
+														class="h-8 w-8"
+													/>
+												{:else}
+													<span class="icon-[heroicons--credit-card] h-6 w-6"></span>
+												{/if}
+											</div>
+											<div class="ms-4">
+												<h3
+													class="text-lg font-semibold text-gray-900 transition-colors duration-300 group-hover:text-blue-700"
+												>
+													{#if card.cardNumber}
+														**** **** **** {card.cardNumber.slice(-4)}
+													{:else}
+														کارت بانکی
+													{/if}
+												</h3>
+												<div class="mt-1 flex items-center space-x-2">
+													{#if bank}
+														<span class="text-sm text-gray-600">{bank.name}</span>
+													{/if}
+													{#if card.isDefault}
+														<span
+															class="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800"
+														>
+															<span class="icon-[heroicons--check-circle] ml-1 h-3 w-3"></span>
+															کارت پیش‌فرض
+														</span>
+													{:else}
+														<span
+															class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-700"
+														>
+															کارت ثانویه
+														</span>
+													{/if}
+												</div>
+											</div>
+										</div>
+										<div class="flex items-center text-sm text-gray-500">
+											<span class="icon-[heroicons--calendar-days] ml-1 h-4 w-4"></span>
+											{card.createdAt.toLocaleDateString('fa-IR')}
+										</div>
+									</div>
 									<div
-										class="flex h-10 w-10 items-center justify-center rounded-lg bg-gray-100 text-gray-600"
-									>
-										<span class="icon-[heroicons--credit-card] h-5 w-5"></span>
-									</div>
-									<div class="ms-3">
-										<h3 class="font-medium text-gray-900">
-											{#if card.cardNumber}
-												**** **** **** {card.cardNumber.slice(-4)}
-											{:else}
-												کارت بانکی
-											{/if}
-										</h3>
-										<p class="text-sm text-gray-500">
-											{#if card.isDefault}
-												<span class="text-green-600">کارت پیش‌فرض</span>
-											{:else}
-												کارت ثانویه
-											{/if}
-										</p>
-									</div>
+										class="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-5"
+										style="background: {bank ? `linear-gradient(135deg, ${bank.color}, ${bank.color})` : 'linear-gradient(135deg, #3b82f6, #6366f1)'};"
+									></div>
 								</div>
-								<div class="text-sm text-gray-500">
-									{new Date(card.createdAt).toLocaleDateString('fa-IR')}
-								</div>
-							</div>
+							</GetBankProvider>
 						{/each}
 					</div>
 				{:else}
-					<div class="mt-4 text-center text-gray-500">کارتی یافت نشد</div>
+					<div class="flex items-center justify-center p-12 text-center">
+						<div class="rounded-lg border border-gray-200 bg-gray-50 p-8">
+							<span class="icon-[heroicons--credit-card] mx-auto mb-4 h-12 w-12 text-gray-400"
+							></span>
+							<h3 class="mb-2 text-lg font-medium text-gray-900">هنوز کارتی اضافه نکرده‌اید</h3>
+							<p class="mb-4 text-gray-500">برای انجام تراکنش‌ها کارت بانکی خود را اضافه کنید</p>
+							<Button href="{base}/panel/cards" variant="gradient" size="sm">
+								<span class="icon-[heroicons--plus] ml-1 h-4 w-4"></span>
+								افزودن کارت
+							</Button>
+						</div>
+					</div>
 				{/if}
 			</Card>
 		</GetCardsProvider>

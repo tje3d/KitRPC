@@ -289,7 +289,7 @@
 															</p>
 														{/if}
 														<p class="text-sm text-gray-500">
-															افزوده شده در {new Date(card.createdAt).toLocaleDateString()}
+															افزوده شده در {card.createdAt.toLocaleString('fa-IR')}
 														</p>
 													</div>
 												</div>

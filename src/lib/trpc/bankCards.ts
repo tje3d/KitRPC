@@ -63,12 +63,7 @@ export const bankCardsRouter = t.router({
 	// Get all bank cards for the authenticated user
 	getCards: authenticatedProcedure.query(async ({ ctx }) => {
 		try {
-			const cards = await getCards(ctx.user.id);
-			return cards.map((card) => ({
-				...card,
-				createdAt: card.createdAt.toISOString(),
-				updatedAt: card.updatedAt.toISOString()
-			}));
+			return await getCards(ctx.user.id);
 		} catch (error: any) {
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
@@ -81,12 +76,7 @@ export const bankCardsRouter = t.router({
 	// Get a specific bank card by ID
 	getCardById: authenticatedProcedure.input(cardIdSchema).query(async ({ input, ctx }) => {
 		try {
-			const card = await getCardById(input.cardId, ctx.user.id);
-			return {
-				...card,
-				createdAt: card.createdAt.toISOString(),
-				updatedAt: card.updatedAt.toISOString()
-			};
+			return await getCardById(input.cardId, ctx.user.id);
 		} catch (error: any) {
 			if (error.message === 'Card not found') {
 				throw new TRPCError({

@@ -5,8 +5,6 @@
 	import { page } from '$app/stores';
 	import { authUser, isLoggedIn } from '$lib/flow/auth.flow';
 	import Button from '$lib/kit/Button.svelte';
-	import Card from '$lib/kit/Card.svelte';
-	import KycStatusIndicator from '$lib/kit/KycStatusIndicator.svelte';
 	import Popover from '$lib/kit/Popover.svelte';
 	import Sidebar from '$lib/kit/Sidebar.svelte';
 	import LogoutProvider from '$lib/providers/LogoutProvider.svelte';
@@ -166,35 +164,6 @@
 	$: if (!$isLoggedIn && browser) {
 		goto('/login');
 	}
-
-	$: step1Status = !$authUser?.kycVerification
-		? undefined
-		: $authUser.kycVerification.step1Status || null;
-	$: step2Status = !$authUser?.kycVerification
-		? undefined
-		: $authUser.kycVerification.step2Status || null;
-
-	// Determine if we should show the KYC indicator for each step
-	$: showStep1Indicator = $isLoggedIn && step1Status !== 'APPROVED';
-	$: showStep2Indicator = $isLoggedIn && step1Status === 'APPROVED' && step2Status !== 'APPROVED';
-
-	// Get messages for each step
-	$: step1Message = !$authUser?.kycVerification
-		? 'لطفاً احراز هویت مرحله ۱ خود را برای ادامه تکمیل کنید.'
-		: step1Status === 'REJECTED'
-			? 'احراز هویت مرحله ۱ شما رد شد. لطفاً دوباره تلاش کنید.'
-			: step1Status === 'PENDING'
-				? 'احراز هویت مرحله ۱ شما در حال انجام است. می‌توانید وضعیت را در صفحه احراز هویت بررسی کنید.'
-				: 'برای ادامه، احراز هویت مرحله ۱ را تکمیل کنید.';
-
-	$: step2Message =
-		!$authUser?.kycVerification || step1Status !== 'APPROVED'
-			? 'لطفاً ابتدا مرحله ۱ احراز هویت را تکمیل کنید تا مرحله ۲ فعال شود.'
-			: step2Status === 'REJECTED'
-				? 'احراز هویت مرحله ۲ شما رد شد. لطفاً دوباره تلاش کنید.'
-				: step2Status === 'PENDING'
-					? 'احراز هویت مرحله ۲ شما در حال انجام است. می‌توانید وضعیت را در صفحه احراز هویت بررسی کنید.'
-					: 'برای تکمیل احراز هویت، مرحله ۲ را تکمیل کنید.';
 </script>
 
 <svelte:window on:resize={checkMobile} />
@@ -281,85 +250,6 @@
 			<div class="flex flex-1 flex-col overflow-hidden">
 				<!-- Page content -->
 				<main class="flex-1 overflow-y-auto p-4 pt-4 md:p-6 md:pt-6" class:pt-20={isMobile}>
-					<!-- KYC Status Indicators -->
-					{#if showStep1Indicator || showStep2Indicator}
-						<div class="mx-auto max-w-7xl">
-							<Card variant="flat" className="mb-6">
-								<div class="space-y-4">
-									<!-- Step 1 Indicator -->
-									{#if showStep1Indicator}
-										<div class="flex flex-col md:flex-row md:items-center md:justify-between">
-											<div class="flex items-start space-x-3">
-												<KycStatusIndicator status={step1Status} size="md" showLabel={false} />
-												<div>
-													<h3 class="text-sm font-medium text-gray-900">
-														{#if !$authUser?.kycVerification || step1Status === 'REJECTED'}
-															نیاز به احراز هویت مرحله ۱
-														{:else if step1Status === 'PENDING'}
-															احراز هویت مرحله ۱ در حال انجام
-														{:else}
-															مرحله ۱ احراز هویت تکمیل شد
-														{/if}
-													</h3>
-													<p class="mt-1 text-sm text-gray-600">{step1Message}</p>
-												</div>
-											</div>
-											<div
-												class="mt-3 flex flex-col space-y-2 md:mt-0 md:flex-row md:space-y-0 md:space-x-3"
-											>
-												{#if step1Status === 'PENDING'}
-													<KycStatusIndicator status={step1Status} size="sm" showLabel={true} />
-												{/if}
-												<Button href="{base}/panel/kyc" variant="primary" size="sm">
-													{#if !$authUser?.kycVerification || step1Status === 'REJECTED' || step1Status === null}
-														شروع مرحله ۱ احراز هویت
-													{:else}
-														مشاهده وضعیت
-													{/if}
-												</Button>
-											</div>
-										</div>
-									{/if}
-
-									<!-- Step 2 Indicator -->
-									{#if showStep2Indicator}
-										<div class="flex flex-col md:flex-row md:items-center md:justify-between">
-											<div class="flex items-start space-x-3">
-												<KycStatusIndicator status={step2Status} size="md" showLabel={false} />
-												<div>
-													<h3 class="text-sm font-medium text-gray-900">
-														{#if step2Status === 'REJECTED'}
-															نیاز به احراز هویت مرحله ۲
-														{:else if step2Status === 'PENDING'}
-															احراز هویت مرحله ۲ در حال انجام
-														{:else}
-															مرحله ۲ احراز هویت شروع نشده
-														{/if}
-													</h3>
-													<p class="mt-1 text-sm text-gray-600">{step2Message}</p>
-												</div>
-											</div>
-											<div
-												class="mt-3 flex flex-col space-y-2 md:mt-0 md:flex-row md:space-y-0 md:space-x-3"
-											>
-												{#if step2Status === 'PENDING'}
-													<KycStatusIndicator status={step2Status} size="sm" showLabel={true} />
-												{/if}
-												<Button href="{base}/panel/kyc" variant="primary" size="sm">
-													{#if step2Status === 'REJECTED' || step2Status === null}
-														شروع مرحله ۲ احراز هویت
-													{:else}
-														مشاهده وضعیت
-													{/if}
-												</Button>
-											</div>
-										</div>
-									{/if}
-								</div>
-							</Card>
-						</div>
-					{/if}
-
 					<div class="mx-auto max-w-7xl">
 						<slot />
 					</div>
