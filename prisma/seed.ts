@@ -398,6 +398,29 @@ async function main() {
 		console.log('💰 تراکنش‌ها قبلاً ایجاد شده‌اند، از ایجاد تراکنش جدید صرف نظر شد.');
 	}
 
+	// بررسی وجود ظرفیت سیستم
+	const existingSystemCapacity = await prisma.systemCapacity.count();
+	if (existingSystemCapacity === 0) {
+		console.log('⚡ ایجاد ظرفیت‌های سیستم...');
+
+		await prisma.systemCapacity.createMany({
+			data: [
+				{
+					currency: 'IRT',
+					amount: 1000000 // 1M IRT
+				},
+				{
+					currency: 'USDT',
+					amount: 1000 // 1K USDT
+				}
+			]
+		});
+
+		console.log('✅ ظرفیت‌های سیستم ایجاد شدند!');
+	} else {
+		console.log('⚡ ظرفیت‌های سیستم قبلاً ایجاد شده‌اند، از ایجاد ظرفیت جدید صرف نظر شد.');
+	}
+
 	console.log('✅ عملیات پر کردن پایگاه داده با موفقیت انجام شد!');
 }
 
