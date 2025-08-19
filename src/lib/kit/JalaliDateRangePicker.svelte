@@ -19,6 +19,7 @@
 		maxDate?: string;
 		class?: string;
 		allowSameDate?: boolean;
+		showQuickPresets?: boolean;
 	}
 
 	let {
@@ -33,7 +34,8 @@
 		minDate = '',
 		maxDate = '',
 		class: className = '',
-		allowSameDate = false
+		allowSameDate = false,
+		showQuickPresets = true
 	}: Props = $props();
 
 	const dispatch = createEventDispatcher<{
@@ -259,38 +261,42 @@
 	{/if}
 
 	<!-- Quick Presets -->
-	<div class="flex flex-wrap gap-2">
-		<button
-			type="button"
-			onclick={setToday}
-			{disabled}
-			class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-		>
-			امروز
-		</button>
-		<button
-			type="button"
-			onclick={setThisWeek}
-			{disabled}
-			class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-		>
-			این هفته
-		</button>
-		<button
-			type="button"
-			onclick={setThisMonth}
-			{disabled}
-			class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-		>
-			این ماه
-		</button>
-		<button
-			type="button"
-			onclick={clearDates}
-			{disabled}
-			class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700 transition-all duration-200 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
-		>
-			پاک کردن
-		</button>
-	</div>
+	{#if showQuickPresets}
+		<div class="flex flex-wrap gap-2">
+			<button
+				type="button"
+				onclick={setToday}
+				{disabled}
+				class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+			>
+				امروز
+			</button>
+			<button
+				type="button"
+				onclick={setThisWeek}
+				{disabled}
+				class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+			>
+				این هفته
+			</button>
+			<button
+				type="button"
+				onclick={setThisMonth}
+				{disabled}
+				class="rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-medium text-gray-700 transition-all duration-200 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+			>
+				این ماه
+			</button>
+			{#if startDate || endDate}
+				<button
+					type="button"
+					onclick={clearDates}
+					{disabled}
+					class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-medium text-red-700 transition-all duration-200 hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+				>
+					پاک کردن
+				</button>
+			{/if}
+		</div>
+	{/if}
 </div>

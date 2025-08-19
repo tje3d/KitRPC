@@ -1,49 +1,38 @@
 <script lang="ts">
-	import { createEventDispatcher, onMount } from 'svelte';
 	import moment from 'moment-jalaali';
+	import { createEventDispatcher } from 'svelte';
 
 	// Configure moment-jalaali
 	moment.loadPersian({ dialect: 'persian-modern' });
 
-	interface Props {
-		value?: string;
-		placeholder?: string;
-		label?: string;
-		required?: boolean;
-		disabled?: boolean;
-		minDate?: string;
-		maxDate?: string;
-		class?: string;
-		id?: string;
-		name?: string;
-	}
-
-	let {
-		value = $bindable(''),
-		placeholder = 'انتخاب تاریخ',
-		label = '',
-		required = false,
-		disabled = false,
-		minDate = '',
-		maxDate = '',
-		class: className = '',
-		id = '',
-		name = ''
-	}: Props = $props();
+	// Props
+	export let value: string = '';
+	export let placeholder: string = 'انتخاب تاریخ';
+	export let label: string = '';
+	export let required: boolean = false;
+	export let disabled: boolean = false;
+	export let minDate: string = '';
+	export let maxDate: string = '';
+	export let className: string = '';
+	export { className as class };
+	export let id: string = '';
+	export let name: string = '';
+	export let error: boolean = false;
+	export let errorMessage: string = '';
 
 	const dispatch = createEventDispatcher<{
 		change: { value: string; jalaliValue: string };
 		input: { value: string; jalaliValue: string };
 	}>();
 
-	let isOpen = $state(false);
+	let isOpen = false;
 	let inputElement: HTMLInputElement;
 	let calendarElement: HTMLDivElement;
-	let jalaliValue = $state('');
-	let currentMonth = $state(moment().jMonth());
-	let currentYear = $state(moment().jYear());
-	let showYearSelect = $state(false);
-	let showMonthSelect = $state(false);
+	let jalaliValue = '';
+	let currentMonth = moment().jMonth();
+	let currentYear = moment().jYear();
+	let showYearSelect = false;
+	let showMonthSelect = false;
 
 	// Persian month names
 	const persianMonths = [
@@ -229,37 +218,38 @@
 		}
 	}
 
-	// Initialize jalali value from gregorian value
-	$effect(() => {
-		if (value && !jalaliValue) {
-			jalaliValue = gregorianToJalali(value);
-		}
-	});
+	// Base input classes with modern styling
+	const baseInputClasses =
+		'w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 placeholder-gray-400 shadow-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:shadow-md disabled:opacity-50 disabled:cursor-not-allowed';
 
-	// Update current month/year when value changes
-	$effect(() => {
-		if (value) {
-			const date = moment(value);
-			currentMonth = date.jMonth();
-			currentYear = date.jYear();
-		}
-	});
+	// Error input classes with enhanced visual feedback
+	const errorInputClasses = 'border-red-500 bg-red-50 focus:ring-red-500 focus:shadow-red-100';
 
-	onMount(() => {
-		document.addEventListener('click', handleClickOutside);
-		return () => {
-			document.removeEventListener('click', handleClickOutside);
-		};
-	});
+	// Hover state classes
+	const hoverInputClasses = 'hover:border-gray-400 hover:shadow-md';
 
-	$effect(() => {
-		if (value) {
-			jalaliValue = gregorianToJalali(value);
-		} else {
-			jalaliValue = '';
-		}
-	});
+	// Combined classes with all states
+	$: inputClasses = `${baseInputClasses} ${error ? errorInputClasses : ''} ${hoverInputClasses} pl-12`;
+
+	// Reactive statements to replace $effect
+	$: if (value && !jalaliValue) {
+		jalaliValue = gregorianToJalali(value);
+	}
+
+	$: if (value) {
+		const date = moment(value);
+		currentMonth = date.jMonth();
+		currentYear = date.jYear();
+	}
+
+	$: if (value) {
+		jalaliValue = gregorianToJalali(value);
+	} else {
+		jalaliValue = '';
+	}
 </script>
+
+<svelte:document on:click={handleClickOutside} />
 
 <div class="relative {className}">
 	{#if label}
@@ -276,20 +266,20 @@
 			{name}
 			type="text"
 			bind:value={jalaliValue}
-			oninput={handleInput}
-			onfocus={() => (isOpen = true)}
+			on:input={handleInput}
+			on:focus={() => (isOpen = true)}
 			{placeholder}
 			{required}
 			{disabled}
 			autocomplete="off"
-			class="w-full rounded-xl border border-gray-200 bg-white/50 px-4 py-3 pl-12 text-sm backdrop-blur-sm transition-all duration-200 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none {disabled
-				? 'cursor-not-allowed opacity-50'
-				: ''}"
+			class={inputClasses}
+			aria-invalid={error}
+			aria-describedby={error && errorMessage ? `${id}-error` : undefined}
 			style="direction: ltr; text-align: start;"
 		/>
 		<button
 			type="button"
-			onclick={() => !disabled && (isOpen = !isOpen)}
+			on:click={() => !disabled && (isOpen = !isOpen)}
 			class="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400 transition-colors duration-200 hover:text-gray-600 {disabled
 				? 'cursor-not-allowed'
 				: ''}"
@@ -298,6 +288,12 @@
 			<span class="icon-[solar--calendar-linear] block h-5 w-5"></span>
 		</button>
 	</div>
+
+	{#if error && errorMessage}
+		<p class="text-sm text-red-600" id={`${id}-error`}>
+			{errorMessage}
+		</p>
+	{/if}
 
 	{#if isOpen && !disabled}
 		<div
@@ -310,7 +306,7 @@
 				<div class="flex items-center gap-2">
 					<button
 						type="button"
-						onclick={nextYear}
+						on:click={nextYear}
 						class="rounded-lg p-2 text-gray-600 transition-colors duration-200 hover:bg-gray-100"
 						title="سال بعد"
 					>
@@ -318,7 +314,7 @@
 					</button>
 					<button
 						type="button"
-						onclick={nextMonth}
+						on:click={nextMonth}
 						class="rounded-lg p-2 text-gray-600 transition-colors duration-200 hover:bg-gray-100"
 						title="ماه بعد"
 					>
@@ -332,7 +328,7 @@
 						<div class="month-selector relative">
 							<button
 								type="button"
-								onclick={(e) => {
+								on:click={(e) => {
 									e.stopPropagation();
 									showMonthSelect = !showMonthSelect;
 								}}
@@ -349,7 +345,7 @@
 									{#each persianMonths as month, index}
 										<button
 											type="button"
-											onclick={(e) => selectMonth(index, e)}
+											on:click={(e) => selectMonth(index, e)}
 											class="w-full px-3 py-2 text-right text-sm transition-colors duration-200 hover:bg-emerald-50 {currentMonth ===
 											index
 												? 'bg-emerald-100 font-medium text-emerald-800'
@@ -366,7 +362,7 @@
 						<div class="year-selector relative">
 							<button
 								type="button"
-								onclick={(e) => {
+								on:click={(e) => {
 									e.stopPropagation();
 									showYearSelect = !showYearSelect;
 								}}
@@ -383,7 +379,7 @@
 									{#each generateYearRange() as year}
 										<button
 											type="button"
-											onclick={(e) => selectYear(year, e)}
+											on:click={(e) => selectYear(year, e)}
 											class="w-full px-3 py-2 text-center text-sm transition-colors duration-200 hover:bg-emerald-50 {currentYear ===
 											year
 												? 'bg-emerald-100 font-medium text-emerald-800'
@@ -401,7 +397,7 @@
 				<div class="flex items-center gap-2">
 					<button
 						type="button"
-						onclick={previousMonth}
+						on:click={previousMonth}
 						class="rounded-lg p-2 text-gray-600 transition-colors duration-200 hover:bg-gray-100"
 						title="ماه قبل"
 					>
@@ -409,7 +405,7 @@
 					</button>
 					<button
 						type="button"
-						onclick={previousYear}
+						on:click={previousYear}
 						class="rounded-lg p-2 text-gray-600 transition-colors duration-200 hover:bg-gray-100"
 						title="سال قبل"
 					>
@@ -432,7 +428,7 @@
 				{#each generateCalendarDays() as day}
 					<button
 						type="button"
-						onclick={() => selectDate(day.date)}
+						on:click={() => selectDate(day.date)}
 						class="relative rounded-lg p-2 text-sm transition-all duration-200 {day.isCurrentMonth
 							? day.isSelected
 								? 'bg-emerald-600 font-bold text-white'
@@ -458,14 +454,14 @@
 			<div class="mt-4 flex justify-between border-t border-gray-200 pt-4">
 				<button
 					type="button"
-					onclick={() => selectDate(moment())}
+					on:click={() => selectDate(moment())}
 					class="rounded-lg bg-emerald-100 px-3 py-2 text-sm font-medium text-emerald-800 transition-colors duration-200 hover:bg-emerald-200"
 				>
 					امروز
 				</button>
 				<button
 					type="button"
-					onclick={() => {
+					on:click={() => {
 						value = '';
 						jalaliValue = '';
 						isOpen = false;

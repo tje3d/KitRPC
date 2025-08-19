@@ -215,7 +215,7 @@
 							type={field.type}
 							placeholder={field.placeholder}
 							value={field.value}
-							className="w-full {field.colSpan === 2 ? 'md:col-span-2' : ''}"
+							className="w-full text-sm {field.colSpan === 2 ? 'md:col-span-2' : ''}"
 							on:input={(e) => handleInputChange(fieldIndex, (e.target as HTMLInputElement).value)}
 						/>
 					{/each}
