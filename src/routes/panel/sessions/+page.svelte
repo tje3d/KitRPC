@@ -43,24 +43,6 @@
 		}
 	}
 
-	// Get browser icon based on browser name
-	function getBrowserIcon(browser: string | null): string {
-		if (!browser) return 'icon-[heroicons--globe-alt]';
-
-		const browserLower = browser.toLowerCase();
-		if (browserLower.includes('chrome')) {
-			return 'icon-[cib--chrome]';
-		} else if (browserLower.includes('firefox')) {
-			return 'icon-[cib--firefox]';
-		} else if (browserLower.includes('safari')) {
-			return 'icon-[cib--safari]';
-		} else if (browserLower.includes('edge')) {
-			return 'icon-[cib--microsoft-edge]';
-		} else {
-			return 'icon-[heroicons--globe-alt]';
-		}
-	}
-
 	// Define columns for the DataTable
 	const columns = [
 		{
@@ -78,7 +60,7 @@
 			label: 'مرورگر',
 			render: (value: string, row: Session) => `
 				<div class="flex items-center">
-					<span class="${getBrowserIcon(row.browser)} h-5 w-5 text-gray-500"></span>
+					<span class="icon-[heroicons--globe-alt] h-5 w-5 text-gray-500"></span>
 					<span class="ms-2 text-sm text-gray-900">${formatBrowser(row.browser)}</span>
 				</div>
 			`
@@ -148,78 +130,162 @@
 		<!-- Current Session Section -->
 		<Card
 			variant="flat"
-			className="mb-6 border-2 border-green-300 bg-green-50 shadow-md ring-2 ring-green-100 ring-opacity-50"
+			className="mb-8 relative overflow-hidden bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 shadow-xl ring ring-emerald-100/50"
 		>
-			<div
-				class="flex flex-col justify-between border-b border-green-200 pb-4 sm:flex-row sm:items-center"
-			>
-				<div class="flex items-center space-x-2">
-					<span class="icon-[heroicons--computer-desktop] h-5 w-5 text-green-600"></span>
-					<h2 class="text-lg font-semibold text-gray-800">نشست فعلی</h2>
+			<div class="relative z-10">
+				<div
+					class="flex flex-col justify-between border-b border-emerald-200/60 pb-6 sm:flex-row sm:items-center"
+				>
+					<div class="flex items-center space-x-3">
+						<div
+							class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg"
+						>
+							<span class="icon-[heroicons--computer-desktop] h-5 w-5 text-white"></span>
+						</div>
+						<div>
+							<h2
+								class="bg-gradient-to-r from-emerald-700 to-green-700 bg-clip-text text-xl font-bold text-transparent"
+							>
+								نشست فعلی
+							</h2>
+							<p class="text-sm text-emerald-600/80">دستگاه فعال شما</p>
+						</div>
+					</div>
+					<div class="mt-3 sm:mt-0">
+						<div class="flex items-center space-x-2">
+							<div class="h-2 w-2 animate-pulse rounded-full bg-emerald-500"></div>
+							<StatusBadge status="success" label="فعال" variant="default" />
+						</div>
+					</div>
 				</div>
-				<div class="mt-2 sm:mt-0">
-					<StatusBadge status="success" label="فعال" variant="default" />
-				</div>
+
+				{#if loading}
+					<div class="flex justify-center py-8">
+						<div class="flex flex-col items-center space-y-3">
+							<span class="icon-[svg-spinners--bars-scale-fade] h-8 w-8 text-emerald-500"></span>
+							<p class="text-sm text-emerald-600">در حال بارگذاری اطلاعات نشست...</p>
+						</div>
+					</div>
+				{:else if currentSession}
+					<div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+						<div
+							class="group relative overflow-hidden rounded-2xl border border-emerald-200/60 bg-white/80 p-6 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:shadow-xl"
+						>
+							<div
+								class="absolute inset-0 bg-gradient-to-br from-emerald-50/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+							></div>
+							<div class="relative z-10">
+								<div class="mb-3 flex items-center">
+									<div
+										class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-100 to-green-100 transition-colors duration-300 group-hover:from-emerald-200 group-hover:to-green-200"
+									>
+										<span
+											class="{getDeviceIcon(
+												currentSession.deviceType || null
+											)} h-4 w-4 text-emerald-600"
+										></span>
+									</div>
+									<span class="ms-3 text-sm font-semibold text-gray-700">دستگاه</span>
+								</div>
+								<p
+									class="text-base font-bold text-gray-900 transition-colors duration-300 group-hover:text-emerald-700"
+								>
+									{formatDeviceType(currentSession.deviceType || null)}
+								</p>
+							</div>
+						</div>
+
+						<div
+							class="group relative overflow-hidden rounded-2xl border border-emerald-200/60 bg-white/80 p-6 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:shadow-xl"
+						>
+							<div
+								class="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+							></div>
+							<div class="relative z-10">
+								<div class="mb-3 flex items-center">
+									<div
+										class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 transition-colors duration-300 group-hover:from-blue-200 group-hover:to-indigo-200"
+									>
+										<span class="icon-[heroicons--globe-alt] h-4 w-4 text-blue-600"></span>
+									</div>
+									<span class="ms-3 text-sm font-semibold text-gray-700">مرورگر</span>
+								</div>
+								<p
+									class="text-base font-bold text-gray-900 transition-colors duration-300 group-hover:text-blue-700"
+								>
+									{formatBrowser(currentSession.browser || null)}
+								</p>
+							</div>
+						</div>
+
+						<div
+							class="group relative overflow-hidden rounded-2xl border border-emerald-200/60 bg-white/80 p-6 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:shadow-xl"
+						>
+							<div
+								class="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+							></div>
+							<div class="relative z-10">
+								<div class="mb-3 flex items-center">
+									<div
+										class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-purple-100 to-violet-100 transition-colors duration-300 group-hover:from-purple-200 group-hover:to-violet-200"
+									>
+										<span class="icon-[heroicons--globe-alt] h-4 w-4 text-purple-600"></span>
+									</div>
+									<span class="ms-3 text-sm font-semibold text-gray-700">آدرس IP</span>
+								</div>
+								<p
+									class="font-mono text-base font-bold text-gray-900 transition-colors duration-300 group-hover:text-purple-700"
+								>
+									{currentSession.ipAddress || 'Unknown'}
+								</p>
+							</div>
+						</div>
+
+						<div
+							class="group relative overflow-hidden rounded-2xl border border-emerald-200/60 bg-white/80 p-6 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-emerald-300 hover:shadow-xl"
+						>
+							<div
+								class="absolute inset-0 bg-gradient-to-br from-orange-50/50 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+							></div>
+							<div class="relative z-10">
+								<div class="mb-3 flex items-center">
+									<div
+										class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-100 to-amber-100 transition-colors duration-300 group-hover:from-orange-200 group-hover:to-amber-200"
+									>
+										<span class="icon-[heroicons--clock] h-4 w-4 text-orange-600"></span>
+									</div>
+									<span class="ms-3 text-sm font-semibold text-gray-700">زمان ورود</span>
+								</div>
+								<p
+									class="text-base font-bold text-gray-900 transition-colors duration-300 group-hover:text-orange-700"
+								>
+									{formatDate(new Date(currentSession.createdAt))}
+								</p>
+							</div>
+						</div>
+					</div>
+				{:else}
+					<div class="py-12 text-center">
+						<div
+							class="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-red-100 to-orange-100"
+						>
+							<span class="icon-[heroicons--exclamation-triangle] h-10 w-10 text-red-500"></span>
+						</div>
+						<h3 class="mb-2 text-lg font-bold text-gray-900">نشست فعلی یافت نشد</h3>
+						<p class="mx-auto max-w-md text-sm leading-relaxed text-gray-600">
+							امکان دریافت اطلاعات نشست فعلی شما وجود ندارد. لطفاً صفحه را تازه‌سازی کنید یا دوباره
+							وارد شوید.
+						</p>
+						<button
+							class="mt-4 inline-flex items-center rounded-lg border border-transparent bg-gradient-to-r from-emerald-500 to-green-600 px-4 py-2 text-sm font-medium text-white shadow-lg transition-all duration-200 hover:from-emerald-600 hover:to-green-700 hover:shadow-xl focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 focus:outline-none"
+							on:click={() => window.location.reload()}
+						>
+							<span class="icon-[heroicons--arrow-path] me-2 h-4 w-4"></span>
+							تازه‌سازی صفحه
+						</button>
+					</div>
+				{/if}
 			</div>
-
-			{#if loading}
-				<div class="flex justify-center py-6">
-					<span class="icon-[svg-spinners--bars-scale-fade] h-6 w-6 text-blue-500"></span>
-				</div>
-			{:else if currentSession}
-				<div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-					<div class="rounded-lg border border-green-200 bg-white p-4 shadow-sm">
-						<div class="flex items-center">
-							<span
-								class="{getDeviceIcon(currentSession.deviceType || null)} h-6 w-6 text-green-600"
-							></span>
-							<span class="ms-2 text-sm font-medium text-gray-900">دستگاه</span>
-						</div>
-						<p class="mt-1 text-sm font-medium text-gray-700">
-							{formatDeviceType(currentSession.deviceType || null)}
-						</p>
-					</div>
-
-					<div class="rounded-lg border border-green-200 bg-white p-4 shadow-sm">
-						<div class="flex items-center">
-							<span class="{getBrowserIcon(currentSession.browser || null)} h-6 w-6 text-green-600"
-							></span>
-							<span class="ms-2 text-sm font-medium text-gray-900">مرورگر</span>
-						</div>
-						<p class="mt-1 text-sm font-medium text-gray-700">
-							{formatBrowser(currentSession.browser || null)}
-						</p>
-					</div>
-
-					<div class="rounded-lg border border-green-200 bg-white p-4 shadow-sm">
-						<div class="flex items-center">
-							<span class="icon-[heroicons--globe-alt] h-6 w-6 text-green-600"></span>
-							<span class="ms-2 text-sm font-medium text-gray-900">آدرس IP</span>
-						</div>
-						<p class="mt-1 text-sm font-medium text-gray-700">
-							{currentSession.ipAddress || 'Unknown'}
-						</p>
-					</div>
-
-					<div class="rounded-lg border border-green-200 bg-white p-4 shadow-sm">
-						<div class="flex items-center">
-							<span class="icon-[heroicons--clock] h-6 w-6 text-green-600"></span>
-							<span class="ms-2 text-sm font-medium text-gray-900">زمان ورود</span>
-						</div>
-						<p class="mt-1 text-sm font-medium text-gray-700">
-							{formatDate(new Date(currentSession.createdAt))}
-						</p>
-					</div>
-				</div>
-			{:else}
-				<div class="py-6 text-center">
-					<div class="mx-auto h-12 w-12 text-gray-400">
-						<span class="icon-[heroicons--exclamation-triangle] h-12 w-12"></span>
-					</div>
-					<h3 class="mt-2 text-sm font-medium text-gray-900">نشست فعلی یافت نشد</h3>
-					<p class="mt-1 text-sm text-gray-500">امکان دریافت اطلاعات نشست فعلی شما وجود ندارد.</p>
-				</div>
-			{/if}
 		</Card>
 
 		<!-- All Sessions Section -->
