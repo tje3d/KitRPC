@@ -98,10 +98,7 @@
 	}
 </script>
 
-<PanelPageWrapper
-	title="مدیریت ظرفیت"
-	description="نظارت بر ظرفیت سیستم و مدیریت تراکنش‌های ظرفیت"
->
+<PanelPageWrapper title="مدیریت ظرفیت" description="نظارت بر ظرفیت سیستم و مدیریت تراکنش‌های ظرفیت">
 	<div class="flex flex-col gap-6">
 		<GetSystemCapacityStatsProvider
 			onError={(error) => {
@@ -214,9 +211,9 @@
 								به‌روزرسانی
 							</Button>
 							<Button variant="gradient" onClick={() => (showAddForm = !showAddForm)}>
-									<span class="icon-[heroicons--plus] h-4 w-4"></span>
-									افزودن تراکنش
-								</Button>
+								<span class="icon-[heroicons--plus] h-4 w-4"></span>
+								افزودن تراکنش
+							</Button>
 						</div>
 					</div>
 
@@ -237,7 +234,7 @@
 							>
 								<div class="mb-4">
 									<h3 class="text-lg font-medium text-gray-800">افزودن تراکنش جدید</h3>
-										<p class="text-sm text-gray-600">ایجاد تراکنش ظرفیت جدید</p>
+									<p class="text-sm text-gray-600">ایجاد تراکنش ظرفیت جدید</p>
 								</div>
 
 								<div class="grid gap-4 md:grid-cols-2">
@@ -287,9 +284,9 @@
 										ایجاد تراکنش
 									</Button>
 									<Button type="button" variant="secondary" onClick={resetForm}>
-											<span class="icon-[heroicons--x-mark] h-4 w-4"></span>
-											لغو
-										</Button>
+										<span class="icon-[heroicons--x-mark] h-4 w-4"></span>
+										لغو
+									</Button>
 								</div>
 							</form>
 						</Card>

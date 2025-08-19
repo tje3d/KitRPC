@@ -103,7 +103,11 @@
 				let:deletePermission
 				let:loading={deleteLoading}
 			>
-				{#if errorMessage}
+				{#if loading}
+					<div class="p-8 text-center">
+						<span class="icon-[svg-spinners--ring-resize] me-3 h-8 w-8 text-blue-500"></span>
+					</div>
+				{:else if errorMessage}
 					<div class="p-6">
 						<div class="rounded-lg border border-red-200 bg-red-50 p-4">
 							<div class="flex items-center">
