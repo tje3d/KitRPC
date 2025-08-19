@@ -9,7 +9,7 @@
 	import GetSystemCapacityStatsProvider from '$lib/providers/GetSystemCapacityStatsProvider.svelte';
 	import { toast } from '$lib/toast/store';
 
-	// Form state
+	// وضعیت فرم
 	let showAddForm = false;
 	let formData: {
 		currency: 'USDT' | 'IRT' | '';
@@ -21,17 +21,17 @@
 		description: ''
 	};
 
-	// Pagination state
+	// وضعیت صفحه‌بندی
 	let currentPage = 1;
 	let itemsPerPage = 10;
 
-	// Currency options
+	// گزینه‌های ارز
 	const currencyOptions = [
 		{ value: 'USDT', label: 'USDT - Tether' },
 		{ value: 'IRT', label: 'IRT - تومان' }
 	];
 
-	// Currency display configuration
+	// پیکربندی نمایش ارز
 	const currencyConfig = {
 		USDT: {
 			color: 'from-green-500 to-emerald-600'
@@ -41,7 +41,7 @@
 		}
 	};
 
-	// Table columns for transactions
+	// ستون‌های جدول برای تراکنش‌ها
 	const transactionColumns: Column[] = [
 		{
 			key: 'id',
@@ -50,7 +50,7 @@
 		},
 		{
 			key: 'currency',
-			label: 'Currency',
+			label: 'ارز',
 			sortable: true,
 			render: (value) => {
 				return renderCurrencyWithIcon(value);
@@ -58,7 +58,7 @@
 		},
 		{
 			key: 'amount',
-			label: 'Amount',
+			label: 'مقدار',
 			sortable: true,
 			render: (value, row) => {
 				const num = parseFloat(value);
@@ -68,11 +68,11 @@
 		},
 		{
 			key: 'description',
-			label: 'Description'
+			label: 'توضیحات'
 		},
 		{
 			key: 'createdAt',
-			label: 'Created At',
+			label: 'تاریخ ایجاد',
 			sortable: true,
 			render: (value) => {
 				return value.toLocaleString('fa-IR');
@@ -80,14 +80,14 @@
 		}
 	];
 
-	// Form validation
+	// اعتبارسنجی فرم
 	$: isFormValid =
 		formData.currency &&
 		formData.amount &&
 		!isNaN(parseFloat(formData.amount)) &&
 		formData.description.trim();
 
-	// Reset form
+	// بازنشانی فرم
 	function resetForm() {
 		formData = {
 			currency: '' as 'USDT' | 'IRT' | '',
@@ -99,13 +99,13 @@
 </script>
 
 <PanelPageWrapper
-	title="Capacity Management"
-	description="Monitor system capacity and manage capacity transactions"
+	title="مدیریت ظرفیت"
+	description="نظارت بر ظرفیت سیستم و مدیریت تراکنش‌های ظرفیت"
 >
 	<div class="flex flex-col gap-6">
 		<GetSystemCapacityStatsProvider
 			onError={(error) => {
-				toast.error(error || 'Failed to fetch capacity stats');
+				toast.error(error || 'خطا در دریافت آمار ظرفیت');
 			}}
 			let:loading={statsLoading}
 			let:capacityStats
@@ -113,7 +113,7 @@
 		>
 			<GetCapacityTransactionsProvider
 				onError={(error) => {
-					toast.error(error || 'Failed to fetch transactions');
+					toast.error(error || 'خطا در دریافت تراکنش‌ها');
 				}}
 				let:loading={transactionsLoading}
 				let:transactions
@@ -123,9 +123,9 @@
 				<CreateCapacityTransactionProvider
 					onSuccess={(data) => {
 						if (data) {
-							toast.success('Transaction created successfully');
+							toast.success('تراکنش با موفقیت ایجاد شد');
 							resetForm();
-							// Refresh both stats and transactions
+							// به‌روزرسانی آمار و تراکنش‌ها
 							getStats();
 							getCapacityTransactions({
 								limit: itemsPerPage,
@@ -134,19 +134,19 @@
 						}
 					}}
 					onError={(error) => {
-						toast.error(error || 'Failed to create transaction');
+						toast.error(error || 'خطا در ایجاد تراکنش');
 					}}
 					let:createCapacityTransaction
 					let:loading={createLoading}
 				>
-					<!-- Capacity Stats Section -->
+					<!-- بخش آمار ظرفیت -->
 					<div class="grid gap-4 md:grid-cols-2">
 						{#if statsLoading}
 							<div class="col-span-full">
 								<Card>
 									<div class="flex items-center justify-center py-8">
 										<span class="icon-[svg-spinners--ring-resize] h-6 w-6 text-blue-600"></span>
-										<span class="ms-2 text-gray-600">Loading capacity stats...</span>
+										<span class="ms-2 text-gray-600">در حال بارگذاری آمار ظرفیت...</span>
 									</div>
 								</Card>
 							</div>
@@ -172,10 +172,10 @@
 												<div class="text-3xl font-bold">
 													{formatCurrency(stat.amount || 0, stat.currency)}
 												</div>
-												<p class="mt-1 text-sm text-white/90">Available Balance</p>
+												<p class="mt-1 text-sm text-white/90">موجودی قابل دسترس</p>
 											</div>
 										</div>
-										<!-- Decorative background pattern -->
+										<!-- الگوی تزئینی پس‌زمینه -->
 										<div class="absolute -top-4 -right-4 h-24 w-24 rounded-full bg-white/10"></div>
 										<div class="absolute -bottom-6 -left-6 h-32 w-32 rounded-full bg-white/5"></div>
 									</div>
@@ -188,16 +188,16 @@
 										<span
 											class="icon-[heroicons--information-circle] mx-auto h-12 w-12 text-gray-400"
 										></span>
-										<p class="mt-2 text-gray-600">No capacity data available</p>
+										<p class="mt-2 text-gray-600">هیچ داده ظرفیتی در دسترس نیست</p>
 									</div>
 								</Card>
 							</div>
 						{/if}
 					</div>
 
-					<!-- Actions Section -->
+					<!-- بخش عملیات -->
 					<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-						<h2 class="text-xl font-semibold text-gray-800">Recent Transactions</h2>
+						<h2 class="text-xl font-semibold text-gray-800">تراکنش‌های اخیر</h2>
 						<div class="flex gap-2">
 							<Button
 								variant="secondary"
@@ -211,16 +211,16 @@
 								loading={statsLoading || transactionsLoading}
 							>
 								<span class="icon-[heroicons--arrow-path] h-4 w-4"></span>
-								Refresh
+								به‌روزرسانی
 							</Button>
 							<Button variant="gradient" onClick={() => (showAddForm = !showAddForm)}>
-								<span class="icon-[heroicons--plus] h-4 w-4"></span>
-								Add Transaction
-							</Button>
+									<span class="icon-[heroicons--plus] h-4 w-4"></span>
+									افزودن تراکنش
+								</Button>
 						</div>
 					</div>
 
-					<!-- Add Transaction Form -->
+					<!-- فرم افزودن تراکنش -->
 					{#if showAddForm}
 						<Card>
 							<form
@@ -236,42 +236,42 @@
 								}}
 							>
 								<div class="mb-4">
-									<h3 class="text-lg font-medium text-gray-800">Add New Transaction</h3>
-									<p class="text-sm text-gray-600">Create a new capacity transaction</p>
+									<h3 class="text-lg font-medium text-gray-800">افزودن تراکنش جدید</h3>
+										<p class="text-sm text-gray-600">ایجاد تراکنش ظرفیت جدید</p>
 								</div>
 
 								<div class="grid gap-4 md:grid-cols-2">
-									<FormGroup label="Currency" required>
+									<FormGroup label="ارز" required>
 										<select
 											bind:value={formData.currency}
 											class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 placeholder-gray-400 shadow-sm transition-all duration-200 ease-in-out focus:border-transparent focus:shadow-md focus:ring-2 focus:shadow-blue-100 focus:ring-blue-500 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 											required
 										>
-											<option value="" disabled>Select currency</option>
+											<option value="" disabled>انتخاب ارز</option>
 											{#each currencyOptions as option}
 												<option value={option.value}>{option.label}</option>
 											{/each}
 										</select>
 									</FormGroup>
 
-									<FormGroup label="Amount" required>
+									<FormGroup label="مقدار" required>
 										<Input
 											id="capacity-amount"
 											name="capacity-amount"
 											bind:value={formData.amount}
 											type="number"
-											placeholder="Enter amount (positive or negative)"
+											placeholder="مقدار را وارد کنید (مثبت یا منفی)"
 											required
 										/>
 									</FormGroup>
 								</div>
 
-								<FormGroup label="Description" required>
+								<FormGroup label="توضیحات" required>
 									<Input
 										id="capacity-desc"
 										name="capacity-desc"
 										bind:value={formData.description}
-										placeholder="Enter transaction description"
+										placeholder="توضیحات تراکنش را وارد کنید"
 										required
 									/>
 								</FormGroup>
@@ -284,18 +284,18 @@
 										loading={createLoading}
 									>
 										<span class="icon-[heroicons--check] h-4 w-4"></span>
-										Create Transaction
+										ایجاد تراکنش
 									</Button>
 									<Button type="button" variant="secondary" onClick={resetForm}>
-										<span class="icon-[heroicons--x-mark] h-4 w-4"></span>
-										Cancel
-									</Button>
+											<span class="icon-[heroicons--x-mark] h-4 w-4"></span>
+											لغو
+										</Button>
 								</div>
 							</form>
 						</Card>
 					{/if}
 
-					<!-- Transactions Table -->
+					<!-- جدول تراکنش‌ها -->
 					<Card>
 						<DataTable
 							data={transactions || []}

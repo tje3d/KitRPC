@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { createPermissionMiddleware } from './middleware';
 import { t } from './trpc';
 
-// Input validation schemas
+// اسکیماهای اعتبارسنجی ورودی
 const createCapacityTransactionSchema = z.object({
 	currency: z.nativeEnum(CurrencyType),
 	amount: z.number(),
@@ -18,14 +18,14 @@ const getCapacityTransactionsSchema = z.object({
 	offset: z.number().min(0).default(0)
 });
 
-// Admin middleware for capacity management
+// میدل‌ویر ادمین برای مدیریت ظرفیت
 const adminOnly = createPermissionMiddleware('capacity', 'manage');
 
-// Protected procedure for admin operations
+// پروسیجر محافظت شده برای عملیات ادمین
 const adminProcedure = t.procedure.use(adminOnly);
 
 export const capacityRouter = t.router({
-	// Get current system capacity stats
+	// دریافت آمار ظرفیت فعلی سیستم
 	getStats: adminProcedure.query(async () => {
 		try {
 			return await prisma.systemCapacity.findMany({
@@ -36,20 +36,20 @@ export const capacityRouter = t.router({
 		} catch (error: any) {
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to fetch capacity stats',
+				message: 'خطا در دریافت آمار ظرفیت',
 				cause: error
 			});
 		}
 	}),
 
-	// Create capacity transaction to increase system capacity
+	// ایجاد تراکنش ظرفیت برای افزایش ظرفیت سیستم
 	createCapacityTransaction: adminProcedure
 		.input(createCapacityTransactionSchema)
 		.mutation(async ({ input, ctx }) => {
 			try {
-				// Start transaction to ensure atomicity
+				// شروع تراکنش برای اطمینان از یکپارچگی
 				const result = await prisma.$transaction(async (tx) => {
-					// Create the capacity transaction
+					// ایجاد تراکنش ظرفیت
 					const transaction = await tx.transaction.create({
 						data: {
 							userId: ctx.user.id,
@@ -57,18 +57,18 @@ export const capacityRouter = t.router({
 							currency: input.currency,
 							amount: input.amount,
 							status: 'COMPLETED',
-							description: input.description || `Admin capacity increase for ${input.currency}`
+							description: input.description || `افزایش ظرفیت ادمین برای ${input.currency}`
 						}
 					});
 
-					// Update or create system capacity
+					// به‌روزرسانی یا ایجاد ظرفیت سیستم
 					const existingCapacity = await tx.systemCapacity.findUnique({
 						where: { currency: input.currency }
 					});
 
 					let updatedCapacity;
 					if (existingCapacity) {
-						// Update existing capacity
+						// به‌روزرسانی ظرفیت موجود
 						updatedCapacity = await tx.systemCapacity.update({
 							where: { currency: input.currency },
 							data: {
@@ -76,7 +76,7 @@ export const capacityRouter = t.router({
 							}
 						});
 					} else {
-						// Create new capacity record
+						// ایجاد رکورد ظرفیت جدید
 						updatedCapacity = await tx.systemCapacity.create({
 							data: {
 								currency: input.currency,
@@ -95,18 +95,18 @@ export const capacityRouter = t.router({
 			} catch (error: any) {
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: 'Failed to create capacity transaction',
+					message: 'خطا در ایجاد تراکنش ظرفیت',
 					cause: error
 				});
 			}
 		}),
 
-	// Get latest capacity transactions
+	// دریافت آخرین تراکنش‌های ظرفیت
 	getCapacityTransactions: adminProcedure
 		.input(getCapacityTransactionsSchema)
 		.query(async ({ input }) => {
 			try {
-				// Build filters
+				// ساخت فیلترها
 				const where: any = {
 					type: TransactionType.CAPACITY
 				};
@@ -115,7 +115,7 @@ export const capacityRouter = t.router({
 					where.currency = input.currency;
 				}
 
-				// Get transactions with user info
+				// دریافت تراکنش‌ها با اطلاعات کاربر
 				const [transactions, totalCount] = await Promise.all([
 					prisma.transaction.findMany({
 						where,
@@ -143,7 +143,7 @@ export const capacityRouter = t.router({
 			} catch (error: any) {
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: 'Failed to fetch capacity transactions',
+					message: 'خطا در دریافت تراکنش‌های ظرفیت',
 					cause: error
 				});
 			}
