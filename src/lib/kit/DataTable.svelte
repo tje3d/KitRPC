@@ -31,8 +31,8 @@
 	export let onSortChange: ((key: string, direction: 'asc' | 'desc') => void) | null = null;
 	export let searchTerm: string = '';
 	export let loading: boolean = false;
-	export let showSearch = true;
-	export let showCheckbox = true;
+	export let showSearch = false;
+	export let showCheckbox = false;
 
 	// State for client-side sorting (when server-side callbacks are not provided)
 	let sortKey: string | null = null;
