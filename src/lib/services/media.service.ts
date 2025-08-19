@@ -30,9 +30,11 @@ type UpdateMediaInput = {
 
 // Filter type for admin media listing
 type MediaFilters = {
-	ownerId?: string;
+	filename?: string;
 	reason?: MediaReason;
 	visibility?: MediaVisibility;
+	startDate?: Date;
+	endDate?: Date;
 };
 
 // Save a media file to the file system
@@ -339,9 +341,24 @@ export const getMediaForAdmin = async (
 ) => {
 	try {
 		const whereClause: Prisma.MediaWhereInput = {
-			...(filters?.ownerId && { ownerId: filters.ownerId }),
+			...(filters?.filename && {
+				OR: [
+					{ filename: { contains: filters.filename } },
+					{ originalName: { contains: filters.filename } }
+				]
+			}),
 			...(filters?.reason && { reason: filters.reason }),
-			...(filters?.visibility && { visibility: filters.visibility })
+			...(filters?.visibility && { visibility: filters.visibility }),
+			...((filters?.startDate || filters?.endDate) && {
+				createdAt: {
+					...(filters?.startDate && {
+						gte: new Date(filters.startDate.setHours(0, 0, 0, 0))
+					}),
+					...(filters?.endDate && {
+						lte: new Date(filters.endDate.setHours(23, 59, 59, 999))
+					})
+				}
+			})
 		};
 
 		// Get media and total count in parallel

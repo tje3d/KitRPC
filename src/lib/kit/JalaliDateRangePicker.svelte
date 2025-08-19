@@ -120,16 +120,6 @@
 		}
 	}
 
-	// Calculate dynamic min/max dates
-	$derived: {
-		// For end date picker, minimum should be start date (or one day after if allowSameDate is false)
-		const endMinDate = startDate
-			? allowSameDate
-				? startDate
-				: moment(startDate).add(1, 'day').format('YYYY-MM-DD')
-			: minDate;
-	}
-
 	// Get date range info
 	function getDateRangeInfo() {
 		if (!startDate || !endDate) return null;

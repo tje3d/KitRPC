@@ -8,6 +8,7 @@ export { default as DataTable } from './DataTable.svelte';
 export { default as Divider } from './Divider.svelte';
 export { default as DocumentUploadSection } from './DocumentUploadSection.svelte';
 export { default as ErrorDisplay } from './ErrorDisplay.svelte';
+export { default as FilterPanel } from './FilterPanel.svelte';
 export { default as FormGroup } from './FormGroup.svelte';
 export { default as Input } from './Input.svelte';
 export { default as KycStatusIndicator } from './KycStatusIndicator.svelte';

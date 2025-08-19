@@ -18,7 +18,11 @@
 	const { clearError, errorMessage, loading, trigger, responseSuccess } = useTrpcRequest(
 		createTrpcRequestFn((input: RequestParams) => {
 			return trpc(page).permissions.listPermissions.query(input);
-		})
+		}),
+		{
+			initialData: {},
+			requestOnSubscribe: true
+		}
 	);
 
 	const permissions = responseSuccess.pipe(

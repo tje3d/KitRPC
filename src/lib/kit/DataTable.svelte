@@ -4,7 +4,6 @@
 		key: string;
 		label: string;
 		sortable?: boolean;
-		filterable?: boolean;
 		render?: (value: any, row: any) => any;
 		component?: LegacyComponentType;
 	};
@@ -38,8 +37,7 @@
 	let sortKey: string | null = null;
 	let sortDirection: 'asc' | 'desc' = 'asc';
 
-	// State for search and filtering
-	let columnFilters: Record<string, string> = {};
+	// State for search
 	let selectedRows: Record<any, boolean> = {};
 
 	// Computed properties
@@ -66,10 +64,8 @@
 
 			// Column filters
 			return columns.every((column: Column) => {
-				if (!column.filterable || !columnFilters[column.key]) return true;
-				const filterValue = columnFilters[column.key].toLowerCase();
 				const cellValue = row[column.key];
-				return cellValue && cellValue.toString().toLowerCase().includes(filterValue);
+				return cellValue && cellValue.toString().toLowerCase();
 			});
 		});
 	})();
@@ -125,14 +121,6 @@
 		}
 	}
 
-	function handleFilterChange(columnKey: string) {
-		// Reset to first page when filter changes
-		if (!isServerSide && currentPage !== 1) {
-			// In client-side mode, we would need to update currentPage
-			// But since it's a prop, we can't directly modify it
-		}
-	}
-
 	function handleSelectAll() {
 		// Create a copy of the current selectedRows object to avoid direct mutation
 		const newSelectedRows = { ...selectedRows };
@@ -158,9 +146,9 @@
 </script>
 
 <!-- Search and filter controls -->
-<div class="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-	<!-- Global search -->
-	{#if showSearch}
+{#if showSearch}
+	<div class="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+		<!-- Global search -->
 		<div class="w-full md:w-64">
 			<Input
 				id="datatable-search"
@@ -172,27 +160,8 @@
 				className="w-full"
 			/>
 		</div>
-	{/if}
-
-	<!-- Column filters -->
-	<div class="flex flex-wrap gap-2">
-		{#each columns as column}
-			{#if column.filterable}
-				<div class="w-32">
-					<Input
-						id={`filter-${column.key}`}
-						name={`filter-${column.key}`}
-						type="text"
-						placeholder={`فیلتر ${column.label}`}
-						value={columnFilters[column.key] || ''}
-						onChange={() => handleFilterChange(column.key)}
-						className="w-full"
-					/>
-				</div>
-			{/if}
-		{/each}
 	</div>
-</div>
+{/if}
 
 <div class={`relative overflow-x-auto ${className}`}>
 	<table class="min-w-full divide-y divide-gray-200">

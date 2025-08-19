@@ -169,7 +169,7 @@
 
 	{#if isOpen}
 		<div
-			class="ring-opacity-5 absolute z-10 mt-1 w-full rounded-xl bg-white shadow-lg ring-1 ring-black focus:outline-none"
+			class="absolute z-10 mt-1 w-full rounded-xl bg-white shadow-lg ring-1 ring-black/5 focus:outline-none"
 			role="listbox"
 		>
 			<!-- Search input for filtering options -->

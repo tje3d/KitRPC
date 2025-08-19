@@ -1,83 +1,67 @@
 <script lang="ts">
 	import ConfirmDialog from '$lib/dialog/ConfirmDialog.svelte';
 	import { dialogStore } from '$lib/dialog/store';
-	import { Button, DataTable, PanelPageWrapper, Input, Select } from '$lib/kit';
+	import {
+		createDateFilter,
+		FilterManager,
+		getInputValue,
+		getSelectedValue,
+		type FilterGroup,
+		type InputField
+	} from '$lib/helpers/filter.helper';
+	import { DataTable, FilterPanel, PanelPageWrapper } from '$lib/kit';
 	import Card from '$lib/kit/Card.svelte';
-	import { toast } from '$lib/toast/store';
 	import MediaProvider from '$lib/providers/MediaProvider.svelte';
-	import type { RouterOutputs } from '$lib/trpc/router';
-	import { tick } from 'svelte';
+	import { toast } from '$lib/toast/store';
+	import type { RouterInputs, RouterOutputs } from '$lib/trpc/router';
 	import { MediaReason, MediaVisibility } from '@prisma/client';
+	import { tick } from 'svelte';
 
 	type Media = RouterOutputs['media']['adminList']['media'][0];
 	type Pagination = RouterOutputs['media']['adminList']['pagination'];
 	type Statistics = RouterOutputs['media']['adminStats'];
+	type AdminListMediaRequestParams = RouterInputs['media']['adminList'];
 
 	// State
-	let currentPage = 1;
-	let pageSize = 10;
+	const pageSize = 10;
 	let mediaProvider: MediaProvider;
-	let searchTerm = '';
-	let selectedReason: MediaReason | '' = '';
-	let selectedVisibility: MediaVisibility | '' = '';
-	let ownerId = '';
-	let startDate: string = '';
-	let endDate: string = '';
 
-	// Load media and statistics on component mount
-	$: {
-		if (mediaProvider) {
-			loadMedia();
-			loadStatistics();
+	// Filter configuration
+	const filterGroups: FilterGroup[] = [
+		{
+			label: 'دلیل',
+			options: Object.values(MediaReason).map((reason) => ({
+				value: reason,
+				label: reason.replace(/_/g, ' '),
+				colorScheme: 'blue' as const
+			})),
+			selected: {},
+			multiSelect: false
+		},
+		{
+			label: 'نمایش',
+			options: Object.values(MediaVisibility).map((visibility) => ({
+				value: visibility,
+				label: visibility.charAt(0) + visibility.slice(1).toLowerCase(),
+				colorScheme: visibility === 'PUBLIC' ? ('green' as const) : ('purple' as const)
+			})),
+			selected: {},
+			multiSelect: false
 		}
-	}
+	];
 
-	function loadMedia() {
-		const filters: any = {
-			page: currentPage,
-			limit: pageSize
-		};
-
-		// Add search term if provided
-		if (searchTerm) {
-			// For simplicity, we'll use ownerId filter for search term
-			// In a real implementation, you might want a separate search field
-			filters.ownerId = searchTerm;
+	const inputFields: InputField[] = [
+		{
+			id: 'filename',
+			name: 'filename',
+			type: 'text',
+			placeholder: 'فیلتر دقیق بر اساس نام فایل',
+			value: '',
+			colSpan: 2
 		}
+	];
 
-		// Add reason filter if selected
-		if (selectedReason) {
-			filters.reason = selectedReason;
-		}
-
-		// Add visibility filter if selected
-		if (selectedVisibility) {
-			filters.visibility = selectedVisibility;
-		}
-
-		// Add owner ID filter if provided
-		if (ownerId) {
-			filters.ownerId = ownerId;
-		}
-
-		mediaProvider.adminListMedia(filters);
-	}
-
-	function loadStatistics() {
-		mediaProvider.loadStatistics();
-	}
-
-	function handlePageChange(page: number) {
-		currentPage = page;
-		loadMedia();
-	}
-
-	function handlePageSizeChange(size: number) {
-		pageSize = size;
-		currentPage = 1; // Reset to first page
-		loadMedia();
-	}
-
+	// Helper functions (pure functions that don't interact with providers)
 	function formatDate(date: string | Date) {
 		return new Date(date).toLocaleDateString('fa-IR', {
 			year: 'numeric',
@@ -94,92 +78,50 @@
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 	}
 
-	// Show delete confirmation dialog
-	function confirmDelete(media: Media) {
-		dialogStore.open({
-			component: ConfirmDialog,
-			props: {
-				title: 'حذف رسانه',
-				message: `آیا مطمئن هستید که می‌خواهید رسانه "${media.originalName}" را حذف کنید؟ این عمل قابل بازگشت نیست.`,
-				confirm: 'حذف',
-				cancel: 'لغو',
-				color: 'red',
-				onConfirm: () => {
-					history.back();
+	// Filter Manager setup
+	const filterManager = new FilterManager<AdminListMediaRequestParams>({
+		filterGroups,
+		inputFields,
+		onApply: (filters, page) => {
+			const apiFilters: AdminListMediaRequestParams = {
+				page,
+				limit: pageSize,
+				...filters
+			};
+			mediaProvider.adminListMedia(apiFilters);
+		},
+		buildFilters: (state) => {
+			const filters: Partial<AdminListMediaRequestParams> = {};
 
-					tick().then(() => {
-						deleteMedia(media.id);
-					});
-				}
-			}
-		});
-	}
+			const selectedReason = getSelectedValue(state.filterGroups, 'دلیل');
+			if (selectedReason) filters.reason = selectedReason as MediaReason;
 
-	// Delete a media
-	function deleteMedia(mediaId: string) {
-		if (mediaProvider) {
-			mediaProvider.deleteMedia({ id: mediaId });
+			const selectedVisibility = getSelectedValue(state.filterGroups, 'نمایش');
+			if (selectedVisibility) filters.visibility = selectedVisibility as MediaVisibility;
+
+			const filename = getInputValue(state.inputFields, 'filename');
+			if (filename) filters.filename = filename;
+
+			const startDate = createDateFilter(state.startDate);
+			if (startDate) filters.startDate = startDate;
+
+			const endDate = createDateFilter(state.endDate, true);
+			if (endDate) filters.endDate = endDate;
+
+			return filters as AdminListMediaRequestParams;
 		}
-	}
+	});
 
-	// Handle delete success
-	function handleDeleteSuccess() {
-		toast.success('رسانه با موفقیت حذف شد');
-		loadMedia();
-	}
-
-	function handleDeleteError(error: string) {
-		toast.error(error || 'حذف رسانه با خطا مواجه شد');
-	}
-
-	// Handle row actions
-	function handleRowAction(event: Event, mediaList: Media[]) {
-		const target = event.target as HTMLElement;
-		const button = target.closest('button[data-action]');
-
-		if (!button) return;
-
-		const action = button.getAttribute('data-action');
-		const id = button.getAttribute('data-id');
-
-		if (!action || !id) return;
-
-		switch (action) {
-			case 'delete':
-				// Find the media in the current list
-				const media = mediaList?.find((m: Media) => m.id === id);
-				if (media) {
-					confirmDelete(media);
-				}
-				break;
-			case 'view':
-				// Find the media in the current list
-				const mediaToView = mediaList?.find((m: Media) => m.id === id);
-				if (mediaToView) {
-					// Open media in new tab
-					window.open(`/media/${mediaToView.id}`, '_blank');
-				}
-				break;
-		}
-	}
-
-	// Reset filters
-	function resetFilters() {
-		searchTerm = '';
-		selectedReason = '';
-		selectedVisibility = '';
-		ownerId = '';
-		startDate = '';
-		endDate = '';
-		currentPage = 1;
-		loadMedia();
-	}
-
-	// Apply filters
-	function applyFilters() {
-		currentPage = 1; // Reset to first page
-		loadMedia();
-	}
+	// Get reactive state from filter manager
+	const filterStateStore = filterManager.stateStore;
+	$: filterState = $filterStateStore;
+	$: ({
+		filterGroups: reactiveFilterGroups,
+		inputFields: reactiveInputFields,
+		startDate,
+		endDate,
+		currentPage
+	} = filterState);
 
 	// DataTable columns configuration
 	const columns = [
@@ -292,25 +234,21 @@
 			}
 		}
 	];
-
-	// Reason options for filter
-	const reasonOptions = Object.values(MediaReason).map((reason) => ({
-		value: reason,
-		label: reason.replace(/_/g, ' ')
-	}));
-
-	// Visibility options for filter
-	const visibilityOptions = Object.values(MediaVisibility).map((visibility) => ({
-		value: visibility,
-		label: visibility.charAt(0) + visibility.slice(1).toLowerCase()
-	}));
 </script>
 
 <PanelPageWrapper title="مدیریت رسانه" description="مدیریت تمام فایل‌های رسانه‌ای در سیستم">
 	<MediaProvider
 		bind:this={mediaProvider}
-		onDeleteSuccess={handleDeleteSuccess}
-		onDeleteError={handleDeleteError}
+		onDeleteSuccess={() => {
+			toast.success('رسانه با موفقیت حذف شد');
+			// Refresh media list after successful deletion
+			const state = filterManager.getState();
+			const filters = filterManager['config'].buildFilters(state);
+			mediaProvider.adminListMedia({ page: state.currentPage, limit: pageSize, ...filters });
+		}}
+		onDeleteError={(error) => {
+			toast.error(error || 'حذف رسانه با خطا مواجه شد');
+		}}
 		let:media
 		let:pagination
 		let:statistics
@@ -319,6 +257,9 @@
 		let:listErrorMessage
 		let:statsErrorMessage
 		let:deleteLoading
+		let:adminListMedia
+		let:loadStatistics
+		let:deleteMedia
 	>
 		<!-- Statistics Summary Cards -->
 		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -397,100 +338,101 @@
 			</Card>
 		</div>
 
-		<Card variant="flat">
-			{#if statsErrorMessage}
-				<div class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+		{#if statsErrorMessage}
+			<Card variant="flat" className="mb-6">
+				<div class="rounded-lg border border-red-200 bg-red-50 p-4">
 					<div class="flex items-center">
 						<span class="icon-[heroicons--exclamation-circle] me-2 h-5 w-5 text-red-500"></span>
 						<span class="text-red-700">{statsErrorMessage}</span>
 					</div>
 				</div>
-			{/if}
+			</Card>
+		{/if}
 
-			<!-- Filter Panel -->
-			<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-				<Input
-					id="search"
-					name="search"
-					type="text"
-					placeholder="جستجو بر اساس نام فایل یا شناسه مالک"
-					bind:value={searchTerm}
-					className="w-full"
-				/>
+		<!-- Filters Section -->
+		<FilterPanel
+			filterGroups={reactiveFilterGroups}
+			inputFields={reactiveInputFields}
+			showDateRange={true}
+			bind:startDate
+			bind:endDate
+			startLabel="تاریخ شروع فیلتر"
+			endLabel="تاریخ پایان فیلتر"
+			startPlaceholder="انتخاب تاریخ شروع"
+			endPlaceholder="انتخاب تاریخ پایان"
+			allowSameDate={true}
+			on:filterChange={filterManager.handleFilterChange.bind(filterManager)}
+			on:reset={filterManager.handleFilterReset.bind(filterManager)}
+			on:apply={filterManager.handleFilterApply.bind(filterManager)}
+		/>
 
-				<Select
-					id="reason"
-					name="reason"
-					placeholder="فیلتر بر اساس دلیل"
-					value={selectedReason || ''}
-					onChange={(value) => (selectedReason = value as MediaReason)}
-					options={reasonOptions}
-					className="w-full"
-				/>
-
-				<Select
-					id="visibility"
-					name="visibility"
-					placeholder="فیلتر بر اساس نمایش"
-					value={selectedVisibility || ''}
-					onChange={(value) => (selectedVisibility = value as MediaVisibility)}
-					options={visibilityOptions}
-					className="w-full"
-				/>
-
-				<Input
-					id="ownerId"
-					name="ownerId"
-					type="text"
-					placeholder="فیلتر بر اساس شناسه مالک"
-					bind:value={ownerId}
-					className="w-full"
-				/>
-			</div>
-
-			<!-- Date Range Filter -->
-			<div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-				<Input
-					id="startDate"
-					name="startDate"
-					type="date"
-					label="تاریخ شروع"
-					bind:value={startDate}
-					className="w-full"
-				/>
-
-				<Input
-					id="endDate"
-					name="endDate"
-					type="date"
-					label="تاریخ پایان"
-					bind:value={endDate}
-					className="w-full"
-				/>
-
-				<div class="flex items-end space-x-2">
-					<Button onClick={applyFilters} variant="primary" className="flex-1">اعمال فیلترها</Button>
-					<Button onClick={resetFilters} variant="secondary" className="flex-1">بازنشانی</Button>
-				</div>
-			</div>
-
-			{#if listErrorMessage}
-				<div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+		{#if listErrorMessage}
+			<Card variant="flat" className="mb-6">
+				<div class="rounded-lg border border-red-200 bg-red-50 p-4">
 					<div class="flex items-center">
 						<span class="icon-[heroicons--exclamation-circle] me-2 h-5 w-5 text-red-500"></span>
 						<span class="text-red-700">{listErrorMessage}</span>
 					</div>
 				</div>
-			{/if}
+			</Card>
+		{/if}
 
-			<div on:click={(e) => handleRowAction(e, media)}>
+		<Card variant="flat">
+			<div
+				on:click={(e) => {
+					const target = e.target as HTMLElement;
+					const button = target.closest('button[data-action]');
+
+					if (!button) return;
+
+					const action = button.getAttribute('data-action');
+					const id = button.getAttribute('data-id');
+
+					if (!action || !id) return;
+
+					switch (action) {
+						case 'delete':
+							// Find the media in the current list
+							const mediaItem = media?.find((m) => m.id === id);
+							if (mediaItem) {
+								dialogStore.open({
+									component: ConfirmDialog,
+									props: {
+										title: 'حذف رسانه',
+										message: `آیا مطمئن هستید که می‌خواهید رسانه "${mediaItem.originalName}" را حذف کنید؟ این عمل قابل بازگشت نیست.`,
+										confirm: 'حذف',
+										cancel: 'لغو',
+										color: 'red',
+										onConfirm: () => {
+											history.back();
+											tick().then(() => {
+												deleteMedia({ id: mediaItem.id });
+											});
+										}
+									}
+								});
+							}
+							break;
+						case 'view':
+							// Find the media in the current list
+							const mediaToView = media?.find((m) => m.id === id);
+							if (mediaToView) {
+								// Open media in new tab
+								window.open(`/media/${mediaToView.id}`, '_blank');
+							}
+							break;
+					}
+				}}
+			>
 				<DataTable
 					data={media}
 					{columns}
 					itemsPerPage={pageSize}
 					totalItems={pagination?.total || 0}
 					{currentPage}
-					onPageChange={handlePageChange}
+					onPageChange={(page) => {
+						filterManager.handlePageChange(page);
+					}}
 					showPagination={true}
 					loading={listLoading}
 				>

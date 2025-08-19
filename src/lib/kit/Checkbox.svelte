@@ -20,7 +20,7 @@
 	// Handle change event
 	function handleChange() {
 		if (!disabled) {
-			onChange(!checked);
+			onChange(checked);
 		}
 	}
 </script>

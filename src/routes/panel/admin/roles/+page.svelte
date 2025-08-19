@@ -3,9 +3,9 @@
 	import { dialogStore } from '$lib/dialog/store';
 	import { Button, DataTable, PanelPageWrapper } from '$lib/kit';
 	import Card from '$lib/kit/Card.svelte';
-	import { toast } from '$lib/toast/store';
-	import ListRolesProvider from '$lib/providers/ListRolesProvider.svelte';
 	import DeleteRoleProvider from '$lib/providers/DeleteRoleProvider.svelte';
+	import ListRolesProvider from '$lib/providers/ListRolesProvider.svelte';
+	import { toast } from '$lib/toast/store';
 	import type { RouterOutputs } from '$lib/trpc/router';
 	import { tick } from 'svelte';
 
@@ -14,103 +14,6 @@
 
 	// State
 	let currentPage = 1;
-	let listRolesProvider: ListRolesProvider;
-	let deleteRoleProvider: DeleteRoleProvider | null = null;
-
-	// Load roles on component mount and when page changes
-	$: {
-		if (listRolesProvider) {
-			loadRoles();
-		}
-	}
-
-	function loadRoles() {
-		listRolesProvider.listRoles({
-			page: currentPage,
-			limit: 10
-		});
-	}
-
-	function handlePageChange(page: number) {
-		currentPage = page;
-		loadRoles();
-	}
-
-	function formatDate(date: string | Date) {
-		return new Date(date).toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric'
-		});
-	}
-
-	// Show delete confirmation dialog
-	function confirmDelete(role: Role) {
-		// Prevent deletion of default roles
-		if (role.name === 'user' || role.name === 'admin') {
-			toast.error('نمی‌توان نقش‌های پیش‌فرض را حذف کرد');
-			return;
-		}
-
-		dialogStore.open({
-			component: ConfirmDialog,
-			props: {
-				title: 'حذف نقش',
-				message: `آیا مطمئن هستید که می‌خواهید نقش "${role.name}" را حذف کنید؟ این عمل قابل بازگشت نیست.`,
-				confirm: 'حذف',
-				cancel: 'لغو',
-				color: 'red',
-				onConfirm: () => {
-					history.back();
-
-					tick().then(() => {
-						deleteRole(role.id);
-					});
-				}
-			}
-		});
-	}
-
-	// Delete a role
-	function deleteRole(roleId: string) {
-		if (deleteRoleProvider) {
-			deleteRoleProvider.deleteRole({ id: roleId });
-		}
-	}
-
-	// Handle delete success
-	function handleDeleteSuccess() {
-		toast.success('نقش با موفقیت حذف شد');
-		loadRoles(); // Refresh the list
-	}
-
-	// Handle delete error
-	function handleDeleteError(error: string) {
-		toast.error(error || 'حذف نقش ناموفق بود');
-	}
-
-	// Handle row actions
-	function handleRowAction(event: Event, roles: Role[]) {
-		const target = event.target as HTMLElement;
-		const button = target.closest('button[data-action]');
-
-		if (!button) return;
-
-		const action = button.getAttribute('data-action');
-		const id = button.getAttribute('data-id');
-
-		if (!action || !id) return;
-
-		switch (action) {
-			case 'delete':
-				// Find the role in the current list
-				const role = roles?.find((r: Role) => r.id === id);
-				if (role) {
-					confirmDelete(role);
-				}
-				break;
-		}
-	}
 
 	// DataTable columns configuration
 	const columns = [
@@ -132,7 +35,7 @@
 			label: 'ایجاد شده',
 			sortable: true,
 			render: (value: any, row: Role) => {
-				return formatDate(row.createdAt);
+				return row.createdAt.toLocaleString('fa-IR');
 			}
 		},
 		{
@@ -178,18 +81,26 @@
 	</div>
 
 	<Card variant="flat">
-		<DeleteRoleProvider
-			bind:this={deleteRoleProvider}
-			onSuccess={handleDeleteSuccess}
-			onError={handleDeleteError}
-			let:loading={deleteLoading}
+		<ListRolesProvider
+			requestOnSubscribe={true}
+			let:roles
+			let:pagination
+			let:loading
+			let:errorMessage
+			let:listRoles
 		>
-			<ListRolesProvider
-				bind:this={listRolesProvider}
-				let:roles
-				let:pagination
-				let:loading
-				let:errorMessage
+			<DeleteRoleProvider
+				onSuccess={(data) => {
+					if (data) {
+						toast.success('نقش با موفقیت حذف شد');
+						listRoles({ page: currentPage, limit: 10 });
+					}
+				}}
+				onError={(error) => {
+					toast.error(error || 'حذف نقش ناموفق بود');
+				}}
+				let:deleteRole
+				let:loading={deleteLoading}
 			>
 				{#if loading}
 					<div class="p-8 text-center">
@@ -206,19 +117,62 @@
 						</div>
 					</div>
 				{:else}
-					<div on:click={(e) => handleRowAction(e, roles)}>
+					<div
+						on:click={(e) => {
+							const target = e.target as HTMLElement;
+							const button = target.closest('button[data-action]');
+
+							if (!button) return;
+
+							const action = button.getAttribute('data-action');
+							const id = button.getAttribute('data-id');
+
+							if (!action || !id) return;
+
+							if (action === 'delete') {
+								const role = roles?.find((r) => r.id === id);
+								if (role) {
+									// Prevent deletion of default roles
+									if (role.name === 'user' || role.name === 'admin') {
+										toast.error('نمی‌توان نقش‌های پیش‌فرض را حذف کرد');
+										return;
+									}
+
+									dialogStore.open({
+										component: ConfirmDialog,
+										props: {
+											title: 'حذف نقش',
+											message: `آیا مطمئن هستید که می‌خواهید نقش "${role.name}" را حذف کنید؟ این عمل قابل بازگشت نیست.`,
+											confirm: 'حذف',
+											cancel: 'لغو',
+											color: 'red',
+											onConfirm: () => {
+												history.back();
+												tick().then(() => {
+													deleteRole({ id: role.id });
+												});
+											}
+										}
+									});
+								}
+							}
+						}}
+					>
 						<DataTable
 							data={roles}
 							{columns}
 							itemsPerPage={10}
 							totalItems={pagination?.total || 0}
 							{currentPage}
-							onPageChange={handlePageChange}
+							onPageChange={(page) => {
+								currentPage = page;
+								listRoles({ page: currentPage, limit: 10 });
+							}}
 							showPagination={true}
 						/>
 					</div>
 				{/if}
-			</ListRolesProvider>
-		</DeleteRoleProvider>
+			</DeleteRoleProvider>
+		</ListRolesProvider>
 	</Card>
 </PanelPageWrapper>

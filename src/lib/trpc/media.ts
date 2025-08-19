@@ -36,9 +36,11 @@ const deleteSchema = z.object({
 const adminListSchema = z.object({
 	page: z.number().min(1).default(1),
 	limit: z.number().min(1).max(100).default(10),
-	ownerId: z.string().cuid().optional(),
+	filename: z.string().optional(),
 	reason: z.nativeEnum(MediaReason).optional(),
-	visibility: z.nativeEnum(MediaVisibility).optional()
+	visibility: z.nativeEnum(MediaVisibility).optional(),
+	startDate: z.date().optional(),
+	endDate: z.date().optional()
 });
 
 // Permission middleware for admin operations
@@ -218,13 +220,15 @@ export const mediaRouter = t.router({
 	// Admin list all media
 	adminList: adminProcedure.input(adminListSchema).query(async ({ input }) => {
 		try {
-			const { page, limit, ownerId, reason, visibility } = input;
+			const { page, limit, filename, reason, visibility, startDate, endDate } = input;
 			const offset = (page - 1) * limit;
 
 			const filters = {
-				...(ownerId && { ownerId }),
+				...(filename && { filename }),
 				...(reason && { reason }),
-				...(visibility && { visibility })
+				...(visibility && { visibility }),
+				...(startDate && { startDate }),
+				...(endDate && { endDate })
 			};
 
 			const result = await getMediaForAdmin(

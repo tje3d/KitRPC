@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { SvelteSubject } from '$lib/helpers/rxjs.helper';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
 	import Checkbox from '$lib/kit/Checkbox.svelte';
@@ -8,24 +9,16 @@
 	import FormGroup from '$lib/kit/FormGroup.svelte';
 	import Input from '$lib/kit/Input.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
-	import GetRoleByIdProvider from '$lib/providers/GetRoleByIdProvider.svelte';
-	import UpdateRoleProvider from '$lib/providers/UpdateRoleProvider.svelte';
-	import ListPermissionsProvider from '$lib/providers/ListPermissionsProvider.svelte';
 	import AssignPermissionToRoleProvider from '$lib/providers/AssignPermissionToRoleProvider.svelte';
+	import GetRoleByIdProvider from '$lib/providers/GetRoleByIdProvider.svelte';
+	import ListPermissionsProvider from '$lib/providers/ListPermissionsProvider.svelte';
 	import UnassignPermissionFromRoleProvider from '$lib/providers/UnassignPermissionFromRoleProvider.svelte';
+	import UpdateRoleProvider from '$lib/providers/UpdateRoleProvider.svelte';
 	import { toast } from '$lib/toast/store';
-	import { SvelteSubject } from '$lib/helpers/rxjs.helper';
 	import { fade } from 'svelte/transition';
-	import { onMount } from 'svelte';
 
 	// Get role ID from URL params
 	const roleId = $page.params.id;
-
-	// Provider references
-	let getRoleByIdProvider: GetRoleByIdProvider;
-	let listPermissionsProvider: ListPermissionsProvider;
-	let assignPermissionToRoleProvider: AssignPermissionToRoleProvider;
-	let unassignPermissionFromRoleProvider: UnassignPermissionFromRoleProvider;
 
 	// Form state
 	const name$ = new SvelteSubject<string>('');
@@ -37,45 +30,18 @@
 	let permissionProcessingError = $state<string | null>(null);
 	let currentPermissionIndex = $state(0);
 	let originalPermissionIds = $state<string[]>([]);
-	let permissionChanges: { id: string; type: 'add' | 'remove' }[] = [];
+	let permissionChanges: { id: string; type: 'add' | 'remove' }[] = $state([]);
 	let currentRoleId = $state<string>('');
+	let roleLoaded = $state(false);
 
 	// Validation state
-	let nameTouched = false;
-	let descriptionTouched = false;
+	let nameTouched = $state(false);
+	let descriptionTouched = $state(false);
 
 	// Computed validation
 	const nameValid = $derived(!nameTouched || ($name$.length >= 1 && $name$.length <= 50));
 	const descriptionValid = $derived(!descriptionTouched || $description$.length <= 255);
 	const formValid = $derived(nameValid && descriptionValid && $name$);
-
-	// Load role data and permissions on component mount
-	onMount(() => {
-		if (getRoleByIdProvider) {
-			getRoleByIdProvider.getRoleById({ id: roleId });
-		}
-
-		if (listPermissionsProvider) {
-			listPermissionsProvider.listPermissions({ page: 1, limit: 100 });
-		}
-	});
-
-	// Actions
-	function handleUpdateRole(e: SubmitEvent, updateRole: Function) {
-		e.preventDefault();
-		if (!formValid) return;
-
-		// Build roleData object
-		const roleData = {
-			id: roleId,
-			data: {
-				name: $name$,
-				description: $description$ || undefined
-			}
-		};
-
-		updateRole(roleData);
-	}
 
 	function onRoleUpdated(role: any) {
 		// Set the current role ID for permission processing
@@ -95,7 +61,7 @@
 			processPermissionChanges(role.id, permissionsToAdd, permissionsToRemove);
 		} else {
 			// No permissions to change, show success and navigate
-			toast.success('Role updated successfully!');
+			toast.success('نقش با موفقیت به‌روزرسانی شد!');
 			goto('/panel/admin/roles');
 		}
 	}
@@ -117,7 +83,7 @@
 		if (permissionChanges.length === 0) {
 			// No changes to process
 			isProcessingPermissions = false;
-			toast.success('Role updated successfully!');
+			toast.success('نقش با موفقیت به‌روزرسانی شد!');
 			goto('/panel/admin/roles');
 			return;
 		}
@@ -131,34 +97,13 @@
 		if (currentPermissionIndex >= permissionChanges.length) {
 			// All changes processed
 			isProcessingPermissions = false;
-			toast.success('Role updated and permissions processed successfully!');
+			toast.success('نقش و مجوزها با موفقیت به‌روزرسانی شدند!');
 			goto('/panel/admin/roles');
 			return;
 		}
 
-		// Process the next change
-		const change = permissionChanges[currentPermissionIndex];
-
-		if (change.type === 'add' && assignPermissionToRoleProvider) {
-			assignPermissionToRoleProvider.assignPermissionToRole({
-				roleId,
-				permissionId: change.id
-			});
-		} else if (change.type === 'remove' && unassignPermissionFromRoleProvider) {
-			unassignPermissionFromRoleProvider.unassignPermissionFromRole({
-				roleId,
-				permissionId: change.id
-			});
-		}
-	}
-
-	function onPermissionProcessed() {
-		if (!isProcessingPermissions) return;
-
-		// Move to the next permission change
-		currentPermissionIndex++;
-		// We'll get the changes array from the context when calling processNextPermissionChange
-		// This is a simplified approach - in a real implementation, we'd need to pass the changes array
+		// The actual permission processing is handled in the UI through reactive statements
+		// This function just tracks the progress
 	}
 
 	function handleInputBlur(field: string) {
@@ -176,6 +121,7 @@
 		// Populate form with role data
 		name$.next(role.name || '');
 		description$.next(role.description || '');
+		roleLoaded = true;
 
 		// Populate selected permissions from role's current permissions
 		if (role.permissions && Array.isArray(role.permissions)) {
@@ -187,7 +133,7 @@
 	function onRoleError(error: string) {
 		// If role not found, show error and redirect after delay
 		if (error.includes('not found')) {
-			toast.error('Role not found');
+			toast.error('نقش یافت نشد');
 			setTimeout(() => {
 				goto('/panel/admin/roles');
 			}, 2000);
@@ -211,17 +157,17 @@
 	}
 </script>
 
-<PanelPageWrapper title="Edit Role" description="Update role information">
+<PanelPageWrapper title="ویرایش نقش" description="به‌روزرسانی اطلاعات نقش">
 	<div slot="actions">
 		<Button href="/panel/admin/roles" variant="secondary">
 			<span class="icon-[heroicons--arrow-left] me-2 h-4 w-4"></span>
-			Back to Roles
+			بازگشت به نقش‌ها
 		</Button>
 	</div>
 
 	<Card variant="flat">
 		<GetRoleByIdProvider
-			bind:this={getRoleByIdProvider}
+			{roleId}
 			onSuccess={onRoleLoaded}
 			onError={onRoleError}
 			let:loading={roleLoading}
@@ -230,14 +176,12 @@
 			let:getRoleById
 		>
 			<ListPermissionsProvider
-				bind:this={listPermissionsProvider}
 				let:permissions
 				let:loading={permissionsLoading}
 				let:errorMessage={permissionsError}
 				let:listPermissions
 			>
 				<AssignPermissionToRoleProvider
-					bind:this={assignPermissionToRoleProvider}
 					onSuccess={() => {
 						// Permission assigned successfully
 						// Move to the next permission change
@@ -247,7 +191,7 @@
 					onError={(error) => {
 						isProcessingPermissions = false;
 						permissionProcessingError = error;
-						toast.error('Failed to process some permission changes');
+						toast.error('خطا در پردازش برخی تغییرات مجوزها');
 					}}
 					let:loading={assignPermissionLoading}
 					let:errorMessage={assignPermissionError}
@@ -255,7 +199,6 @@
 					let:assignPermissionToRole
 				>
 					<UnassignPermissionFromRoleProvider
-						bind:this={unassignPermissionFromRoleProvider}
 						onSuccess={() => {
 							// Permission unassigned successfully
 							// Move to the next permission change
@@ -265,7 +208,7 @@
 						onError={(error) => {
 							isProcessingPermissions = false;
 							permissionProcessingError = error;
-							toast.error('Failed to process some permission changes');
+							toast.error('خطا در پردازش برخی تغییرات مجوزها');
 						}}
 						let:loading={unassignPermissionLoading}
 						let:errorMessage={unassignPermissionError}
@@ -276,8 +219,21 @@
 							<div class="mb-6 rounded-lg border border-blue-200 bg-blue-50 p-4">
 								<div class="flex items-center">
 									<span class="icon-[svg-spinners--ring-resize] me-2 h-5 w-5 text-blue-500"></span>
-									<span class="text-blue-700">Processing permission changes...</span>
+									<span class="text-blue-700">در حال پردازش تغییرات مجوزها...</span>
 								</div>
+								{#if isProcessingPermissions && currentRoleId && currentPermissionIndex < permissionChanges.length}
+									{#if permissionChanges[currentPermissionIndex].type === 'add'}
+										{assignPermissionToRole({
+											roleId: currentRoleId,
+											permissionId: permissionChanges[currentPermissionIndex].id
+										})}
+									{:else if permissionChanges[currentPermissionIndex].type === 'remove'}
+										{unassignPermissionFromRole({
+											roleId: currentRoleId,
+											permissionId: permissionChanges[currentPermissionIndex].id
+										})}
+									{/if}
+								{/if}
 							</div>
 						{/if}
 
@@ -293,7 +249,7 @@
 						{#if roleLoading}
 							<div class="p-8 text-center">
 								<span class="icon-[svg-spinners--ring-resize] me-3 h-8 w-8 text-blue-500"></span>
-								Loading role...
+								در حال بارگذاری نقش...
 							</div>
 						{:else if roleError && !roleError.includes('not found')}
 							<div class="mb-6" in:fade={{ duration: 300 }}>
@@ -308,7 +264,17 @@
 								let:updateRole
 							>
 								<form
-									on:submit={(e) => handleUpdateRole(e, updateRole)}
+									onsubmit={(e) => {
+										e.preventDefault();
+										if (!formValid) return;
+										updateRole({
+											id: roleId,
+											data: {
+												name: $name$,
+												description: $description$ || undefined
+											}
+										});
+									}}
 									class="space-y-6"
 									novalidate
 								>
@@ -327,9 +293,9 @@
 
 									<!-- Name Input -->
 									<FormGroup
-										label="Role Name"
+										label="نام نقش"
 										forAttr="name"
-										error="Name is required (1-50 characters)"
+										error="نام نقش الزامی است (1-50 کاراکتر)"
 										required
 										showError={nameTouched && !nameValid}
 									>
@@ -340,15 +306,15 @@
 											bind:value={$name$}
 											onBlur={() => handleInputBlur('name')}
 											error={nameTouched && !nameValid}
-											placeholder="Enter role name"
+											placeholder="نام نقش را وارد کنید"
 										/>
 									</FormGroup>
 
 									<!-- Description Input -->
 									<FormGroup
-										label="Description (Optional)"
+										label="توضیحات (اختیاری)"
 										forAttr="description"
-										error="Description must be less than 255 characters"
+										error="توضیحات باید کمتر از 255 کاراکتر باشد"
 										showError={descriptionTouched && !descriptionValid}
 									>
 										<Input
@@ -358,17 +324,17 @@
 											bind:value={$description$}
 											onBlur={() => handleInputBlur('description')}
 											error={descriptionTouched && !descriptionValid}
-											placeholder="Enter role description"
+											placeholder="توضیحات نقش را وارد کنید"
 										/>
 									</FormGroup>
 
 									<!-- Permissions Selection -->
-									<FormGroup label="Permissions (Optional)" forAttr="permissions">
+									<FormGroup label="مجوزها (اختیاری)" forAttr="permissions">
 										{#if permissionsLoading}
 											<div class="flex items-center justify-center py-4">
 												<span class="icon-[svg-spinners--ring-resize] me-2 h-5 w-5 text-blue-500"
 												></span>
-												<span class="text-gray-500">Loading permissions...</span>
+												<span class="text-gray-500">در حال بارگذاری مجوزها...</span>
 											</div>
 										{:else if permissions && permissions.length > 0}
 											<div
@@ -386,16 +352,14 @@
 												{/each}
 											</div>
 											<div class="mt-2 text-sm text-gray-500">
-												{selectedPermissions.length} permission{selectedPermissions.length !== 1
-													? 's'
-													: ''} selected
+												{selectedPermissions.length} مجوز انتخاب شده
 											</div>
 										{:else}
 											<div class="py-4 text-center text-gray-500">
 												{#if permissionsError}
-													Failed to load permissions
+													خطا در بارگذاری مجوزها
 												{:else}
-													No permissions available
+													مجوزی در دسترس نیست
 												{/if}
 											</div>
 										{/if}
@@ -403,7 +367,7 @@
 
 									<!-- Submit Button -->
 									<div class="flex justify-end space-x-3">
-										<Button href="/panel/admin/roles" variant="secondary">Cancel</Button>
+										<Button href="/panel/admin/roles" variant="secondary">لغو</Button>
 										<Button
 											type="submit"
 											loading={updateLoading || isProcessingPermissions}
@@ -413,13 +377,13 @@
 											{#if updateLoading || isProcessingPermissions}
 												<slot name="loading-text">
 													{#if updateLoading}
-														Updating role...
+														در حال به‌روزرسانی نقش...
 													{:else}
-														Processing permissions...
+														در حال پردازش مجوزها...
 													{/if}
 												</slot>
 											{:else}
-												Update Role
+												به‌روزرسانی نقش
 											{/if}
 										</Button>
 									</div>

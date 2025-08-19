@@ -19,7 +19,7 @@ const createRoleSchema = z.object({
 const updateRoleSchema = z.object({
 	id: z.string().cuid(),
 	data: z.object({
-		name: z.string().min(1, 'Role name is required').optional(),
+		name: z.string().min(1, 'نام نقش الزامی است').optional(),
 		description: z.string().optional()
 	})
 });
@@ -63,7 +63,7 @@ export const rolesRouter = t.router({
 			if (existingRole) {
 				throw new TRPCError({
 					code: 'CONFLICT',
-					message: 'Role with this name already exists'
+					message: 'نقش با این نام قبلاً وجود دارد'
 				});
 			}
 
@@ -101,7 +101,7 @@ export const rolesRouter = t.router({
 			}
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to create role',
+				message: 'ایجاد نقش با خطا مواجه شد',
 				cause: error
 			});
 		}
@@ -123,7 +123,7 @@ export const rolesRouter = t.router({
 			if (!role) {
 				throw new TRPCError({
 					code: 'NOT_FOUND',
-					message: 'Role not found'
+					message: 'نقش یافت نشد'
 				});
 			}
 
@@ -146,7 +146,7 @@ export const rolesRouter = t.router({
 			}
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to fetch role',
+				message: 'دریافت نقش با خطا مواجه شد',
 				cause: error
 			});
 		}
@@ -162,7 +162,7 @@ export const rolesRouter = t.router({
 			if (!existingRole) {
 				throw new TRPCError({
 					code: 'NOT_FOUND',
-					message: 'Role not found'
+					message: 'نقش یافت نشد'
 				});
 			}
 
@@ -215,7 +215,7 @@ export const rolesRouter = t.router({
 			}
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to update role',
+				message: 'بروزرسانی نقش با خطا مواجه شد',
 				cause: error
 			});
 		}
@@ -231,7 +231,7 @@ export const rolesRouter = t.router({
 			if (!existingRole) {
 				throw new TRPCError({
 					code: 'NOT_FOUND',
-					message: 'Role not found'
+					message: 'نقش یافت نشد'
 				});
 			}
 
@@ -239,7 +239,7 @@ export const rolesRouter = t.router({
 			if (existingRole.name === 'user' || existingRole.name === 'admin') {
 				throw new TRPCError({
 					code: 'FORBIDDEN',
-					message: 'Cannot delete default roles'
+					message: 'امکان حذف نقش‌های پیش‌فرض وجود ندارد'
 				});
 			}
 
@@ -255,7 +255,7 @@ export const rolesRouter = t.router({
 			}
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to delete role',
+				message: 'حذف نقش با خطا مواجه شد',
 				cause: error
 			});
 		}
@@ -314,7 +314,7 @@ export const rolesRouter = t.router({
 		} catch (error) {
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to fetch roles',
+				message: 'دریافت لیست نقش‌ها با خطا مواجه شد',
 				cause: error
 			});
 		}
@@ -331,7 +331,7 @@ export const rolesRouter = t.router({
 			if (!user) {
 				throw new TRPCError({
 					code: 'NOT_FOUND',
-					message: 'User not found'
+					message: 'کاربر یافت نشد'
 				});
 			}
 
@@ -343,7 +343,7 @@ export const rolesRouter = t.router({
 			if (!role) {
 				throw new TRPCError({
 					code: 'NOT_FOUND',
-					message: 'Role not found'
+					message: 'نقش یافت نشد'
 				});
 			}
 
@@ -404,7 +404,7 @@ export const rolesRouter = t.router({
 			}
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to assign role to user',
+				message: 'اختصاص نقش به کاربر با خطا مواجه شد',
 				cause: error
 			});
 		}
@@ -415,36 +415,36 @@ export const rolesRouter = t.router({
 		.mutation(async ({ input }) => {
 			try {
 				// Check if user exists
-				const user = await prisma.user.findUnique({
-					where: { id: input.userId }
+			const user = await prisma.user.findUnique({
+				where: { id: input.userId }
+			});
+
+			if (!user) {
+				throw new TRPCError({
+					code: 'NOT_FOUND',
+					message: 'کاربر یافت نشد'
 				});
+			}
 
-				if (!user) {
-					throw new TRPCError({
-						code: 'NOT_FOUND',
-						message: 'User not found'
-					});
-				}
-
-				// Check if user has the role
-				if (user.roleId !== input.roleId) {
-					throw new TRPCError({
-						code: 'BAD_REQUEST',
-						message: 'User does not have this role'
-					});
-				}
-
-				// Get default role
-				const defaultRole = await prisma.role.findUnique({
-					where: { name: 'user' }
+			// Check if user has the role
+			if (user.roleId !== input.roleId) {
+				throw new TRPCError({
+					code: 'BAD_REQUEST',
+					message: 'کاربر این نقش را ندارد'
 				});
+			}
 
-				if (!defaultRole) {
-					throw new TRPCError({
-						code: 'INTERNAL_SERVER_ERROR',
-						message: 'Default role not found'
-					});
-				}
+			// Get default role
+			const defaultRole = await prisma.role.findUnique({
+				where: { name: 'user' }
+			});
+
+			if (!defaultRole) {
+				throw new TRPCError({
+					code: 'INTERNAL_SERVER_ERROR',
+					message: 'نقش پیش‌فرض یافت نشد'
+				});
+			}
 
 				// Update user's role to default
 				const updatedUser = await prisma.user.update({
@@ -503,7 +503,7 @@ export const rolesRouter = t.router({
 				}
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: 'Failed to unassign role from user',
+					message: 'لغو اختصاص نقش از کاربر با خطا مواجه شد',
 					cause: error
 				});
 			}

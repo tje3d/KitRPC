@@ -11,6 +11,7 @@
 	// Props
 	export let onSuccess: ((data: ResponseData) => void) | undefined = undefined;
 	export let onError: ((error: string) => void) | undefined = undefined;
+	export let roleId: string;
 
 	// Request for getting role by ID
 	const { clearError, errorMessage, loading, trigger, responseSuccess } = useTrpcRequest(
@@ -22,6 +23,10 @@
 	// Actions
 	export function getRoleById(input: RequestParams) {
 		trigger.next(input);
+	}
+
+	$: if (roleId) {
+		getRoleById({ id: roleId });
 	}
 
 	subscribe(responseSuccess, (result) => {

@@ -1,15 +1,18 @@
 <script lang="ts">
 	import { formatCurrency } from '$lib/helpers/utils.helper';
-	import Button from '$lib/kit/Button.svelte';
+	import {
+		FilterManager,
+		getSelectedValue,
+		createDateFilter,
+		type FilterGroup
+	} from '$lib/helpers/filter.helper';
 	import Card from '$lib/kit/Card.svelte';
 	import DataTable from '$lib/kit/DataTable.svelte';
-	import Input from '$lib/kit/Input.svelte';
-	import JalaliDateRangePicker from '$lib/kit/JalaliDateRangePicker.svelte';
+	import FilterPanel from '$lib/kit/FilterPanel.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 	import TransactionHistoryProvider from '$lib/providers/TransactionHistoryProvider.svelte';
 	import { toast } from '$lib/toast/store';
 	import type { CurrencyType, TransactionStatus, TransactionType } from '@prisma/client';
-	import { onMount } from 'svelte';
 
 	// Types for our filters
 	type TransactionFilters = Parameters<typeof transactionProvider.getHistory>[0];
@@ -19,105 +22,124 @@
 
 	// State
 	let error: string | null = null;
-
-	// Pagination
-	let currentPage = 1;
 	const itemsPerPage = 10;
 
-	// Filters
-	let filters: TransactionFilters = {};
-
-	// Filter options
-	const transactionTypes = [
-		{ value: 'DEPOSIT', label: 'واریز' },
-		{ value: 'WITHDRAWAL', label: 'برداشت' },
-		{ value: 'TRANSFER', label: 'انتقال' }
-	];
-
-	const currencyTypes = [
-		{ value: 'IRT', label: 'IRT' },
-		{ value: 'USDT', label: 'USDT' }
-	];
-
-	const transactionStatuses = [
-		{ value: 'PENDING', label: 'در انتظار' },
-		{ value: 'COMPLETED', label: 'تکمیل شده' },
-		{ value: 'FAILED', label: 'ناموفق' },
-		{ value: 'CANCELLED', label: 'لغو شده' }
-	];
-
-	// Selected filter values
-	let selectedTypes: Record<string, boolean> = {};
-	let selectedCurrencies: Record<string, boolean> = {};
-	let selectedStatuses: Record<string, boolean> = {};
-	let fromDate = '';
-	let toDate = '';
-
-	// Fetch transactions with current filters and pagination
-	function fetchTransactions() {
-		// Build filter object for the API call
-		const apiFilters: TransactionFilters = {
-			limit: itemsPerPage,
-			offset: (currentPage - 1) * itemsPerPage
-		};
-
-		// Add filters if they exist
-		if (filters.type) apiFilters.type = filters.type;
-		if (filters.currency) apiFilters.currency = filters.currency;
-		if (filters.status) apiFilters.status = filters.status;
-		if (filters.fromDate) apiFilters.fromDate = filters.fromDate;
-		if (filters.toDate) apiFilters.toDate = filters.toDate;
-
-		transactionProvider.getHistory(apiFilters);
-	}
-
-	// Apply filters
-	function applyFilters() {
-		// Reset to first page when filters change
-		currentPage = 1;
-
-		// Build filters object
-		filters = {};
-
-		// For this implementation, we'll use the first selected value for each filter type
-		// In a more complex implementation, you might want to support multiple selections
-		const selectedType = Object.keys(selectedTypes).find((key) => selectedTypes[key]);
-		if (selectedType) filters.type = selectedType as TransactionType;
-
-		const selectedCurrency = Object.keys(selectedCurrencies).find((key) => selectedCurrencies[key]);
-		if (selectedCurrency) filters.currency = selectedCurrency as CurrencyType;
-
-		const selectedStatus = Object.keys(selectedStatuses).find((key) => selectedStatuses[key]);
-		if (selectedStatus) filters.status = selectedStatus as TransactionStatus;
-
-		// Set fromDate to start of day (00:00:00)
-		if (fromDate) {
-			const fromDateObj = new Date(fromDate);
-			fromDateObj.setHours(0, 0, 0, 0);
-			filters.fromDate = fromDateObj;
+	// Filter configuration
+	const filterGroups: FilterGroup[] = [
+		{
+			label: 'نوع',
+			options: [
+				{
+					value: 'DEPOSIT',
+					label: 'واریز',
+					icon: 'icon-[heroicons--arrow-down-tray]',
+					colorScheme: 'blue' as const
+				},
+				{
+					value: 'WITHDRAWAL',
+					label: 'برداشت',
+					icon: 'icon-[heroicons--arrow-up-tray]',
+					colorScheme: 'blue' as const
+				},
+				{
+					value: 'TRANSFER',
+					label: 'انتقال',
+					icon: 'icon-[heroicons--arrows-right-left]',
+					colorScheme: 'blue' as const
+				}
+			],
+			selected: {} as Record<string, boolean>,
+			multiSelect: false
+		},
+		{
+			label: 'ارز',
+			options: [
+				{
+					value: 'IRT',
+					label: 'IRT',
+					icon: 'icon-[heroicons--currency-dollar]',
+					colorScheme: 'green' as const
+				},
+				{
+					value: 'USDT',
+					label: 'USDT',
+					icon: 'icon-[heroicons--currency-dollar]',
+					colorScheme: 'green' as const
+				}
+			],
+			selected: {} as Record<string, boolean>,
+			multiSelect: false
+		},
+		{
+			label: 'وضعیت',
+			options: [
+				{
+					value: 'PENDING',
+					label: 'در انتظار',
+					icon: 'icon-[heroicons--clock]',
+					colorScheme: 'yellow' as const
+				},
+				{
+					value: 'COMPLETED',
+					label: 'تکمیل شده',
+					icon: 'icon-[heroicons--check-circle]',
+					colorScheme: 'green' as const
+				},
+				{
+					value: 'FAILED',
+					label: 'ناموفق',
+					icon: 'icon-[heroicons--x-circle]',
+					colorScheme: 'red' as const
+				},
+				{
+					value: 'CANCELLED',
+					label: 'لغو شده',
+					icon: 'icon-[heroicons--information-circle]'
+				}
+			],
+			selected: {},
+			multiSelect: false
 		}
+	];
 
-		// Set toDate to end of day (23:59:59.999)
-		if (toDate) {
-			const toDateObj = new Date(toDate);
-			toDateObj.setHours(23, 59, 59, 999);
-			filters.toDate = toDateObj;
+	// Filter Manager setup
+	const filterManager = new FilterManager<TransactionFilters>({
+		filterGroups,
+		inputFields: [],
+		onApply: (filters, page) => {
+			const apiFilters: TransactionFilters = {
+				limit: itemsPerPage,
+				offset: (page - 1) * itemsPerPage,
+				...filters
+			};
+			transactionProvider.getHistory(apiFilters);
+		},
+		buildFilters: (state) => {
+			const filters: TransactionFilters = {};
+
+			const selectedType = getSelectedValue(state.filterGroups, 'نوع');
+			if (selectedType) filters.type = selectedType as TransactionType;
+
+			const selectedCurrency = getSelectedValue(state.filterGroups, 'ارز');
+			if (selectedCurrency) filters.currency = selectedCurrency as CurrencyType;
+
+			const selectedStatus = getSelectedValue(state.filterGroups, 'وضعیت');
+			if (selectedStatus) filters.status = selectedStatus as TransactionStatus;
+
+			const fromDate = createDateFilter(state.startDate);
+			if (fromDate) filters.fromDate = fromDate;
+
+			const toDate = createDateFilter(state.endDate, true);
+			if (toDate) filters.toDate = toDate;
+
+			return filters;
 		}
+	});
 
-		fetchTransactions();
-	}
-
-	// Reset all filters
-	function resetFilters() {
-		selectedTypes = {};
-		selectedCurrencies = {};
-		selectedStatuses = {};
-		fromDate = '';
-		toDate = '';
-		filters = {};
-		currentPage = 1;
-		fetchTransactions();
-	}
+	// Get reactive state from filter manager
+	const filterStateStore = filterManager.stateStore;
+	$: filterState = $filterStateStore;
+	$: ({ filterGroups: reactiveFilterGroups, inputFields, startDate, endDate, currentPage } = filterState);
 
 	// Handle sorting (for future implementation)
 	function handleSortChange(key: string, direction: 'asc' | 'desc') {
@@ -233,133 +255,21 @@
 >
 	<PanelPageWrapper title="تاریخچه تراکنش‌ها" description="مشاهده و فیلتر تاریخچه تراکنش‌های شما.">
 		<!-- Filters Section -->
-		<Card variant="flat" className="mb-6">
-			<!-- Filter Header with Toggle -->
-			<div class="flex items-center justify-between border-b border-gray-200 pb-4">
-				<div class="flex items-center space-x-2">
-					<span class="icon-[heroicons--funnel] h-5 w-5 text-gray-500"></span>
-					<h2 class="text-lg font-semibold text-gray-800">فیلترها</h2>
-				</div>
-				<div class="flex items-center space-x-3">
-					<Button size="sm" variant="secondary" onClick={resetFilters}>
-						<span class="icon-[heroicons--arrow-path] me-1 h-4 w-4"></span>
-						بازنشانی
-					</Button>
-					<Button size="sm" onClick={applyFilters}>
-						<span class="icon-[heroicons--magnifying-glass] me-1 h-4 w-4"></span>
-						اعمال
-					</Button>
-				</div>
-			</div>
-
-			<!-- Quick Filter Pills -->
-			<div class="py-4">
-				<div class="flex flex-wrap items-center gap-3">
-					<!-- Transaction Type Pills -->
-					<div class="flex items-center space-x-2">
-						<span class="text-sm font-medium text-gray-600">نوع:</span>
-						<div class="flex space-x-1">
-							{#each transactionTypes as type}
-								<button
-									class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors
-										{selectedTypes[type.value]
-										? 'border border-blue-200 bg-blue-100 text-blue-800'
-										: 'border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200'}"
-									on:click={() => {
-										selectedTypes = {};
-										if (!selectedTypes[type.value]) {
-											selectedTypes[type.value] = true;
-										}
-									}}
-								>
-									<span class="{getTypeIcon(type.value)} me-1 h-3 w-3"></span>
-									{type.label}
-								</button>
-							{/each}
-						</div>
-					</div>
-
-					<!-- Currency Pills -->
-					<div class="flex items-center space-x-2">
-						<span class="text-sm font-medium text-gray-600">ارز:</span>
-						<div class="flex space-x-1">
-							{#each currencyTypes as currency}
-								<button
-									class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors
-										{selectedCurrencies[currency.value]
-										? 'border border-green-200 bg-green-100 text-green-800'
-										: 'border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200'}"
-									on:click={() => {
-										selectedCurrencies = {};
-										if (!selectedCurrencies[currency.value]) {
-											selectedCurrencies[currency.value] = true;
-										}
-									}}
-								>
-									<span class="icon-[heroicons--currency-dollar] me-1 h-3 w-3"></span>
-									{currency.label}
-								</button>
-							{/each}
-						</div>
-					</div>
-
-					<!-- Status Pills -->
-					<div class="flex items-center space-x-2">
-						<span class="text-sm font-medium text-gray-600">وضعیت:</span>
-						<div class="flex space-x-1">
-							{#each transactionStatuses as status}
-								<button
-									class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors
-										{selectedStatuses[status.value]
-										? status.value === 'COMPLETED'
-											? 'border border-green-200 bg-green-100 text-green-800'
-											: status.value === 'PENDING'
-												? 'border border-yellow-200 bg-yellow-100 text-yellow-800'
-												: status.value === 'FAILED'
-													? 'border border-red-200 bg-red-100 text-red-800'
-													: 'border border-gray-200 bg-gray-100 text-gray-800'
-										: 'border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200'}"
-									on:click={() => {
-										selectedStatuses = {};
-										if (!selectedStatuses[status.value]) {
-											selectedStatuses[status.value] = true;
-										}
-									}}
-								>
-									<span
-										class="me-1 h-3 w-3 {status.value === 'COMPLETED'
-											? 'icon-[heroicons--check-circle]'
-											: status.value === 'PENDING'
-												? 'icon-[heroicons--clock]'
-												: status.value === 'FAILED'
-													? 'icon-[heroicons--x-circle]'
-													: 'icon-[heroicons--information-circle]'}"
-									></span>
-									{status.label}
-								</button>
-							{/each}
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Advanced Filters (Collapsible) -->
-			<div class="border-t border-gray-200 pt-4">
-				<!-- Date Range -->
-				<JalaliDateRangePicker
-					bind:startDate={fromDate}
-					bind:endDate={toDate}
-					startLabel="تاریخ شروع"
-					endLabel="تاریخ پایان"
-					startPlaceholder="از تاریخ"
-					endPlaceholder="تا تاریخ"
-					on:change={(e) => {
-						fromDate = e.detail.startDate;
-						toDate = e.detail.endDate;
-					}}
-				/>
-			</div>
-		</Card>
+		<FilterPanel
+			filterGroups={reactiveFilterGroups}
+			{inputFields}
+			showDateRange={true}
+			bind:startDate
+			bind:endDate
+			startLabel="تاریخ شروع"
+			endLabel="تاریخ پایان"
+			startPlaceholder="از تاریخ"
+			endPlaceholder="تا تاریخ"
+			allowSameDate={true}
+			on:filterChange={filterManager.handleFilterChange.bind(filterManager)}
+			on:reset={filterManager.handleFilterReset.bind(filterManager)}
+			on:apply={filterManager.handleFilterApply.bind(filterManager)}
+		/>
 
 		<!-- Loading State -->
 		{#if loading}
@@ -431,8 +341,7 @@
 						showSearch={false}
 						onPageChange={(page) => {
 							if (page < 1 || page > Math.ceil(totalCount / itemsPerPage)) return;
-							currentPage = page;
-							fetchTransactions();
+							filterManager.handlePageChange(page);
 						}}
 						onSortChange={handleSortChange}
 					/>

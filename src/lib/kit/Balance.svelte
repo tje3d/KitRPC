@@ -3,7 +3,7 @@
 	import { formatCurrency } from '$lib/helpers/utils.helper';
 </script>
 
-<div class="rounded-lg border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
+<div class="rounded-lg border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
 	<div class="mb-3 flex items-center justify-between">
 		<h3 class="flex items-center gap-2 text-sm font-semibold text-gray-700">
 			<span class="icon-[heroicons--currency-dollar] h-4 w-4 text-blue-600"></span>

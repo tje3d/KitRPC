@@ -3,9 +3,9 @@
 	import { dialogStore } from '$lib/dialog/store';
 	import { Button, DataTable, PanelPageWrapper } from '$lib/kit';
 	import Card from '$lib/kit/Card.svelte';
-	import { toast } from '$lib/toast/store';
-	import ListPermissionsProvider from '$lib/providers/ListPermissionsProvider.svelte';
 	import DeletePermissionProvider from '$lib/providers/DeletePermissionProvider.svelte';
+	import ListPermissionsProvider from '$lib/providers/ListPermissionsProvider.svelte';
+	import { toast } from '$lib/toast/store';
 	import type { RouterOutputs } from '$lib/trpc/router';
 	import { tick } from 'svelte';
 
@@ -14,106 +14,7 @@
 
 	// State
 	let currentPage = 1;
-	let listPermissionsProvider: ListPermissionsProvider;
-	let deletePermissionProvider: DeletePermissionProvider | null = null;
 	let searchTerm = '';
-
-	// Load permissions on component mount and when page/search changes
-	$: {
-		if (listPermissionsProvider) {
-			loadPermissions();
-		}
-	}
-
-	$: {
-		if (listPermissionsProvider && searchTerm !== undefined) {
-			currentPage = 1; // Reset to first page when searching
-			loadPermissions();
-		}
-	}
-
-	function loadPermissions() {
-		listPermissionsProvider.listPermissions({
-			page: currentPage,
-			limit: 10,
-			search: searchTerm
-		});
-	}
-
-	function handlePageChange(page: number) {
-		currentPage = page;
-		loadPermissions();
-	}
-
-	function formatDate(date: string | Date) {
-		return new Date(date).toLocaleDateString('en-US', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric'
-		});
-	}
-
-	// Show delete confirmation dialog
-	function confirmDelete(permission: Permission) {
-		dialogStore.open({
-			component: ConfirmDialog,
-			props: {
-				title: 'حذف مجوز',
-				message: `آیا مطمئن هستید که می‌خواهید مجوز "${permission.name}" را حذف کنید؟ این عمل قابل بازگشت نیست.`,
-				confirm: 'حذف',
-				cancel: 'لغو',
-				color: 'red',
-				onConfirm: () => {
-					history.back();
-
-					tick().then(() => {
-						deletePermission(permission.id);
-					});
-				}
-			}
-		});
-	}
-
-	// Delete a permission
-	function deletePermission(permissionId: string) {
-		if (deletePermissionProvider) {
-			deletePermissionProvider.deletePermission({ id: permissionId });
-		}
-	}
-
-	// Handle delete success
-	function handleDeleteSuccess() {
-		toast.success('مجوز با موفقیت حذف شد');
-		loadPermissions(); // Refresh the list
-	}
-
-	// Handle delete error
-	function handleDeleteError(error: string) {
-		toast.error(error || 'حذف مجوز ناموفق بود');
-	}
-
-	// Handle row actions
-	function handleRowAction(event: Event, permissions: Permission[]) {
-		const target = event.target as HTMLElement;
-		const button = target.closest('button[data-action]');
-
-		if (!button) return;
-
-		const action = button.getAttribute('data-action');
-		const id = button.getAttribute('data-id');
-
-		if (!action || !id) return;
-
-		switch (action) {
-			case 'delete':
-				// Find the permission in the current list
-				const permission = permissions?.find((p: Permission) => p.id === id);
-				if (permission) {
-					confirmDelete(permission);
-				}
-				break;
-		}
-	}
 
 	// DataTable columns configuration
 	const columns = [
@@ -145,7 +46,7 @@
 			label: 'ایجاد شده',
 			sortable: true,
 			render: (value: any, row: Permission) => {
-				return formatDate(row.createdAt);
+				return row.createdAt.toLocaleString('fa-IR');
 			}
 		},
 		{
@@ -181,18 +82,26 @@
 	</div>
 
 	<Card variant="flat">
-		<DeletePermissionProvider
-			bind:this={deletePermissionProvider}
-			onSuccess={handleDeleteSuccess}
-			onError={handleDeleteError}
-			let:loading={deleteLoading}
+		<ListPermissionsProvider
+			let:permissions
+			let:pagination
+			let:loading
+			let:errorMessage
+			let:listPermissions
 		>
-			<ListPermissionsProvider
-				bind:this={listPermissionsProvider}
-				let:permissions
-				let:pagination
-				let:loading
-				let:errorMessage
+			<DeletePermissionProvider
+				onSuccess={(data) => {
+					if (data) {
+						toast.success('مجوز با موفقیت حذف شد');
+						// Refresh the list
+						listPermissions({ page: currentPage, limit: 10, search: searchTerm });
+					}
+				}}
+				onError={(error) => {
+					toast.error(error || 'حذف مجوز ناموفق بود');
+				}}
+				let:deletePermission
+				let:loading={deleteLoading}
 			>
 				{#if errorMessage}
 					<div class="p-6">
@@ -205,21 +114,59 @@
 						</div>
 					</div>
 				{:else}
-					<div on:click={(e) => handleRowAction(e, permissions)}>
+					<div
+						on:click={(e) => {
+							const target = e.target as HTMLElement;
+							const button = target.closest('button[data-action]');
+
+							if (!button) return;
+
+							const action = button.getAttribute('data-action');
+							const id = button.getAttribute('data-id');
+
+							if (!action || !id) return;
+
+							if (action === 'delete') {
+								// Find the permission in the current list
+								const permission = permissions?.find((p) => p.id === id);
+								if (permission) {
+									dialogStore.open({
+										component: ConfirmDialog,
+										props: {
+											title: 'حذف مجوز',
+											message: `آیا مطمئن هستید که می‌خواهید مجوز "${permission.name}" را حذف کنید؟ این عمل قابل بازگشت نیست.`,
+											confirm: 'حذف',
+											cancel: 'لغو',
+											color: 'red',
+											onConfirm: () => {
+												history.back();
+												tick().then(() => {
+													deletePermission({ id: permission.id });
+												});
+											}
+										}
+									});
+								}
+							}
+						}}
+					>
 						<DataTable
 							data={permissions}
 							{columns}
 							itemsPerPage={10}
 							totalItems={pagination?.total || 0}
 							{currentPage}
-							onPageChange={handlePageChange}
+							onPageChange={(page) => {
+								currentPage = page;
+								listPermissions({ page: currentPage, limit: 10, search: searchTerm });
+							}}
 							showPagination={true}
 							bind:searchTerm
 							{loading}
 						/>
 					</div>
 				{/if}
-			</ListPermissionsProvider>
-		</DeletePermissionProvider>
+			</DeletePermissionProvider>
+		</ListPermissionsProvider>
 	</Card>
 </PanelPageWrapper>

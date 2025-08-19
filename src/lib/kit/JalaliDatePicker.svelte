@@ -205,28 +205,24 @@
 	// Close calendar when clicking outside
 	function handleClickOutside(event: MouseEvent) {
 		const target = event.target as Node;
-		
+
 		// Check if click is outside the entire calendar
-		if (
-			calendarElement &&
-			!calendarElement.contains(target) &&
-			!inputElement.contains(target)
-		) {
+		if (calendarElement && !calendarElement.contains(target) && !inputElement.contains(target)) {
 			isOpen = false;
 			showYearSelect = false;
 			showMonthSelect = false;
 			return;
 		}
-		
+
 		// If click is inside calendar but outside year/month selectors, close them
 		if (calendarElement && calendarElement.contains(target)) {
 			const yearSelector = calendarElement.querySelector('.year-selector');
 			const monthSelector = calendarElement.querySelector('.month-selector');
-			
+
 			if (yearSelector && !yearSelector.contains(target)) {
 				showYearSelect = false;
 			}
-			
+
 			if (monthSelector && !monthSelector.contains(target)) {
 				showMonthSelect = false;
 			}
@@ -259,6 +255,8 @@
 	$effect(() => {
 		if (value) {
 			jalaliValue = gregorianToJalali(value);
+		} else {
+			jalaliValue = '';
 		}
 	});
 </script>
@@ -328,10 +326,10 @@
 					</button>
 				</div>
 
-				<div class="text-center relative">
-					<div class="flex items-center gap-2 justify-center">
+				<div class="relative text-center">
+					<div class="flex items-center justify-center gap-2">
 						<!-- Month Selector -->
-						<div class="relative month-selector">
+						<div class="month-selector relative">
 							<button
 								type="button"
 								onclick={(e) => {
@@ -343,14 +341,19 @@
 								{persianMonths[currentMonth]}
 								<span class="icon-[solar--alt-arrow-down-linear] block h-4 w-4"></span>
 							</button>
-							
+
 							{#if showMonthSelect}
-								<div class="absolute top-full left-0 z-60 mt-1 w-40 max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+								<div
+									class="absolute top-full left-0 z-60 mt-1 max-h-60 w-40 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+								>
 									{#each persianMonths as month, index}
 										<button
 											type="button"
 											onclick={(e) => selectMonth(index, e)}
-											class="w-full px-3 py-2 text-right text-sm transition-colors duration-200 hover:bg-emerald-50 {currentMonth === index ? 'bg-emerald-100 font-medium text-emerald-800' : 'text-gray-700'}"
+											class="w-full px-3 py-2 text-right text-sm transition-colors duration-200 hover:bg-emerald-50 {currentMonth ===
+											index
+												? 'bg-emerald-100 font-medium text-emerald-800'
+												: 'text-gray-700'}"
 										>
 											{month}
 										</button>
@@ -360,7 +363,7 @@
 						</div>
 
 						<!-- Year Selector -->
-						<div class="relative year-selector">
+						<div class="year-selector relative">
 							<button
 								type="button"
 								onclick={(e) => {
@@ -372,14 +375,19 @@
 								{currentYear}
 								<span class="icon-[solar--alt-arrow-down-linear] block h-4 w-4"></span>
 							</button>
-							
+
 							{#if showYearSelect}
-								<div class="absolute top-full left-0 z-60 mt-1 w-24 max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+								<div
+									class="absolute top-full left-0 z-60 mt-1 max-h-60 w-24 overflow-y-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+								>
 									{#each generateYearRange() as year}
 										<button
 											type="button"
 											onclick={(e) => selectYear(year, e)}
-											class="w-full px-3 py-2 text-center text-sm transition-colors duration-200 hover:bg-emerald-50 {currentYear === year ? 'bg-emerald-100 font-medium text-emerald-800' : 'text-gray-700'}"
+											class="w-full px-3 py-2 text-center text-sm transition-colors duration-200 hover:bg-emerald-50 {currentYear ===
+											year
+												? 'bg-emerald-100 font-medium text-emerald-800'
+												: 'text-gray-700'}"
 										>
 											{year}
 										</button>

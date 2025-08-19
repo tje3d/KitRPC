@@ -50,7 +50,11 @@
 	} = useTrpcRequest(
 		createTrpcRequestFn((input: AdminListMediaRequestParams) => {
 			return trpc(page).media.adminList.query(input);
-		})
+		}),
+		{
+			initialData: {},
+			requestOnSubscribe: true
+		}
 	);
 
 	// Request for media statistics
@@ -63,7 +67,11 @@
 	} = useTrpcRequest(
 		createTrpcRequestFnNoParams(() => {
 			return trpc(page).media.adminStats.query();
-		})
+		}),
+		{
+			initialData: {},
+			requestOnSubscribe: true
+		}
 	);
 	const media = listResponseSuccess.pipe(
 		startWith(undefined),

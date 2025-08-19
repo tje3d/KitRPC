@@ -21,10 +21,10 @@ const createPermissionSchema = z.object({
 const updatePermissionSchema = z.object({
 	id: z.string().cuid(),
 	data: z.object({
-		name: z.string().min(1, 'Permission name is required').optional(),
+		name: z.string().min(1, 'نام مجوز الزامی است').optional(),
 		description: z.string().optional(),
-		resource: z.string().min(1, 'Resource is required').optional(),
-		action: z.string().min(1, 'Action is required').optional()
+		resource: z.string().min(1, 'منبع الزامی است').optional(),
+		action: z.string().min(1, 'عملیات الزامی است').optional()
 	})
 });
 
@@ -78,7 +78,7 @@ export const permissionsRouter = t.router({
 			if (existingPermission) {
 				throw new TRPCError({
 					code: 'CONFLICT',
-					message: 'Permission with this name already exists'
+					message: 'مجوز با این نام قبلاً وجود دارد'
 				});
 			}
 
@@ -95,7 +95,7 @@ export const permissionsRouter = t.router({
 			if (existingResourceAction) {
 				throw new TRPCError({
 					code: 'CONFLICT',
-					message: 'Permission with this resource-action combination already exists'
+					message: 'مجوز با این ترکیب منبع و عملیات قبلاً وجود دارد'
 				});
 			}
 
@@ -124,7 +124,7 @@ export const permissionsRouter = t.router({
 			}
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to create permission',
+				message: 'ایجاد مجوز با خطا مواجه شد',
 				cause: error
 			});
 		}
@@ -139,7 +139,7 @@ export const permissionsRouter = t.router({
 			if (!permission) {
 				throw new TRPCError({
 					code: 'NOT_FOUND',
-					message: 'Permission not found'
+					message: 'مجوز یافت نشد'
 				});
 			}
 
@@ -158,7 +158,7 @@ export const permissionsRouter = t.router({
 			}
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to fetch permission',
+				message: 'دریافت مجوز با خطا مواجه شد',
 				cause: error
 			});
 		}
@@ -174,7 +174,7 @@ export const permissionsRouter = t.router({
 			if (!existingPermission) {
 				throw new TRPCError({
 					code: 'NOT_FOUND',
-					message: 'Permission not found'
+					message: 'مجوز یافت نشد'
 				});
 			}
 
@@ -212,7 +212,7 @@ export const permissionsRouter = t.router({
 				if (existingResourceAction && existingResourceAction.id !== input.id) {
 					throw new TRPCError({
 						code: 'CONFLICT',
-						message: 'Permission with this resource-action combination already exists'
+						message: 'مجوز با این ترکیب منبع و عملیات قبلاً وجود دارد'
 					});
 				}
 			}
@@ -243,7 +243,7 @@ export const permissionsRouter = t.router({
 			}
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to update permission',
+				message: 'بروزرسانی مجوز با خطا مواجه شد',
 				cause: error
 			});
 		}
@@ -259,7 +259,7 @@ export const permissionsRouter = t.router({
 			if (!existingPermission) {
 				throw new TRPCError({
 					code: 'NOT_FOUND',
-					message: 'Permission not found'
+					message: 'مجوز یافت نشد'
 				});
 			}
 
@@ -275,7 +275,7 @@ export const permissionsRouter = t.router({
 			}
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to delete permission',
+				message: 'حذف مجوز با خطا مواجه شد',
 				cause: error
 			});
 		}
@@ -327,7 +327,7 @@ export const permissionsRouter = t.router({
 		} catch (error) {
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to fetch permissions',
+				message: 'دریافت لیست مجوزها با خطا مواجه شد',
 				cause: error
 			});
 		}
@@ -346,7 +346,7 @@ export const permissionsRouter = t.router({
 				if (!role) {
 					throw new TRPCError({
 						code: 'NOT_FOUND',
-						message: 'Role not found'
+						message: 'نقش یافت نشد'
 					});
 				}
 
@@ -358,7 +358,7 @@ export const permissionsRouter = t.router({
 				if (!permission) {
 					throw new TRPCError({
 						code: 'NOT_FOUND',
-						message: 'Permission not found'
+						message: 'مجوز یافت نشد'
 					});
 				}
 
@@ -375,7 +375,7 @@ export const permissionsRouter = t.router({
 				if (existingAssignment) {
 					throw new TRPCError({
 						code: 'CONFLICT',
-						message: 'Permission is already assigned to this role'
+						message: 'این مجوز قبلاً به این نقش اختصاص داده شده است'
 					});
 				}
 
@@ -405,7 +405,7 @@ export const permissionsRouter = t.router({
 				}
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: 'Failed to assign permission to role',
+					message: 'اختصاص مجوز به نقش با خطا مواجه شد',
 					cause: error
 				});
 			}
@@ -428,7 +428,7 @@ export const permissionsRouter = t.router({
 				if (!existingAssignment) {
 					throw new TRPCError({
 						code: 'NOT_FOUND',
-						message: 'Permission assignment not found'
+						message: 'اختصاص مجوز یافت نشد'
 					});
 				}
 
@@ -449,7 +449,7 @@ export const permissionsRouter = t.router({
 				}
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: 'Failed to unassign permission from role',
+					message: 'لغو اختصاص مجوز از نقش با خطا مواجه شد',
 					cause: error
 				});
 			}
@@ -467,7 +467,7 @@ export const permissionsRouter = t.router({
 				if (!user) {
 					throw new TRPCError({
 						code: 'NOT_FOUND',
-						message: 'User not found'
+						message: 'کاربر یافت نشد'
 					});
 				}
 
@@ -479,7 +479,7 @@ export const permissionsRouter = t.router({
 				if (!permission) {
 					throw new TRPCError({
 						code: 'NOT_FOUND',
-						message: 'Permission not found'
+						message: 'مجوز یافت نشد'
 					});
 				}
 
@@ -496,7 +496,7 @@ export const permissionsRouter = t.router({
 				if (existingAssignment) {
 					throw new TRPCError({
 						code: 'CONFLICT',
-						message: 'Permission is already assigned to this user'
+						message: 'این مجوز قبلاً به این کاربر اختصاص داده شده است'
 					});
 				}
 
@@ -530,7 +530,7 @@ export const permissionsRouter = t.router({
 				}
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: 'Failed to assign permission to user',
+					message: 'اختصاص مجوز به کاربر با خطا مواجه شد',
 					cause: error
 				});
 			}
@@ -574,7 +574,7 @@ export const permissionsRouter = t.router({
 				}
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: 'Failed to unassign permission from user',
+					message: 'لغو اختصاص مجوز از کاربر با خطا مواجه شد',
 					cause: error
 				});
 			}

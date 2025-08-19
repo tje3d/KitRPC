@@ -89,3 +89,7 @@ label,
 input {
 	touch-action: manipulation;
 }
+
+button {
+	@apply whitespace-nowrap;
+}

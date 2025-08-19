@@ -111,246 +111,347 @@
 				</Card>
 			{/if}
 
+			<!-- Status Hero Section -->
+			{#if kycStatus}
+				{@const bothStepsCompleted = kycStatus.step1Status === 'APPROVED' && kycStatus.step2Status === 'APPROVED'}
+				{@const step2Pending = kycStatus.step2Status === 'PENDING'}
+				{@const step1Approved = kycStatus.step1Status === 'APPROVED'}
+				{@const step1Pending = kycStatus.step1Status === 'PENDING'}
+				{@const step1Rejected = kycStatus.step1Status === 'REJECTED'}
+				{@const step2Rejected = kycStatus.step2Status === 'REJECTED'}
+				
+				<div class="mb-8">
+					<div
+						class="to relative overflow-hidden rounded-2xl from-cyan-400 to-cyan-500 p-8 shadow-lg"
+						class:bg-gradient-to-br={true}
+						class:from-green-400={bothStepsCompleted}
+						class:to-green-600={bothStepsCompleted}
+						class:from-amber-400={step2Pending || step1Pending}
+						class:to-amber-600={step2Pending || step1Pending}
+						class:from-red-400={step1Rejected || step2Rejected}
+						class:to-red-600={step1Rejected || step2Rejected}
+					>
+						<div class="absolute inset-0 bg-black/10"></div>
+						<div class="relative z-10">
+							<div class="flex items-center justify-between">
+								<div class="flex items-center space-x-4 space-x-reverse">
+									<div
+										class="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm"
+									>
+										<span
+											class="h-8 w-8 text-white"
+											class:icon-[heroicons--check-circle]={bothStepsCompleted}
+											class:icon-[heroicons--clock]={step2Pending || step1Pending}
+											class:icon-[heroicons--x-circle]={step1Rejected || step2Rejected}
+											class:icon-[heroicons--document-text]={!step1Approved && !step1Pending && !step1Rejected}
+										></span>
+									</div>
+									<div>
+										<h1 class="text-3xl font-bold text-white">
+											{#if bothStepsCompleted}
+												تأیید هویت تکمیل شد!
+											{:else if step1Rejected}
+												اطلاعات شخصی رد شد
+											{:else if step2Rejected}
+												اسناد ارسالی رد شد
+											{:else if step2Pending}
+												اسناد در انتظار بررسی
+											{:else if step1Pending}
+												اطلاعات در انتظار بررسی
+											{:else if step1Approved && !kycStatus.step2Status}
+												آماده برای ارسال اسناد
+											{:else if step1Approved && kycStatus.step2Status}
+												اسناد ارسال شده
+											{:else}
+												شروع فرآیند احراز هویت
+											{/if}
+										</h1>
+										<p class="mt-2 text-lg text-white/90">
+											{#if bothStepsCompleted}
+												احراز هویت شما تأیید شده است. اکنون به تمام ویژگی‌های پلتفرم دسترسی کامل دارید.
+											{:else if step1Rejected}
+												اطلاعات شخصی ارسالی مورد تأیید قرار نگرفت. لطفاً اطلاعات صحیح را وارد کنید.
+											{:else if step2Rejected}
+												اسناد ارسالی مورد تأیید قرار نگرفت. لطفاً اسناد معتبر و واضح ارسال کنید.
+											{:else if step2Pending}
+												مرحله دوم احراز هویت تکمیل شد و در انتظار بررسی توسط تیم پشتیبانی است.
+											{:else if step1Pending}
+												اطلاعات شخصی شما ارسال شد و در انتظار تأیید است.
+											{:else if step1Approved && !kycStatus.step2Status}
+												اطلاعات شخصی تأیید شد. اکنون می‌توانید اسناد مورد نیاز را آپلود کنید.
+											{:else if step1Approved && kycStatus.step2Status}
+												اطلاعات شخصی تأیید شده و اسناد ارسال شده است.
+											{:else}
+												برای استفاده کامل از پلتفرم، لطفاً فرآیند احراز هویت را تکمیل کنید.
+											{/if}
+										</p>
+									</div>
+								</div>
+								<div class="hidden sm:block">
+									<div class="flex items-center space-x-2 space-x-reverse">
+										<div class="text-center">
+											<div class="text-sm font-medium text-white/80">مرحله ۱</div>
+											<KycStatusIndicator status={kycStatus.step1Status} size="lg" />
+										</div>
+										<div class="mx-2 h-px w-8 bg-white/40"></div>
+										<div class="text-center">
+											<div class="text-sm font-medium text-white/80">مرحله ۲</div>
+											<KycStatusIndicator status={kycStatus.step2Status} size="lg" />
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			{/if}
+
 			<!-- Step 1: اطلاعات شخصی -->
 			{#if !bothStepsApproved && kycStatus?.step2Status !== 'PENDING'}
-				<Card
-					className={kycStatus?.step1Status === 'APPROVED' || kycStatus?.step1Status === 'PENDING'
-						? 'opacity-60'
-						: 'relative z-10'}
+				<SubmitKycInfoProvider
+					let:submitKycInfo
+					let:loading
+					let:errorMessage
+					onSuccess={(e) => {
+						// Refresh KYC status after successful submission
+						getKycStatus();
+					}}
+					onError={(e) => {
+						// Handle error
+					}}
 				>
-					<SubmitKycInfoProvider
-						let:submitKycInfo
-						let:loading
-						let:errorMessage
-						onSuccess={(e) => {
-							// Refresh KYC status after successful submission
-							getKycStatus();
-						}}
-						onError={(e) => {
-							// Handle error
-						}}
-					>
-						<KycStep1Form
-							{kycStatus}
-							bind:nationalId
-							bind:mobile
-							bind:birthDate
-							bind:nationalIdTouched
-							bind:mobileTouched
-							bind:birthDateTouched
-							bind:nationalIdValid
-							bind:mobileValid
-							bind:birthDateValid
-							step1FormValid={!!step1FormValid}
-							{loading}
-							{errorMessage}
-							onSubmit={(e) => handleStep1Submit(e, submitKycInfo)}
-							onInputBlur={handleInputBlur}
-						/>
-					</SubmitKycInfoProvider>
-				</Card>
+					<KycStep1Form
+						{kycStatus}
+						bind:nationalId
+						bind:mobile
+						bind:birthDate
+						bind:nationalIdTouched
+						bind:mobileTouched
+						bind:birthDateTouched
+						bind:nationalIdValid
+						bind:mobileValid
+						bind:birthDateValid
+						step1FormValid={!!step1FormValid}
+						{loading}
+						{errorMessage}
+						onSubmit={(e) => handleStep1Submit(e, submitKycInfo)}
+						onInputBlur={handleInputBlur}
+					/>
+				</SubmitKycInfoProvider>
 			{/if}
 
 			<!-- Step 2: Document Upload -->
 			{#if !bothStepsApproved && kycStatus?.step2Status !== 'PENDING'}
-				<Card
-					className={step2Disabled || kycStatus?.step2Status === 'APPROVED' ? 'opacity-60' : ''}
+				<FinalizeKycStep2Provider
+					let:finalizeKycStep2
+					let:loading
+					let:errorMessage
+					onSuccess={(e) => {
+						// Refresh KYC status after successful finalization
+						getKycStatus();
+						// Show success toast
+						toast.success('مرحله دوم احراز هویت با موفقیت تکمیل شد!');
+					}}
+					onError={(e) => {
+						// Handle error
+					}}
 				>
-					<FinalizeKycStep2Provider
-						let:finalizeKycStep2
-						let:loading
-						let:errorMessage
-						onSuccess={(e) => {
-							// Refresh KYC status after successful finalization
-							getKycStatus();
-							// Show success toast
-							toast.success('مرحله دوم احراز هویت با موفقیت تکمیل شد!');
-						}}
-						onError={(e) => {
-							// Handle error
-						}}
-					>
-						<KycStep2Upload
-							{kycStatus}
-							{step2Disabled}
-							{step2UploadDisabled}
-							{loading}
-							{errorMessage}
-							onFinalize={() => handleFinalize(finalizeKycStep2)}
-							onRefresh={getKycStatus}
-						/>
-					</FinalizeKycStep2Provider>
-				</Card>
+					<KycStep2Upload
+						{kycStatus}
+						{step2Disabled}
+						{step2UploadDisabled}
+						{loading}
+						{errorMessage}
+						onFinalize={() => handleFinalize(finalizeKycStep2)}
+						onRefresh={getKycStatus}
+					/>
+				</FinalizeKycStep2Provider>
 			{/if}
 
 			<!-- Information Summary for Approved Steps or Pending Step 2 -->
 			{#if kycStatus && kycStatus.step1Status === 'APPROVED' && (kycStatus.step2Status === 'APPROVED' || kycStatus.step2Status === 'PENDING')}
-				<Card>
-					<div
-						class="mb-6 rounded-lg p-4"
-						class:bg-green-50={kycStatus.step2Status === 'APPROVED'}
-						class:bg-yellow-50={kycStatus.step2Status === 'PENDING'}
-					>
-						<div class="flex items-center">
-							<span
-								class="me-2 h-6 w-6"
-								class:icon-[heroicons--check-circle]={kycStatus.step2Status === 'APPROVED'}
-								class:icon-[heroicons--clock]={kycStatus.step2Status === 'PENDING'}
-								class:text-green-500={kycStatus.step2Status === 'APPROVED'}
-								class:text-yellow-500={kycStatus.step2Status === 'PENDING'}
-							></span>
-							<h2
-								class="text-lg font-medium"
-								class:text-green-800={kycStatus.step2Status === 'APPROVED'}
-								class:text-yellow-800={kycStatus.step2Status === 'PENDING'}
-							>
-								{#if kycStatus.step2Status === 'APPROVED'}
-									تأیید هویت تکمیل شد!
-								{:else}
-									اطلاعات احراز هویت ارسال شد
-								{/if}
-							</h2>
-						</div>
-						<p
-							class="mt-2"
-							class:text-green-700={kycStatus.step2Status === 'APPROVED'}
-							class:text-yellow-700={kycStatus.step2Status === 'PENDING'}
-						>
-							{#if kycStatus.step2Status === 'APPROVED'}
-								احراز هویت شما تأیید شده است. اکنون به تمام ویژگی‌های پلتفرم دسترسی کامل دارید. لذت
-								ببرید!
-							{:else}
-								مرحله دوم احراز هویت تکمیل شد و در انتظار بررسی است. پس از تأیید، به تمام ویژگی‌های
-								پلتفرم دسترسی خواهید داشت.
-							{/if}
-						</p>
-					</div>
-
-					<h2 class="mb-4 text-xl font-bold text-gray-800">خلاصه اطلاعات احراز هویت</h2>
-
-					<!-- Personal Information Section -->
-					<div class="mb-6">
-						<h3 class="mb-3 flex items-center text-lg font-semibold text-gray-700">
-							<span class="icon-[heroicons--user-circle] me-2 h-5 w-5 text-blue-500"></span>
-							اطلاعات شخصی
-						</h3>
-						<div class="grid grid-cols-1 gap-4 rounded-lg bg-gray-50 p-4 sm:grid-cols-3">
-							<div>
-								<p class="text-sm text-gray-500">کد ملی</p>
-								<p class="font-medium">{kycStatus.nationalId}</p>
-							</div>
-							<div>
-								<p class="text-sm text-gray-500">شماره موبایل</p>
-								<p class="font-medium">{kycStatus.mobile}</p>
-							</div>
-							<div>
-								<p class="text-sm text-gray-500">تاریخ تولد</p>
-								<p class="font-medium">
-									{kycStatus.birthDate?.toLocaleDateString('fa-IR')}
-								</p>
+				<!-- Information Cards Grid -->
+				<div class="grid gap-6 lg:grid-cols-2">
+					<!-- Personal Information Card -->
+					<Card className="overflow-hidden">
+						<div class="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 p-6">
+							<div class="flex items-center">
+								<div
+									class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500 shadow-lg"
+								>
+									<span class="icon-[heroicons--user-circle] h-6 w-6 text-white"></span>
+								</div>
+								<div class="mr-4">
+									<h3 class="text-xl font-bold text-gray-900">اطلاعات شخصی</h3>
+									<p class="text-sm text-gray-600">اطلاعات هویتی تأیید شده</p>
+								</div>
 							</div>
 						</div>
-					</div>
+						<div class="p-6">
+							<div class="space-y-4">
+								<div class="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+									<div class="flex items-center">
+										<span class="icon-[heroicons--identification] ml-3 h-5 w-5 text-gray-400"
+										></span>
+										<div>
+											<p class="text-sm font-medium text-gray-900">کد ملی</p>
+											<p class="text-lg font-bold text-gray-700">{kycStatus.nationalId}</p>
+										</div>
+									</div>
+								</div>
+								<div class="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+									<div class="flex items-center">
+										<span class="icon-[heroicons--phone] ml-3 h-5 w-5 text-gray-400"></span>
+										<div>
+											<p class="text-sm font-medium text-gray-900">شماره موبایل</p>
+											<p class="text-lg font-bold text-gray-700">{kycStatus.mobile}</p>
+										</div>
+									</div>
+								</div>
+								<div class="flex items-center justify-between rounded-lg bg-gray-50 p-4">
+									<div class="flex items-center">
+										<span class="icon-[heroicons--calendar-days] ml-3 h-5 w-5 text-gray-400"></span>
+										<div>
+											<p class="text-sm font-medium text-gray-900">تاریخ تولد</p>
+											<p class="text-lg font-bold text-gray-700">
+												{kycStatus.birthDate?.toLocaleDateString('fa-IR')}
+											</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</Card>
 
-					<!-- Document Upload Section -->
+					<!-- Documents Card -->
 					{#if kycStatus.step2Status}
-						<div>
-							<h3 class="mb-3 flex items-center text-lg font-semibold text-gray-700">
-								<span class="icon-[heroicons--document-text] me-2 h-5 w-5 text-blue-500"></span>
-								اسناد آپلود شده
-							</h3>
-
-							<div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-								<div class="rounded-lg border border-gray-200 p-4">
-									<div class="mb-2 flex items-center justify-between">
-										<h4 class="font-medium text-gray-800">سند امضا شده</h4>
-										{#if kycStatus.signedTextMediaId}
-											<span class="icon-[heroicons--check-circle] h-5 w-5 text-green-500"></span>
-										{/if}
-									</div>
-									{#if kycStatus.signedTextMediaId}
-										<div class="mt-2 flex items-center text-sm text-gray-600">
-											<span class="icon-[heroicons--document] me-1 h-4 w-4"></span>
-											سند آپلود شد
-										</div>
-									{:else}
-										<p class="text-sm text-gray-500">آپلود نشده</p>
-									{/if}
-								</div>
-
-								<div class="rounded-lg border border-gray-200 p-4">
-									<div class="mb-2 flex items-center justify-between">
-										<h4 class="font-medium text-gray-800">سلفی</h4>
-										{#if kycStatus.selfieMediaId}
-											<span class="icon-[heroicons--check-circle] h-5 w-5 text-green-500"></span>
-										{/if}
-									</div>
-									{#if kycStatus.selfieMediaId}
-										<div class="mt-2 flex items-center text-sm text-gray-600">
-											<span class="icon-[heroicons--camera] me-1 h-4 w-4"></span>
-											سلفی آپلود شد
-										</div>
-									{:else}
-										<p class="text-sm text-gray-500">آپلود نشده</p>
-									{/if}
-								</div>
-
-								<div class="rounded-lg border border-gray-200 p-4">
-									<div class="mb-2 flex items-center justify-between">
-										<h4 class="font-medium text-gray-800">کارت ملی</h4>
-										{#if kycStatus.nationalCardMediaId}
-											<span class="icon-[heroicons--check-circle] h-5 w-5 text-green-500"></span>
-										{/if}
-									</div>
-									{#if kycStatus.nationalCardMediaId}
-										<div class="mt-2 flex items-center text-sm text-gray-600">
-											<span class="icon-[heroicons--identification] me-1 h-4 w-4"></span>
-											کارت ملی آپلود شد
-										</div>
-									{:else}
-										<p class="text-sm text-gray-500">آپلود نشده</p>
-									{/if}
-								</div>
-							</div>
-
-							<!-- Step 2 Status -->
-							<div class="mt-4 flex items-center justify-between rounded-lg bg-blue-50 p-4">
+						<Card className="overflow-hidden">
+							<div class="border-b border-gray-100 bg-gradient-to-r from-purple-50 to-pink-50 p-6">
 								<div class="flex items-center">
-									<span class="icon-[heroicons--document-text] me-2 h-5 w-5 text-blue-500"></span>
-									<span class="font-medium text-blue-800">وضعیت تأیید سند</span>
+									<div
+										class="flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500 shadow-lg"
+									>
+										<span class="icon-[heroicons--document-text] h-6 w-6 text-white"></span>
+									</div>
+									<div class="mr-4">
+										<h3 class="text-xl font-bold text-gray-900">اسناد آپلود شده</h3>
+										<p class="text-sm text-gray-600">مدارک ارسالی برای تأیید هویت</p>
+									</div>
 								</div>
-								<KycStatusIndicator status={kycStatus.step2Status} size="md" />
 							</div>
-						</div>
+							<div class="p-6">
+								<div class="space-y-4">
+									<!-- Signed Document -->
+									<div
+										class="flex items-center justify-between rounded-lg border-2 p-4 transition-all"
+										class:border-green-200={kycStatus.signedTextMediaId}
+										class:bg-green-50={kycStatus.signedTextMediaId}
+										class:border-gray-200={!kycStatus.signedTextMediaId}
+										class:bg-gray-50={!kycStatus.signedTextMediaId}
+									>
+										<div class="flex items-center">
+											<span
+												class="ml-3 h-6 w-6"
+												class:icon-[heroicons--document-check]={kycStatus.signedTextMediaId}
+												class:icon-[heroicons--document]={!kycStatus.signedTextMediaId}
+												class:text-green-500={kycStatus.signedTextMediaId}
+												class:text-gray-400={!kycStatus.signedTextMediaId}
+											></span>
+											<div>
+												<p class="font-medium text-gray-900">سند امضا شده</p>
+												<p
+													class="text-sm"
+													class:text-green-600={kycStatus.signedTextMediaId}
+													class:text-gray-500={!kycStatus.signedTextMediaId}
+												>
+													{kycStatus.signedTextMediaId ? 'آپلود شده' : 'آپلود نشده'}
+												</p>
+											</div>
+										</div>
+										{#if kycStatus.signedTextMediaId}
+											<span class="icon-[heroicons--check-circle] h-6 w-6 text-green-500"></span>
+										{/if}
+									</div>
+
+									<!-- Selfie -->
+									<div
+										class="flex items-center justify-between rounded-lg border-2 p-4 transition-all"
+										class:border-green-200={kycStatus.selfieMediaId}
+										class:bg-green-50={kycStatus.selfieMediaId}
+										class:border-gray-200={!kycStatus.selfieMediaId}
+										class:bg-gray-50={!kycStatus.selfieMediaId}
+									>
+										<div class="flex items-center">
+											<span
+												class="ml-3 h-6 w-6"
+												class:icon-[heroicons--camera]={kycStatus.selfieMediaId}
+												class:text-green-500={kycStatus.selfieMediaId}
+												class:text-gray-400={!kycStatus.selfieMediaId}
+											></span>
+											<div>
+												<p class="font-medium text-gray-900">سلفی</p>
+												<p
+													class="text-sm"
+													class:text-green-600={kycStatus.selfieMediaId}
+													class:text-gray-500={!kycStatus.selfieMediaId}
+												>
+													{kycStatus.selfieMediaId ? 'آپلود شده' : 'آپلود نشده'}
+												</p>
+											</div>
+										</div>
+										{#if kycStatus.selfieMediaId}
+											<span class="icon-[heroicons--check-circle] h-6 w-6 text-green-500"></span>
+										{/if}
+									</div>
+
+									<!-- National Card -->
+									<div
+										class="flex items-center justify-between rounded-lg border-2 p-4 transition-all"
+										class:border-green-200={kycStatus.nationalCardMediaId}
+										class:bg-green-50={kycStatus.nationalCardMediaId}
+										class:border-gray-200={!kycStatus.nationalCardMediaId}
+										class:bg-gray-50={!kycStatus.nationalCardMediaId}
+									>
+										<div class="flex items-center">
+											<span
+												class="ml-3 h-6 w-6"
+												class:icon-[heroicons--identification]={kycStatus.nationalCardMediaId}
+												class:text-green-500={kycStatus.nationalCardMediaId}
+												class:text-gray-400={!kycStatus.nationalCardMediaId}
+											></span>
+											<div>
+												<p class="font-medium text-gray-900">کارت ملی</p>
+												<p
+													class="text-sm"
+													class:text-green-600={kycStatus.nationalCardMediaId}
+													class:text-gray-500={!kycStatus.nationalCardMediaId}
+												>
+													{kycStatus.nationalCardMediaId ? 'آپلود شده' : 'آپلود نشده'}
+												</p>
+											</div>
+										</div>
+										{#if kycStatus.nationalCardMediaId}
+											<span class="icon-[heroicons--check-circle] h-6 w-6 text-green-500"></span>
+										{/if}
+									</div>
+								</div>
+
+								<!-- Document Status Summary -->
+								<div class="mt-6 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 p-4">
+									<div class="flex items-center justify-between">
+										<div class="flex items-center">
+											<span
+												class="icon-[heroicons--clipboard-document-check] ml-2 h-5 w-5 text-blue-500"
+											></span>
+											<span class="font-medium text-blue-900">وضعیت تأیید اسناد</span>
+										</div>
+										<KycStatusIndicator status={kycStatus.step2Status} size="md" />
+									</div>
+								</div>
+							</div>
+						</Card>
 					{/if}
-
-					<!-- Overall Status -->
-					<div class="mt-6 rounded-lg border border-gray-200 bg-gray-50 p-4">
-						<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-							<div class="mb-2 sm:mb-0">
-								<h3 class="font-medium text-gray-800">وضعیت احراز هویت</h3>
-								<p class="text-sm text-gray-600">
-									آخرین به‌روزرسانی: {new Date(kycStatus.lastStepUpdatedAt).toLocaleString()}
-								</p>
-							</div>
-							<div class="flex items-center gap-2">
-								<span class="text-sm font-medium text-gray-700">مرحله ۱:</span>
-								<KycStatusIndicator status={kycStatus.step1Status} size="md" />
-								<span class="text-sm font-medium text-gray-700">مرحله ۲:</span>
-								<KycStatusIndicator status={kycStatus.step2Status} size="md" />
-							</div>
-						</div>
-
-						{#if kycStatus.adminNotes}
-							<div class="mt-3 rounded bg-yellow-50 p-3">
-								<p class="text-sm text-yellow-800">
-									<span class="font-medium">یادداشت‌های مدیر:</span>
-									{kycStatus.adminNotes}
-								</p>
-							</div>
-						{/if}
-					</div>
-				</Card>
+				</div>
 			{/if}
 		</div>
 	</GetKycStatusProvider>
