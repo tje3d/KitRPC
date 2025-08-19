@@ -191,6 +191,7 @@ enum TransactionType {
   DEPOSIT
   WITHDRAWAL
   TRANSFER
+  CAPACITY
 }
 
 enum CurrencyType {
@@ -221,6 +222,17 @@ enum KycStatus {
   PENDING
   APPROVED
   REJECTED
+}
+
+model SystemCapacity {
+  id           String       @id @default(cuid())
+  currency     CurrencyType
+  amount       Float
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@unique([currency])
+  @@index([currency])
 }
 
 model KycVerification {
