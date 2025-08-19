@@ -8,7 +8,7 @@ import { t } from './trpc';
 // Input validation schemas
 const createCapacityTransactionSchema = z.object({
 	currency: z.nativeEnum(CurrencyType),
-	amount: z.number().positive('Amount must be positive'),
+	amount: z.number(),
 	description: z.string().optional()
 });
 

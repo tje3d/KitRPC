@@ -483,9 +483,9 @@ This approach uses component references and function definitions in the script s
 		<div>Loading transactions...</div>
 	{:else if errorMessage}
 		<div class="error">{errorMessage}</div>
-	{:else if $transactions}
+	{:else if transactions}
 		<div class="transactions">
-			{#each $transactions as transaction}
+			{#each transactions as transaction}
 				<div class="transaction">
 					<span>{transaction.currency}</span>
 					<span>{transaction.amount}</span>
@@ -496,7 +496,7 @@ This approach uses component references and function definitions in the script s
 		</div>
 		
 		<div class="pagination">
-			<span>Total: {$totalCount}</span>
+			<span>Total: {totalCount}</span>
 			<!-- Add pagination controls here -->
 		</div>
 	{/if}
