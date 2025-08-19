@@ -10,11 +10,6 @@
 	}
 </script>
 
-<svelte:head>
-	<title>مدیر وظایف</title>
-	<meta name="description" content="مدیر وظایف - وظایف خود را به طور کارآمد سازماندهی کنید" />
-</svelte:head>
-
 <div class="flex min-h-screen items-center justify-center bg-gray-50 p-4">
 	<div class="w-full max-w-md" in:fly={{ y: 20, duration: 600, easing: quintOut }}>
 		<!-- Header -->
