@@ -118,9 +118,7 @@
 			className="bg-gradient-to-br from-green-50 to-emerald-100 border-green-200"
 		>
 			<div class="flex items-center">
-				<div
-					class="flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-lg"
-				>
+				<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-lg">
 					<CurrencyIcon currency="IRT" size="lg" />
 				</div>
 				<div class="ms-4">
@@ -139,9 +137,7 @@
 		<!-- USDT Balance -->
 		<Card variant="glass" className="bg-gradient-to-br from-blue-50 to-indigo-100 border-blue-200">
 			<div class="flex items-center">
-				<div
-					class="flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-lg"
-				>
+				<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-white shadow-lg">
 					<CurrencyIcon currency="USDT" size="lg" />
 				</div>
 				<div class="ms-4">
@@ -254,7 +250,7 @@
 	</div>
 
 	<!-- Quick Actions -->
-	<Card variant="flat" className="mt-8">
+	<Card variant="flat" className="mt-8 relative z-10">
 		<div class="mb-6 flex items-center">
 			<span class="icon-[heroicons--bolt] ml-3 h-6 w-6 text-blue-600"></span>
 			<h2 class="text-xl font-bold text-gray-800">عملیات سریع</h2>
@@ -407,20 +403,22 @@
 							<GetBankProvider cardNumber={card.cardNumber} let:bank>
 								<div
 									class="group relative overflow-hidden rounded-xl border border-gray-200 p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-									style="background: {bank ? `linear-gradient(135deg, ${bank.color}10, ${bank.color}20)` : 'linear-gradient(135deg, #f9fafb, #f3f4f6)'}; border-color: {bank ? `${bank.color}40` : '#d1d5db'};"
+									style="background: {bank
+										? `linear-gradient(135deg, ${bank.color}10, ${bank.color}20)`
+										: 'linear-gradient(135deg, #f9fafb, #f3f4f6)'}; border-color: {bank
+										? `${bank.color}40`
+										: '#d1d5db'};"
 								>
 									<div class="flex items-center justify-between">
 										<div class="flex items-center">
 											<div
 												class="flex h-12 w-12 items-center justify-center rounded-xl text-white shadow-lg"
-												style="background: {bank ? `linear-gradient(135deg, ${bank.color}, ${bank.color}dd)` : 'linear-gradient(135deg, #3b82f6, #6366f1)'};"
+												style="background: {bank
+													? `linear-gradient(135deg, ${bank.color}, ${bank.color}dd)`
+													: 'linear-gradient(135deg, #3b82f6, #6366f1)'};"
 											>
 												{#if bank}
-													<img
-														src="/img/banks/{bank.id}.svg"
-														alt={bank.name}
-														class="h-8 w-8"
-													/>
+													<img src="/img/banks/{bank.id}.svg" alt={bank.name} class="h-8 w-8" />
 												{:else}
 													<span class="icon-[heroicons--credit-card] h-6 w-6"></span>
 												{/if}
@@ -463,7 +461,9 @@
 									</div>
 									<div
 										class="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-5"
-										style="background: {bank ? `linear-gradient(135deg, ${bank.color}, ${bank.color})` : 'linear-gradient(135deg, #3b82f6, #6366f1)'};"
+										style="background: {bank
+											? `linear-gradient(135deg, ${bank.color}, ${bank.color})`
+											: 'linear-gradient(135deg, #3b82f6, #6366f1)'};"
 									></div>
 								</div>
 							</GetBankProvider>
