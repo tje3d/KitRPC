@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { invalidateAll } from '$app/navigation';
+	import ConditionalFunctionCaller from '$lib/components/ConditionalFunctionCaller.svelte';
 	import KycStep1Form from '$lib/components/KycStep1Form.svelte';
 	import KycStep2Upload from '$lib/components/KycStep2Upload.svelte';
 	import { rules } from '$lib/helpers/form.helper';
@@ -86,6 +88,15 @@
 			birthDate = formatDateForInput(r?.birthDate);
 		}}
 	>
+		<!-- Auto-refresh KYC status every 5 seconds when step1 is pending -->
+		<ConditionalFunctionCaller
+			condition={kycStatus?.step1Status === 'PENDING'}
+			callback={() => {
+				getKycStatus();
+				invalidateAll();
+			}}
+			interval={5000}
+		/>
 		{@const bothStepsApproved =
 			kycStatus?.step1Status === 'APPROVED' && kycStatus?.step2Status === 'APPROVED'}
 		{@const step2Disabled = kycStatus?.step1Status !== 'APPROVED'}
@@ -222,7 +233,9 @@
 										<span class="icon-[heroicons--x-circle] h-6 w-6 text-red-600"></span>
 									</div>
 									<div class="mr-4 flex-1">
-										<h3 class="text-lg font-semibold text-red-900">دلیل رد اطلاعات شخصی (مرحله ۱)</h3>
+										<h3 class="text-lg font-semibold text-red-900">
+											دلیل رد اطلاعات شخصی (مرحله ۱)
+										</h3>
 										<p class="mt-2 text-red-800">{kycStatus.step1RejectionReason}</p>
 										{#if kycStatus.step1RejectedAt}
 											<p class="mt-2 text-sm text-red-600">
@@ -260,7 +273,8 @@
 										<div class="mt-4 rounded-lg bg-red-100 p-3">
 											<p class="text-sm font-medium text-red-900">راهنمای رفع مشکل:</p>
 											<p class="mt-1 text-sm text-red-800">
-												لطفاً اسناد واضح و معتبر را مجدداً آپلود کنید. مطمئن شوید که تصاویر خوانا و کامل باشند.
+												لطفاً اسناد واضح و معتبر را مجدداً آپلود کنید. مطمئن شوید که تصاویر خوانا و
+												کامل باشند.
 											</p>
 										</div>
 									</div>
