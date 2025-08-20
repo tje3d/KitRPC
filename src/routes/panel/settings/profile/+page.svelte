@@ -117,6 +117,36 @@
 			<p class="mt-1 text-sm text-gray-600">جزئیات حساب شما در زیر نمایش داده شده است.</p>
 
 			<div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2">
+				<FormGroup label="نام" forAttr="firstName">
+					<Input
+						id="firstName"
+						name="firstName"
+						value={$authUser?.firstName || ''}
+						disabled
+						placeholder="نام شما"
+					/>
+				</FormGroup>
+
+				<FormGroup label="نام خانوادگی" forAttr="lastName">
+					<Input
+						id="lastName"
+						name="lastName"
+						value={$authUser?.lastName || ''}
+						disabled
+						placeholder="نام خانوادگی شما"
+					/>
+				</FormGroup>
+
+				<FormGroup label="نام پدر" forAttr="fatherName">
+					<Input
+						id="fatherName"
+						name="fatherName"
+						value={$authUser?.fatherName || ''}
+						disabled
+						placeholder="نام پدر شما"
+					/>
+				</FormGroup>
+
 				<FormGroup label="نام کاربری" forAttr="username">
 					<Input
 						id="username"

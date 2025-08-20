@@ -1,214 +1,192 @@
-// NextPay Gateway Service
-// Provides KYC verification services through NextPay API
+// NextPay API Service
+// Base URL: https://nextpay.org
 
-// TypeScript interfaces for NextPay API
-export interface NextPayCheckMobileRequest {
+import { createApiRequest, NetworkError, ValidationError } from '../helpers/apiRequest.helper.js';
+
+// Environment variables
+const NEXTPAY_TOKEN = process.env.NEXTPAY_TOKEN;
+const NEXTPAY_BASE_URL = 'https://nextpay.org';
+const DEBUG = process.env.NODE_ENV === 'development';
+
+// Debug logging helper
+const debugLog = (message: string, data?: any) => {
+	if (DEBUG) {
+		console.log(`[NextPay Service] ${message}`, data ? JSON.stringify(data, null, 2) : '');
+	}
+};
+
+// Custom error types
+export class NextPayNetworkError extends NetworkError {
+	constructor(message: string) {
+		super(message);
+		this.name = 'NextPayNetworkError';
+	}
+}
+
+export class NextPayValidationError extends ValidationError {
+	constructor(message: string) {
+		super(message);
+		this.name = 'NextPayValidationError';
+	}
+}
+
+// Base response interface
+interface NextPayBaseResponse {
+	code: number;
+	error: string | null;
+	fee: number;
+	fee_irr: number;
+	inq_balance: number;
+	inq_balance_irr: number;
+}
+
+// Shahkar Inquiry Types
+interface ShahkarInquiryRequest {
+	national_id: string;
 	mobile: string;
 }
 
-export interface NextPayCheckMobileResponse {
-	success: boolean;
-	data?: {
-		valid: boolean;
-		operator?: string;
-		province?: string;
-		city?: string;
-	};
-	error?: string;
-	message?: string;
+interface ShahkarInquiryData {
+	inq: string;
+	inq_desc: string;
+	inq_id: number;
+	national_id: string;
+	mobile: string;
+	match: boolean;
 }
 
-export interface NextPayCheckNidRequest {
-	nationalId: string;
-	firstName?: string;
-	lastName?: string;
-	birthDate?: string;
+interface ShahkarInquiryResponse extends NextPayBaseResponse {
+	data: ShahkarInquiryData;
 }
 
-export interface NextPayCheckNidResponse {
-	success: boolean;
-	data?: {
-		valid: boolean;
-		firstName?: string;
-		lastName?: string;
-		birthDate?: string;
-		gender?: string;
-	};
-	error?: string;
-	message?: string;
+// Sabtahval Inquiry Types
+interface SabtahvalInquiryRequest {
+	national_id: string;
+	birth_year: string;
+	birth_month: string;
+	birth_day: string;
 }
 
-export interface NextPayGetIbanRequest {
-	iban: string;
+interface SabtahvalInquiryData {
+	inq: string;
+	inq_desc: string;
+	inq_id: number;
+	national_id: string;
+	jalali_birth: string;
+	match: boolean;
+	first_name: string;
+	last_name: string;
+	father_name: string;
+	is_alive: number;
 }
 
-export interface NextPayGetIbanResponse {
-	success: boolean;
-	data?: {
-		valid: boolean;
-		bankName?: string;
-		bankCode?: string;
-		accountNumber?: string;
-		ownerName?: string;
-	};
-	error?: string;
-	message?: string;
+interface SabtahvalInquiryResponse extends NextPayBaseResponse {
+	data: SabtahvalInquiryData;
 }
 
-export interface NextPayServiceConfig {
-	token: string;
-	baseUrl?: string;
-	timeout?: number;
-}
+// Create NextPay API request function
+const makeNextPayRequest = createApiRequest({
+	baseUrl: NEXTPAY_BASE_URL,
+	token: NEXTPAY_TOKEN,
+	tokenField: 'inquiry_api',
+	defaultTimeout: 30000
+});
 
-class NextPayService {
-	private token: string;
-	private baseUrl: string;
-	private timeout: number;
+/**
+ * Shahkar Inquiry - Compare nationalCode + mobile
+ * Returns true if nationalCode and mobile number match, otherwise throws error
+ */
+export const shahkarInquiry = async (
+	request: ShahkarInquiryRequest,
+	timeoutMs: number = 30000
+): Promise<boolean> => {
+	debugLog('Shahkar inquiry started', { request, timeoutMs });
+	
+	try {
+		const response = await makeNextPayRequest<ShahkarInquiryResponse>(
+			'/nx/inquiry/shahkar',
+			request,
+			timeoutMs
+		);
 
-	constructor(config: NextPayServiceConfig) {
-		this.token = config.token;
-		this.baseUrl = config.baseUrl || 'https://api.nextpay.org';
-		this.timeout = config.timeout || 30000; // 30 seconds default
-	}
+		debugLog('Shahkar inquiry response received', response);
 
-	/**
-	 * Create fetch request with timeout
-	 */
-	private async fetchWithTimeout(
-		url: string,
-		options: RequestInit,
-		timeout: number = this.timeout
-	): Promise<Response> {
-		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-		try {
-			const response = await fetch(url, {
-				...options,
-				signal: controller.signal
-			});
-			clearTimeout(timeoutId);
-			return response;
-		} catch (error) {
-			clearTimeout(timeoutId);
-			if (error instanceof Error && error.name === 'AbortError') {
-				throw new Error(`Request timeout after ${timeout}ms`);
-			}
+		// Check if matched is true
+		if (response?.data?.match === true) {
+			debugLog('Shahkar inquiry successful - match found');
+			return true;
+		} else {
+			debugLog('Shahkar inquiry failed - no match');
+			throw new NextPayValidationError('اطلاعات کد ملی و شماره موبایل تطابق ندارد');
+		}
+	} catch (error) {
+		debugLog('Shahkar inquiry error', { error: error instanceof Error ? error.message : error });
+		
+		// Re-throw network errors and validation errors
+		if (error instanceof NetworkError || error instanceof ValidationError) {
 			throw error;
 		}
+		// Handle unexpected errors
+		throw new Error(
+			`Shahkar inquiry failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+		);
 	}
-
-	/**
-	 * Make API request to NextPay
-	 */
-	private async makeRequest<T>(endpoint: string, data: any, timeout?: number): Promise<T> {
-		try {
-			const url = `${this.baseUrl}${endpoint}`;
-			const response = await this.fetchWithTimeout(
-				url,
-				{
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${this.token}`
-					},
-					body: JSON.stringify(data)
-				},
-				timeout
-			);
-
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-
-			const result = await response.json();
-			return result as T;
-		} catch (error) {
-			if (error instanceof Error) {
-				throw new Error(`NextPay API request failed: ${error.message}`);
-			}
-			throw new Error('Unknown error occurred during NextPay API request');
-		}
-	}
-
-	/**
-	 * Check mobile number validity
-	 */
-	async checkMobile(
-		request: NextPayCheckMobileRequest,
-		timeout?: number
-	): Promise<NextPayCheckMobileResponse> {
-		try {
-			const response = await this.makeRequest<NextPayCheckMobileResponse>(
-				'/kyc/mobile/verify',
-				request,
-				timeout
-			);
-			return response;
-		} catch (error) {
-			return {
-				success: false,
-				error: error instanceof Error ? error.message : 'Unknown error',
-				message: 'Failed to check mobile number'
-			};
-		}
-	}
-
-	/**
-	 * Check national ID validity
-	 */
-	async checkNid(
-		request: NextPayCheckNidRequest,
-		timeout?: number
-	): Promise<NextPayCheckNidResponse> {
-		try {
-			const response = await this.makeRequest<NextPayCheckNidResponse>(
-				'/kyc/nationalid/verify',
-				request,
-				timeout
-			);
-			return response;
-		} catch (error) {
-			return {
-				success: false,
-				error: error instanceof Error ? error.message : 'Unknown error',
-				message: 'Failed to check national ID'
-			};
-		}
-	}
-
-	/**
-	 * Get IBAN information
-	 */
-	async getIban(request: NextPayGetIbanRequest, timeout?: number): Promise<NextPayGetIbanResponse> {
-		try {
-			const response = await this.makeRequest<NextPayGetIbanResponse>(
-				'/kyc/iban/validate',
-				request,
-				timeout
-			);
-			return response;
-		} catch (error) {
-			return {
-				success: false,
-				error: error instanceof Error ? error.message : 'Unknown error',
-				message: 'Failed to get IBAN information'
-			};
-		}
-	}
-}
-
-// Factory function to create NextPay service instance
-export const createNextPayService = (
-	token: string,
-	config?: Partial<NextPayServiceConfig>
-): NextPayService => {
-	return new NextPayService({
-		token,
-		...config
-	});
 };
 
-// Default export
-export default NextPayService;
+/**
+ * Sabtahval Inquiry - Get information using nationalCode + birthDate
+ * Returns user information if matched, otherwise throws error
+ */
+export const sabtahvalInquiry = async (
+	request: SabtahvalInquiryRequest,
+	timeoutMs: number = 30000
+): Promise<{
+	firstName: string;
+	lastName: string;
+	fatherName: string;
+	alive: boolean;
+}> => {
+	debugLog('Sabtahval inquiry started', { request, timeoutMs });
+	
+	try {
+		const response = await makeNextPayRequest<SabtahvalInquiryResponse>(
+			'/nx/inquiry/sabtahval',
+			request,
+			timeoutMs
+		);
+
+		debugLog('Sabtahval inquiry response received', response);
+
+		// Check if matched is true
+		if (response?.data?.match === true) {
+			const result = {
+				firstName: response.data.first_name,
+				lastName: response.data.last_name,
+				fatherName: response.data.father_name,
+				alive: response.data.is_alive === 1
+			};
+			debugLog('Sabtahval inquiry successful', result);
+			return result;
+		} else {
+			debugLog('Sabtahval inquiry failed - no match');
+			throw new NextPayValidationError('اطلاعات کد ملی و تاریخ تولد تطابق ندارد');
+		}
+	} catch (error) {
+		debugLog('Sabtahval inquiry error', { error: error instanceof Error ? error.message : error });
+		
+		// Re-throw network errors and validation errors
+		if (error instanceof NetworkError || error instanceof ValidationError) {
+			throw error;
+		}
+		// Handle unexpected errors
+		throw new Error(
+			`Sabtahval inquiry failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+		);
+	}
+};
+
+// Export default service object
+export default {
+	shahkarInquiry,
+	sabtahvalInquiry
+};

@@ -77,9 +77,9 @@
 	}
 
 	// Generate calendar days for current month
-	function generateCalendarDays() {
-		const firstDay = moment().jYear(currentYear).jMonth(currentMonth).jDate(1);
-		const lastDay = moment().jYear(currentYear).jMonth(currentMonth).endOf('jMonth');
+	function generateCalendarDays(year: number, month: number) {
+		const firstDay = moment().jYear(year).jMonth(month).jDate(1);
+		const lastDay = moment().jYear(year).jMonth(month).endOf('jMonth');
 		const startOfWeek = firstDay.clone().startOf('week');
 		const endOfWeek = lastDay.clone().endOf('week');
 
@@ -89,7 +89,7 @@
 		while (current.isSameOrBefore(endOfWeek)) {
 			days.push({
 				date: current.clone(),
-				isCurrentMonth: current.jMonth() === currentMonth,
+				isCurrentMonth: current.jMonth() === month,
 				isToday: current.isSame(moment(), 'day'),
 				isSelected: value && current.isSame(moment(value), 'day'),
 				isDisabled: isDateDisabled(current)
@@ -181,11 +181,11 @@
 		showMonthSelect = false;
 	}
 
-	// Generate year range (current year ± 50 years)
+	// Generate year range (120 years before to 5 years after current year)
 	function generateYearRange() {
 		const currentJalaliYear = moment().jYear();
 		const years = [];
-		for (let i = currentJalaliYear - 50; i <= currentJalaliYear + 50; i++) {
+		for (let i = currentJalaliYear - 120; i <= currentJalaliYear + 5; i++) {
 			years.push(i);
 		}
 		return years;
@@ -425,7 +425,7 @@
 
 			<!-- Calendar Days -->
 			<div class="grid grid-cols-7 gap-1">
-				{#each generateCalendarDays() as day}
+				{#each generateCalendarDays(currentYear, currentMonth) as day}
 					<button
 						type="button"
 						on:click={() => selectDate(day.date)}

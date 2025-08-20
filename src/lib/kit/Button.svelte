@@ -16,13 +16,14 @@
 	/** @type {string} - Additional CSS classes */
 	export let className: string = '';
 
-	/** @type {string} - Button variant (primary, secondary, gradient) */
+	/** @type {string} - Button variant (primary, secondary, gradient, outline) */
 	export let variant:
 		| 'primary'
 		| 'secondary'
 		| 'gradient'
 		| 'gradient-secondary'
-		| 'gradient-success' = 'primary';
+		| 'gradient-success'
+		| 'outline' = 'primary';
 
 	/** @type {string} - Button size (default, sm, lg) */
 	export let size: 'default' | 'sm' | 'lg' = 'default';
@@ -57,6 +58,8 @@
 				'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 hover:-translate-y-0.5 hover:shadow-md',
 			secondary:
 				'text-gray-700 bg-gray-100 hover:bg-gray-200 focus:ring-gray-500 hover:-translate-y-0.5 hover:shadow-sm',
+			outline:
+				'text-blue-600 bg-transparent border border-blue-600 hover:bg-blue-50 focus:ring-blue-500 hover:-translate-y-0.5 hover:shadow-sm',
 			gradient:
 				'text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500 hover:-translate-y-0.5 hover:shadow-md',
 			'gradient-secondary':

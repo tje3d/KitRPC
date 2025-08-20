@@ -3,7 +3,7 @@
 	import { base } from '$app/paths';
 	import ConfirmDialog from '$lib/dialog/ConfirmDialog.svelte';
 	import { dialogStore } from '$lib/dialog/store';
-	import { authUser } from '$lib/flow/auth.flow';
+	import { authUser, userDisplayName } from '$lib/flow/auth.flow';
 	import Balance from '$lib/kit/Balance.svelte';
 	import Popover from '$lib/kit/Popover.svelte';
 	import LogoutProvider from '$lib/providers/LogoutProvider.svelte';
@@ -213,7 +213,7 @@
 						</div>
 						<div class="min-w-0 flex-1">
 							<p class="truncate text-sm font-semibold text-gray-900 dark:text-white">
-								{$authUser?.username || 'User'}
+								{$userDisplayName}
 							</p>
 							{#if $authUser?.role?.name}
 								<p class="truncate text-xs text-gray-500 dark:text-gray-400">
@@ -235,7 +235,7 @@
 							</div>
 							<div class="min-w-0 flex-1">
 								<p class="truncate text-sm font-semibold text-gray-900 dark:text-white">
-									{$authUser?.username || 'User'}
+									{$userDisplayName}
 								</p>
 								{#if $authUser?.role?.name}
 									<p class="truncate text-xs text-gray-500 dark:text-gray-400">

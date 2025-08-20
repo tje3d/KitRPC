@@ -1,13 +1,32 @@
 import { invalidateAll } from '$app/navigation';
 import { useBooleanStorage, useObjectStorage } from '$lib/helpers/localStorage.helper';
 import { shareIt, SvelteSubject } from '$lib/helpers/rxjs.helper';
-import { distinctUntilChanged, interval, Observable } from 'rxjs';
+import { distinctUntilChanged, interval, map, Observable } from 'rxjs';
 
 export const [isLoggedInMain, setIsLoggedIn] = useBooleanStorage('isloggedin', false);
 export const isLoggedIn = isLoggedInMain.pipe(distinctUntilChanged(), shareIt());
 
 export const [authUser, setAuthUser] = useObjectStorage<App.AuthUser>('authUser');
 export const [manualLogout, setManualLogout] = useBooleanStorage('manual_logout', false);
+
+// Derived observables
+export const userDisplayName = authUser.pipe(
+	map((user) => {
+		if (!user) return 'User';
+
+		const parts = [];
+		if (user.firstName) parts.push(user.firstName);
+		if (user.lastName) parts.push(user.lastName);
+
+		if (parts.length > 0) {
+			return parts.join(' ');
+		}
+
+		return user.username || 'User';
+	}),
+	distinctUntilChanged(),
+	shareIt()
+);
 
 export const ready = new SvelteSubject<boolean>(false);
 

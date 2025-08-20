@@ -12,6 +12,10 @@ model User {
   username        String            @unique
   email           String?
   password        String
+  firstName       String?
+  lastName        String?
+  birthDate       DateTime?
+  fatherName      String?
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   roleId          String
@@ -244,9 +248,9 @@ model KycVerification {
   step2VerifiedAt      DateTime?
   step1RejectedAt      DateTime?
   step2RejectedAt      DateTime?
-  step1RejectionReason String?
-  step2RejectionReason String?
-  adminNotes           String?
+  step1RejectionReason String? @db.Text
+  step2RejectionReason String? @db.Text
+  adminNotes           String? @db.Text
   lastStepUpdatedAt    DateTime   @default(now())
   createdAt            DateTime   @default(now())
   updatedAt            DateTime   @updatedAt

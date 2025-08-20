@@ -1,5 +1,11 @@
 import { prisma } from '$lib/prisma';
 import {
+	identityInquiry,
+	shahkarInquiry,
+	VerificationNetworkError,
+	VerificationValidationError
+} from '$lib/services/kyc-verification.service';
+import {
 	createApprovalUpdateData,
 	createRejectionUpdateData,
 	formatKycResponse,
@@ -10,6 +16,7 @@ import { getOrCreateNonExpiredOtp } from '$lib/services/otp.service';
 import { MediaReason, MediaVisibility, Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
+import moment from 'moment-jalaali';
 import { createPermissionMiddleware, isAuthenticated } from './middleware';
 import { t } from './trpc';
 
@@ -77,6 +84,87 @@ interface FileData {
 	encoding: string;
 	buffer: Buffer;
 }
+
+// تابع تأیید KYC در پس‌زمینه
+const performKycVerification = async (
+	kycId: string,
+	nationalId: string,
+	mobile: string,
+	birthDate: string
+): Promise<void> => {
+	try {
+		// مرحله ۱: تأیید شهکار (کد ملی + موبایل)
+		await shahkarInquiry({
+			nationalCode: nationalId,
+			mobile: mobile
+		});
+
+		// تبدیل تاریخ تولد از تقویم میلادی به جلالی
+		const jalaliBirthDate = moment(birthDate, 'YYYY-MM-DD').format('jYYYY-jMM-jDD');
+
+		// مرحله ۲: دریافت اطلاعات هویتی (کد ملی + تاریخ تولد)
+		const identityResult = await identityInquiry({
+			nationalCode: nationalId,
+			birthDate: jalaliBirthDate
+		});
+
+		// دریافت اطلاعات KYC برای به‌روزرسانی کاربر
+		const kycRecord = await prisma.kycVerification.findUnique({
+			where: { id: kycId },
+			select: { userId: true }
+		});
+
+		if (!kycRecord) {
+			throw new Error('KYC record not found');
+		}
+
+		// تأیید موفق - به‌روزرسانی اطلاعات کاربر و وضعیت KYC
+		await Promise.all([
+			// به‌روزرسانی اطلاعات کاربر
+			prisma.user.update({
+				where: { id: kycRecord.userId },
+				data: {
+					firstName: identityResult.firstName,
+					lastName: identityResult.lastName,
+					fatherName: identityResult.fatherName,
+					updatedAt: new Date()
+				}
+			}),
+			// به‌روزرسانی وضعیت KYC
+			prisma.kycVerification.update({
+				where: { id: kycId },
+				data: {
+					step1Status: 'APPROVED',
+					step1VerifiedAt: new Date(),
+					lastStepUpdatedAt: new Date(),
+					updatedAt: new Date()
+				}
+			})
+		]);
+	} catch (error) {
+		let rejectionReason = 'خطای سیستم در تأیید اطلاعات';
+
+		if (error instanceof VerificationNetworkError) {
+			// خطای شبکه - درخواست مجدد
+			rejectionReason = 'خطای شبکه در تأیید اطلاعات. لطفاً مجدداً تلاش کنید';
+		} else if (error instanceof VerificationValidationError) {
+			// خطای اعتبارسنجی - عدم تطابق داده‌ها
+			rejectionReason = error.message;
+		}
+
+		// به‌روزرسانی وضعیت به رد شده
+		await prisma.kycVerification.update({
+			where: { id: kycId },
+			data: {
+				step1Status: 'REJECTED',
+				step1RejectedAt: new Date(),
+				step1RejectionReason: rejectionReason,
+				lastStepUpdatedAt: new Date(),
+				updatedAt: new Date()
+			}
+		});
+	}
+};
 
 const processKycFile = async (
 	fileData: FileData,
@@ -170,6 +258,9 @@ export const kycRouter = t.router({
 					}
 				});
 
+				// شروع تأیید KYC در پس‌زمینه
+				performKycVerification(kycVerification.id, input.nationalId, input.mobile, input.birthDate);
+
 				// OTP توسط getOrCreateNonExpiredOtp مدیریت می‌شود، بنابراین عملیات اضافی پایگاه داده در اینجا لازم نیست
 
 				return {
@@ -190,6 +281,9 @@ export const kycRouter = t.router({
 						step1Status: 'PENDING'
 					}
 				});
+
+				// شروع تأیید KYC در پس‌زمینه
+				performKycVerification(kycVerification.id, input.nationalId, input.mobile, input.birthDate);
 
 				// The OTP is handled by getOrCreateNonExpiredOtp, so no additional database operations needed here
 

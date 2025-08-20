@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, ErrorDisplay, KycStatusIndicator, MediaPreview } from '$lib/kit';
+	import { Button, ErrorDisplay, KycStatusIndicator } from '$lib/kit';
 	import type { RouterOutputs } from '$lib/trpc/router';
 	import { slide } from 'svelte/transition';
 	import KycFileUploadSection from './KycFileUploadSection.svelte';
@@ -17,6 +17,40 @@
 	// Collapse state - collapse when step2 is approved or when step1 is not approved
 	let isCollapsed = false;
 	$: isCollapsed = kycStatus?.step2Status === 'APPROVED' || step2Disabled;
+
+	// State for re-uploading files
+	let reUploadingFiles: Record<string, boolean> = {};
+
+	// Function to toggle re-upload mode for a specific file type
+	function toggleReUpload(fileType: string) {
+		reUploadingFiles[fileType] = !reUploadingFiles[fileType];
+		reUploadingFiles = { ...reUploadingFiles };
+	}
+
+	// File upload rows data
+	const uploadRows = [
+		{
+			fileType: 'signedImage' as const,
+			title: 'سند امضا شده',
+			description: 'یک سند امضا شده با تاریخ امروز آپلود کنید',
+			icon: 'icon-[heroicons--document-text]',
+			getMediaId: (status?: KycStatus) => status?.signedTextMediaId
+		},
+		{
+			fileType: 'selfie' as const,
+			title: 'سلفی',
+			description: 'یک سلفی واضح از خودتان در حال نگه داشتن کارت ملی آپلود کنید',
+			icon: 'icon-[heroicons--camera]',
+			getMediaId: (status?: KycStatus) => status?.selfieMediaId
+		},
+		{
+			fileType: 'nationalIdImage' as const,
+			title: 'تصویر کارت ملی',
+			description: 'یک عکس واضح از کارت ملی خود آپلود کنید',
+			icon: 'icon-[heroicons--identification]',
+			getMediaId: (status?: KycStatus) => status?.nationalCardMediaId
+		}
+	];
 </script>
 
 <div
@@ -195,91 +229,136 @@
 					</p>
 				</div>
 
-				<div class="grid grid-cols-1 gap-6 md:grid-cols-3">
-					<KycFileUploadSection
-						fileType="signedImage"
-						title="سند امضا شده"
-						description="یک سند امضا شده با تاریخ امروز آپلود کنید"
-						disabled={step2Disabled}
-						uploadDisabled={step2UploadDisabled}
-						onUploadSuccess={onRefresh}
-					/>
+				<!-- File Upload Rows -->
+				<div class="space-y-6">
+					{#each uploadRows as row}
+						{@const isUploaded = kycStatus && row.getMediaId(kycStatus)}
+						<div
+							class="rounded-xl border transition-all duration-200"
+							class:border-gray-200={!step2Disabled && !isUploaded}
+							class:bg-white={!step2Disabled && !isUploaded}
+							class:border-green-200={!step2Disabled && isUploaded}
+							class:bg-green-50={!step2Disabled && isUploaded}
+							class:border-gray-300={step2Disabled}
+							class:bg-gray-50={step2Disabled}
+							class:opacity-60={step2Disabled}
+						>
+							<div class="p-6">
+								<div class="flex items-start justify-between">
+									<div class="flex flex-1 items-start gap-4">
+										<!-- Icon -->
+										<div
+											class="flex h-12 w-12 items-center justify-center rounded-xl transition-colors"
+											class:bg-blue-100={!step2Disabled && !isUploaded}
+											class:text-blue-600={!step2Disabled && !isUploaded}
+											class:bg-green-100={!step2Disabled && isUploaded}
+											class:text-green-600={!step2Disabled && isUploaded}
+											class:bg-gray-200={step2Disabled}
+											class:text-gray-400={step2Disabled}
+										>
+											<span class="{row.icon} h-6 w-6"></span>
+										</div>
 
-					<KycFileUploadSection
-						fileType="selfie"
-						title="سلفی"
-						description="یک سلفی واضح از خودتان در حال نگه داشتن کارت ملی آپلود کنید"
-						disabled={step2Disabled}
-						uploadDisabled={step2UploadDisabled}
-						onUploadSuccess={onRefresh}
-					/>
+										<!-- Content -->
+										<div class="flex-1">
+											<div class="mb-2 flex items-center gap-3">
+												<h4
+													class="text-lg font-semibold transition-colors"
+													class:text-gray-900={!step2Disabled}
+													class:text-gray-500={step2Disabled}
+												>
+													{row.title}
+												</h4>
+												{#if isUploaded}
+													<div class="flex items-center gap-2">
+														<span class="icon-[heroicons--check-circle] h-5 w-5 text-green-600"
+														></span>
+														<span class="text-sm font-medium text-green-700">آپلود شده</span>
+													</div>
+												{/if}
+											</div>
+											<p
+												class="mb-4 text-sm transition-colors"
+												class:text-gray-600={!step2Disabled}
+												class:text-gray-500={step2Disabled}
+											>
+												{row.description}
+											</p>
 
-					<KycFileUploadSection
-						fileType="nationalIdImage"
-						title="تصویر کارت ملی"
-						description="یک عکس واضح از کارت ملی خود آپلود کنید"
-						disabled={step2Disabled}
-						uploadDisabled={step2UploadDisabled}
-						onUploadSuccess={onRefresh}
-					/>
+											<!-- Upload Section or Preview -->
+											{#if isUploaded && !reUploadingFiles[row.fileType]}
+												<div
+													class="flex items-center justify-between rounded-lg border border-green-200 bg-white p-4"
+												>
+													<div class="flex items-center gap-3">
+														<img
+															src="/media/{row.getMediaId(kycStatus)}"
+															alt={row.title}
+															class="h-16 w-16 rounded-lg border border-gray-200 object-cover"
+														/>
+														<div>
+															<p class="font-medium text-gray-900">{row.title}</p>
+															<p class="text-sm text-gray-500">فایل آپلود شده</p>
+														</div>
+													</div>
+													<div class="flex items-center gap-3">
+														<button
+															class="text-sm font-medium text-blue-600 transition-colors hover:text-blue-700"
+															disabled={step2Disabled || step2UploadDisabled}
+															on:click={() => toggleReUpload(row.fileType)}
+														>
+															تغییر فایل
+														</button>
+													</div>
+												</div>
+											{:else}
+												<div class="space-y-4">
+													<KycFileUploadSection
+														fileType={row.fileType}
+														title=""
+														description=""
+														disabled={step2Disabled}
+														uploadDisabled={step2UploadDisabled}
+														onUploadSuccess={() => {
+															reUploadingFiles[row.fileType] = false;
+															reUploadingFiles = { ...reUploadingFiles };
+															onRefresh();
+														}}
+													/>
+													{#if isUploaded && reUploadingFiles[row.fileType]}
+														<div class="flex justify-end">
+															<button
+																class="text-sm font-medium text-gray-600 transition-colors hover:text-gray-700"
+																on:click={() => toggleReUpload(row.fileType)}
+															>
+																لغو
+															</button>
+														</div>
+													{/if}
+												</div>
+											{/if}
+										</div>
+									</div>
+
+									<!-- Checkbox -->
+									<div class="ms-4">
+										<div
+											class="flex h-6 w-6 items-center justify-center rounded border-2 transition-colors"
+											class:border-green-500={isUploaded && !step2Disabled}
+											class:bg-green-500={isUploaded && !step2Disabled}
+											class:border-gray-300={!isUploaded || step2Disabled}
+											class:bg-gray-100={step2Disabled}
+										>
+											{#if isUploaded && !step2Disabled}
+												<span class="icon-[heroicons--check] h-4 w-4 text-white"></span>
+											{/if}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					{/each}
 				</div>
-
-				<!-- Uploaded Files Preview -->
-				{#if !step2Disabled && kycStatus}
-					<div class="mt-8 space-y-4">
-						<div class="border-t border-gray-200 pt-6">
-							<h3 class="flex items-center gap-2 text-lg font-semibold text-gray-800">
-								<span class="icon-[heroicons--eye] h-5 w-5 text-purple-600"></span>
-								پیش‌نمایش اسناد آپلود شده
-							</h3>
-							<p class="mt-1 text-sm text-gray-600">بررسی اسناد آپلود شده</p>
-						</div>
-
-						<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-							<MediaPreview
-								media={kycStatus.signedTextMediaId
-									? {
-											id: kycStatus.signedTextMediaId,
-											filename: 'signed-document.jpg',
-											mimeType: 'image/jpeg',
-											originalName: 'سند امضا شده',
-											fileSize: 1024000,
-											createdAt: new Date().toISOString()
-										}
-									: null}
-								label="سند امضا شده"
-							/>
-
-							<MediaPreview
-								media={kycStatus.selfieMediaId
-									? {
-											id: kycStatus.selfieMediaId,
-											filename: 'selfie.jpg',
-											mimeType: 'image/jpeg',
-											originalName: 'سلفی',
-											fileSize: 1024000,
-											createdAt: new Date().toISOString()
-										}
-									: null}
-								label="سلفی"
-							/>
-
-							<MediaPreview
-								media={kycStatus.nationalCardMediaId
-									? {
-											id: kycStatus.nationalCardMediaId,
-											filename: 'national-id.jpg',
-											mimeType: 'image/jpeg',
-											originalName: 'کارت ملی',
-											fileSize: 1024000,
-											createdAt: new Date().toISOString()
-										}
-									: null}
-								label="کارت ملی"
-							/>
-						</div>
-					</div>
-				{/if}
 
 				{#if errorMessage}
 					<div class="mt-6">

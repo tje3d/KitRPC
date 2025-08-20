@@ -113,13 +113,14 @@
 
 			<!-- Status Hero Section -->
 			{#if kycStatus}
-				{@const bothStepsCompleted = kycStatus.step1Status === 'APPROVED' && kycStatus.step2Status === 'APPROVED'}
+				{@const bothStepsCompleted =
+					kycStatus.step1Status === 'APPROVED' && kycStatus.step2Status === 'APPROVED'}
 				{@const step2Pending = kycStatus.step2Status === 'PENDING'}
 				{@const step1Approved = kycStatus.step1Status === 'APPROVED'}
 				{@const step1Pending = kycStatus.step1Status === 'PENDING'}
 				{@const step1Rejected = kycStatus.step1Status === 'REJECTED'}
 				{@const step2Rejected = kycStatus.step2Status === 'REJECTED'}
-				
+
 				<div class="mb-8">
 					<div
 						class="to relative overflow-hidden rounded-2xl from-cyan-400 to-cyan-500 p-8 shadow-lg"
@@ -134,7 +135,7 @@
 						<div class="absolute inset-0 bg-black/10"></div>
 						<div class="relative z-10">
 							<div class="flex items-center justify-between">
-								<div class="flex items-center space-x-4 space-x-reverse">
+								<div class="flex items-center gap-4">
 									<div
 										class="flex h-16 w-16 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm"
 									>
@@ -143,7 +144,9 @@
 											class:icon-[heroicons--check-circle]={bothStepsCompleted}
 											class:icon-[heroicons--clock]={step2Pending || step1Pending}
 											class:icon-[heroicons--x-circle]={step1Rejected || step2Rejected}
-											class:icon-[heroicons--document-text]={!step1Approved && !step1Pending && !step1Rejected}
+											class:icon-[heroicons--document-text]={!step1Approved &&
+												!step1Pending &&
+												!step1Rejected}
 										></span>
 									</div>
 									<div>
@@ -168,7 +171,8 @@
 										</h1>
 										<p class="mt-2 text-lg text-white/90">
 											{#if bothStepsCompleted}
-												احراز هویت شما تأیید شده است. اکنون به تمام ویژگی‌های پلتفرم دسترسی کامل دارید.
+												احراز هویت شما تأیید شده است. اکنون به تمام ویژگی‌های پلتفرم دسترسی کامل
+												دارید.
 											{:else if step1Rejected}
 												اطلاعات شخصی ارسالی مورد تأیید قرار نگرفت. لطفاً اطلاعات صحیح را وارد کنید.
 											{:else if step2Rejected}
@@ -188,7 +192,7 @@
 									</div>
 								</div>
 								<div class="hidden sm:block">
-									<div class="flex items-center space-x-2 space-x-reverse">
+									<div class="flex items-center gap-2">
 										<div class="text-center">
 											<div class="text-sm font-medium text-white/80">مرحله ۱</div>
 											<KycStatusIndicator status={kycStatus.step1Status} size="lg" />
@@ -203,6 +207,67 @@
 							</div>
 						</div>
 					</div>
+				</div>
+			{/if}
+
+			<!-- Rejection Reason Cards -->
+			{#if kycStatus && (kycStatus.step1Status === 'REJECTED' || kycStatus.step2Status === 'REJECTED')}
+				<div class="space-y-4">
+					<!-- Step 1 Rejection Reason -->
+					{#if kycStatus.step1Status === 'REJECTED' && kycStatus.step1RejectionReason}
+						<Card className="border-red-200 bg-red-50">
+							<div class="p-6">
+								<div class="flex items-start">
+									<div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+										<span class="icon-[heroicons--x-circle] h-6 w-6 text-red-600"></span>
+									</div>
+									<div class="mr-4 flex-1">
+										<h3 class="text-lg font-semibold text-red-900">دلیل رد اطلاعات شخصی (مرحله ۱)</h3>
+										<p class="mt-2 text-red-800">{kycStatus.step1RejectionReason}</p>
+										{#if kycStatus.step1RejectedAt}
+											<p class="mt-2 text-sm text-red-600">
+												تاریخ رد: {kycStatus.step1RejectedAt.toLocaleDateString('fa-IR')}
+											</p>
+										{/if}
+										<div class="mt-4 rounded-lg bg-red-100 p-3">
+											<p class="text-sm font-medium text-red-900">راهنمای رفع مشکل:</p>
+											<p class="mt-1 text-sm text-red-800">
+												لطفاً اطلاعات صحیح را در فرم زیر وارد کرده و مجدداً ارسال کنید.
+											</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</Card>
+					{/if}
+
+					<!-- Step 2 Rejection Reason -->
+					{#if kycStatus.step2Status === 'REJECTED' && kycStatus.step2RejectionReason}
+						<Card className="border-red-200 bg-red-50">
+							<div class="p-6">
+								<div class="flex items-start">
+									<div class="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
+										<span class="icon-[heroicons--x-circle] h-6 w-6 text-red-600"></span>
+									</div>
+									<div class="mr-4 flex-1">
+										<h3 class="text-lg font-semibold text-red-900">دلیل رد اسناد (مرحله ۲)</h3>
+										<p class="mt-2 text-red-800">{kycStatus.step2RejectionReason}</p>
+										{#if kycStatus.step2RejectedAt}
+											<p class="mt-2 text-sm text-red-600">
+												تاریخ رد: {kycStatus.step2RejectedAt.toLocaleDateString('fa-IR')}
+											</p>
+										{/if}
+										<div class="mt-4 rounded-lg bg-red-100 p-3">
+											<p class="text-sm font-medium text-red-900">راهنمای رفع مشکل:</p>
+											<p class="mt-1 text-sm text-red-800">
+												لطفاً اسناد واضح و معتبر را مجدداً آپلود کنید. مطمئن شوید که تصاویر خوانا و کامل باشند.
+											</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						</Card>
+					{/if}
 				</div>
 			{/if}
 

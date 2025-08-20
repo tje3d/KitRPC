@@ -26,7 +26,10 @@ declare global {
 		type Role = Omit<PrismaRole, 'createdAt' | 'updatedAt'>;
 
 		// Auth-related types
-		type AuthUser = Pick<PrismaUser, 'id' | 'username' | 'email'> & {
+		type AuthUser = Pick<
+			PrismaUser,
+			'id' | 'username' | 'email' | 'firstName' | 'lastName' | 'fatherName'
+		> & {
 			balanceIRT?: number;
 			balanceUSDT?: number;
 			kycVerification?: PrismaKycVerification | null;

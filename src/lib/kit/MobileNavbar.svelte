@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { base } from '$app/paths';
-	import { authUser } from '$lib/flow/auth.flow';
+	import { authUser, userDisplayName } from '$lib/flow/auth.flow';
 	import Button from './Button.svelte';
 	import Popover from './Popover.svelte';
 
@@ -17,8 +17,7 @@
 	let showUserPopover = false;
 
 	// Get user initials for avatar
-	$: userInitials = $authUser?.username?.charAt(0)?.toUpperCase() || 'U';
-	$: userName = $authUser?.username || 'User';
+	$: userInitials = $userDisplayName?.charAt(0)?.toUpperCase() || 'U';
 	$: userRole = $authUser?.role?.name;
 </script>
 
@@ -91,7 +90,7 @@
 									{userInitials}
 								</div>
 								<div class="min-w-0 flex-1">
-									<p class="truncate text-sm font-semibold text-gray-900">{userName}</p>
+									<p class="truncate text-sm font-semibold text-gray-900">{$userDisplayName}</p>
 									{#if userRole}
 										<p class="truncate text-xs text-gray-500">{userRole}</p>
 									{/if}
