@@ -13,25 +13,25 @@ import { z } from 'zod';
 import { createPermissionMiddleware, isAuthenticated } from './middleware';
 import { t } from './trpc';
 
-// Input validation schemas
+// اسکیماهای اعتبارسنجی ورودی
 const submitKycInfoSchema = z.object({
-	nationalId: z.string().length(10, 'National ID must be 10 digits'),
-	mobile: z.string().regex(/^09\d{9}$/, 'Mobile number must be in 09XXXXXXXXX format'),
-	birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Birth date must be in YYYY-MM-DD format')
+	nationalId: z.string().length(10, 'کد ملی باید ۱۰ رقم باشد'),
+	mobile: z.string().regex(/^09\d{9}$/, 'شماره موبایل باید در قالب ۰۹XXXXXXXXX باشد'),
+	birthDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'تاریخ تولد باید در قالب YYYY-MM-DD باشد')
 });
 
 const submitKycStep2MediaSchema = z.object({
 	fileType: z.enum(['signedImage', 'selfie', 'nationalIdImage'])
-	// Note: Files will be processed in hooks.server.ts and available in context
-	// Expected files: signedImage, selfie, nationalIdImage
+	// توجه: فایل‌ها در hooks.server.ts پردازش شده و در context در دسترس خواهند بود
+	// فایل‌های مورد انتظار: signedImage, selfie, nationalIdImage
 });
 
-// Note: File data will be processed in hooks.server.ts and available in context
-// Expected files in ctx.fileData: signedImage, selfie, nationalIdImage
+// توجه: داده‌های فایل در hooks.server.ts پردازش شده و در context در دسترس خواهند بود
+// فایل‌های مورد انتظار در ctx.fileData: signedImage, selfie, nationalIdImage
 
 const getKycStatusSchema = z.object({});
 
-// Admin input validation schemas
+// اسکیماهای اعتبارسنجی ورودی ادمین
 const listPendingKycRequestsSchema = z.object({
 	limit: z.number().min(1).max(100).default(10),
 	offset: z.number().min(0).default(0),
@@ -42,26 +42,26 @@ const listPendingKycRequestsSchema = z.object({
 });
 
 const getKycDetailsSchema = z.object({
-	kycId: z.string().min(1, 'KYC ID is required')
+	kycId: z.string().min(1, 'شناسه KYC الزامی است')
 });
 
 const approveKycRequestSchema = z.object({
-	kycId: z.string().min(1, 'KYC ID is required'),
+	kycId: z.string().min(1, 'شناسه KYC الزامی است'),
 	adminNotes: z.string().optional()
 });
 
 const rejectKycRequestSchema = z.object({
-	kycId: z.string().min(1, 'KYC ID is required'),
-	rejectionReason: z.string().min(1, 'Rejection reason is required'),
+	kycId: z.string().min(1, 'شناسه KYC الزامی است'),
+	rejectionReason: z.string().min(1, 'دلیل رد الزامی است'),
 	adminNotes: z.string().optional()
 });
 
-// Protected procedures
+// پروسیجرهای محافظت شده
 const protectedProcedure = t.procedure.use(isAuthenticated);
 const adminOnly = createPermissionMiddleware('kyc', 'manage');
 const adminProcedure = t.procedure.use(adminOnly);
 
-// Helper function to process file uploads with consistent validation
+// تابع کمکی برای پردازش آپلود فایل با اعتبارسنجی یکسان
 interface ProcessFileResult {
 	mediaId?: string;
 	error?: {
@@ -70,7 +70,7 @@ interface ProcessFileResult {
 	};
 }
 
-// Type for file data from context
+// نوع داده برای اطلاعات فایل از context
 interface FileData {
 	filename: string;
 	mimeType: string;
@@ -81,35 +81,35 @@ interface FileData {
 const processKycFile = async (
 	fileData: FileData,
 	ctx: any,
-	maxFileSize: number = 5 * 1024 * 1024, // 5MB default
+	maxFileSize: number = 5 * 1024 * 1024, // پیش‌فرض ۵ مگابایت
 	allowedMimeTypes: string[] = ['image/jpeg', 'image/png', 'image/webp']
 ): Promise<ProcessFileResult> => {
 	try {
-		// Validate file size
+		// اعتبارسنجی اندازه فایل
 		if (fileData.buffer.length > maxFileSize) {
 			return {
 				error: {
 					code: 'PAYLOAD_TOO_LARGE',
-					message: `File size exceeds ${maxFileSize / (1024 * 1024)}MB limit`
+					message: `اندازه فایل از حد مجاز ${maxFileSize / (1024 * 1024)} مگابایت بیشتر است`
 				}
 			};
 		}
 
-		// Validate file type
+		// اعتبارسنجی نوع فایل
 		if (!allowedMimeTypes.includes(fileData.mimeType)) {
 			return {
 				error: {
 					code: 'BAD_REQUEST',
-					message: `File type not allowed. Only ${allowedMimeTypes.map((type) => type.split('/')[1].toUpperCase()).join(', ')} files are allowed.`
+					message: `نوع فایل مجاز نیست. فقط فایل‌های ${allowedMimeTypes.map((type) => type.split('/')[1].toUpperCase()).join(', ')} مجاز هستند.`
 				}
 			};
 		}
 
-		// Save the file using the media service
+		// ذخیره فایل با استفاده از سرویس رسانه
 		const buffer = fileData.buffer;
 		const savedFile = await saveMediaFile(buffer, ctx.user.id, fileData.filename);
 
-		// Create a media record in the database
+		// ایجاد رکورد رسانه در پایگاه داده
 		const mediaRecord = await createMediaRecord({
 			reason: MediaReason.KYC,
 			visibility: MediaVisibility.PRIVATE,
@@ -126,36 +126,36 @@ const processKycFile = async (
 		return {
 			error: {
 				code: 'BAD_REQUEST',
-				message: `Failed to process file: ${error.message}`
+				message: `خطا در پردازش فایل: ${error.message}`
 			}
 		};
 	}
 };
 
 export const kycRouter = t.router({
-	// Submit KYC personal information and create OTP
+	// ارسال اطلاعات شخصی KYC و ایجاد OTP
 	submitKycInfo: protectedProcedure.input(submitKycInfoSchema).mutation(async ({ input, ctx }) => {
 		try {
-			// Check if user already has a KYC verification record
+			// بررسی اینکه آیا کاربر قبلاً رکورد تأیید KYC دارد یا خیر
 			const existingKyc = await prisma.kycVerification.findUnique({
 				where: {
 					userId: ctx.user.id
 				}
 			});
 
-			// Get or create a non-expired OTP for the user
+			// دریافت یا ایجاد OTP منقضی نشده برای کاربر
 			const { otp, isNew } = await getOrCreateNonExpiredOtp(ctx.user.id);
 
 			if (existingKyc) {
-				// If existing KYC is already approved, don't allow new submission
+				// اگر KYC موجود قبلاً تأیید شده، اجازه ارسال جدید داده نمی‌شود
 				if (existingKyc.step2Status === 'APPROVED') {
 					throw new TRPCError({
 						code: 'BAD_REQUEST',
-						message: 'KYC already approved. Cannot submit new request.'
+						message: 'KYC قبلاً تأیید شده است. امکان ارسال درخواست جدید وجود ندارد.'
 					});
 				}
 
-				// Update existing KYC verification record
+				// به‌روزرسانی رکورد تأیید KYC موجود
 				const kycVerification = await prisma.kycVerification.update({
 					where: { id: existingKyc.id },
 					data: {
@@ -170,17 +170,17 @@ export const kycRouter = t.router({
 					}
 				});
 
-				// The OTP is handled by getOrCreateNonExpiredOtp, so no additional database operations needed here
+				// OTP توسط getOrCreateNonExpiredOtp مدیریت می‌شود، بنابراین عملیات اضافی پایگاه داده در اینجا لازم نیست
 
 				return {
 					success: true,
 					kycId: kycVerification.id,
 					message: isNew
-						? 'KYC information submitted successfully. New OTP has been sent to your mobile number.'
-						: 'KYC information submitted successfully. Existing OTP has been extended.'
+						? 'اطلاعات KYC با موفقیت ارسال شد. OTP جدید به شماره موبایل شما ارسال شده است.'
+						: 'اطلاعات KYC با موفقیت ارسال شد. OTP موجود تمدید شده است.'
 				};
 			} else {
-				// Create new KYC verification record
+				// ایجاد رکورد تأیید KYC جدید
 				const kycVerification = await prisma.kycVerification.create({
 					data: {
 						userId: ctx.user.id,
@@ -197,8 +197,8 @@ export const kycRouter = t.router({
 					success: true,
 					kycId: kycVerification.id,
 					message: isNew
-						? 'KYC information submitted successfully. New OTP has been sent to your mobile number.'
-						: 'KYC information submitted successfully. Existing OTP has been extended.'
+						? 'اطلاعات KYC با موفقیت ارسال شد. OTP جدید به شماره موبایل شما ارسال شده است.'
+						: 'اطلاعات KYC با موفقیت ارسال شد. OTP موجود تمدید شده است.'
 				};
 			}
 		} catch (error) {
@@ -208,16 +208,16 @@ export const kycRouter = t.router({
 
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to submit KYC information',
+				message: 'خطا در ارسال اطلاعات KYC',
 				cause: error
 			});
 		}
 	}),
 
-	// Get current KYC status
+	// دریافت وضعیت فعلی KYC
 	getKycStatus: protectedProcedure.input(getKycStatusSchema).query(async ({ ctx }) => {
 		try {
-			// Get user's KYC verification record
+			// دریافت رکورد تأیید KYC کاربر
 			const kycVerification = await prisma.kycVerification.findUnique({
 				where: {
 					userId: ctx.user.id
@@ -248,36 +248,36 @@ export const kycRouter = t.router({
 		} catch (error) {
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to fetch KYC status',
+				message: 'خطا در دریافت وضعیت KYC',
 				cause: error
 			});
 		}
 	}),
 
-	// Admin: List pending KYC requests with filtering and pagination
+	// ادمین: فهرست درخواست‌های KYC در انتظار با فیلتر و صفحه‌بندی
 	listKycRequests: adminProcedure.input(listPendingKycRequestsSchema).query(async ({ input }) => {
 		try {
-			// Build where clause for filtering
+			// ساخت شرط where برای فیلتر کردن
 			const whereClause: Prisma.KycVerificationWhereInput = {};
 
-			// Add search filter if provided
+			// اضافه کردن فیلتر جستجو در صورت ارائه
 			if (input.search) {
 				whereClause.user = {
 					OR: [{ username: { contains: input.search } }, { email: { contains: input.search } }]
 				};
 			}
 
-			// Add step1Status filter if provided
+			// اضافه کردن فیلتر step1Status در صورت ارائه
 			if (input.step1Status) {
 				whereClause.step1Status = input.step1Status;
 			}
 
-			// Add step2Status filter if provided
+			// اضافه کردن فیلتر step2Status در صورت ارائه
 			if (input.step2Status) {
 				whereClause.step2Status = input.step2Status;
 			}
 
-			// Get KYC verifications with user information
+			// دریافت تأییدات KYC همراه با اطلاعات کاربر
 			const [kycVerifications, totalCount] = await Promise.all([
 				prisma.kycVerification.findMany({
 					where: whereClause,
@@ -301,7 +301,7 @@ export const kycRouter = t.router({
 				})
 			]);
 
-			// Format the response
+			// قالب‌بندی پاسخ
 			return {
 				kycRequests: kycVerifications,
 				totalCount,
@@ -311,18 +311,18 @@ export const kycRouter = t.router({
 		} catch (error) {
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to fetch KYC requests',
+				message: 'خطا در دریافت درخواست‌های KYC',
 				cause: error
 			});
 		}
 	}),
 
-	// Submit KYC step 2 media (signed image, selfie, national ID)
+	// ارسال رسانه مرحله ۲ KYC (تصویر امضا شده، سلفی، کارت ملی)
 	submitKycStep2Media: protectedProcedure
 		.input(submitKycStep2MediaSchema)
 		.mutation(async ({ input, ctx }) => {
 			try {
-				// Check if user has a KYC verification record
+				// بررسی اینکه آیا کاربر رکورد تأیید KYC دارد یا خیر
 				const kycVerification = await prisma.kycVerification.findUnique({
 					where: {
 						userId: ctx.user.id
@@ -332,29 +332,29 @@ export const kycRouter = t.router({
 				if (!kycVerification) {
 					throw new TRPCError({
 						code: 'NOT_FOUND',
-						message: 'KYC verification record not found'
+						message: 'رکورد تأیید KYC یافت نشد'
 					});
 				}
 
-				// Check if step 1 is completed
+				// بررسی اینکه آیا مرحله ۱ تکمیل شده یا خیر
 				if (kycVerification.step1Status !== 'APPROVED') {
 					throw new TRPCError({
 						code: 'BAD_REQUEST',
-						message: 'Step 1 verification must be completed and approved first'
+						message: 'ابتدا باید تأیید مرحله ۱ تکمیل و تأیید شود'
 					});
 				}
 
-				// Process file from context (now always a single file)
+				// پردازش فایل از context (اکنون همیشه یک فایل)
 				const fileData = ctx.fileData as FileData | null;
 
 				if (!fileData) {
 					throw new TRPCError({
 						code: 'BAD_REQUEST',
-						message: 'No file data provided'
+						message: 'هیچ داده فایلی ارائه نشده'
 					});
 				}
 
-				// Process the file
+				// پردازش فایل
 				const result = await processKycFile(fileData, ctx);
 				if (result.error) {
 					throw new TRPCError({
@@ -363,13 +363,13 @@ export const kycRouter = t.router({
 					});
 				}
 
-				// Update KYC verification with the appropriate media ID based on file type
+				// به‌روزرسانی تأیید KYC با شناسه رسانه مناسب بر اساس نوع فایل
 				const updateData: any = {
 					lastStepUpdatedAt: new Date(),
 					updatedAt: new Date()
 				};
 
-				// Update the appropriate media ID based on file type
+				// به‌روزرسانی شناسه رسانه مناسب بر اساس نوع فایل
 				switch (input.fileType) {
 					case 'signedImage':
 						updateData.signedTextMediaId = result.mediaId;
@@ -390,7 +390,7 @@ export const kycRouter = t.router({
 				return {
 					success: true,
 					kycId: updatedKyc.id,
-					message: `KYC ${input.fileType} uploaded successfully.`
+					message: `${input.fileType} KYC با موفقیت آپلود شد.`
 				};
 			} catch (error) {
 				if (error instanceof TRPCError) {
@@ -399,16 +399,16 @@ export const kycRouter = t.router({
 
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
-					message: 'Failed to upload KYC document',
+					message: 'خطا در آپلود سند KYC',
 					cause: error
 				});
 			}
 		}),
 
-	// Finalize KYC step 2 by checking all 3 media files are uploaded and setting step2Status to pending
+	// نهایی کردن مرحله ۲ KYC با بررسی آپلود شدن هر ۳ فایل رسانه و تنظیم step2Status روی pending
 	finalizeKycStep2: protectedProcedure.mutation(async ({ ctx }) => {
 		try {
-			// Check if user has a KYC verification record
+			// بررسی اینکه آیا کاربر رکورد تأیید KYC دارد یا خیر
 			const kycVerification = await prisma.kycVerification.findUnique({
 				where: {
 					userId: ctx.user.id
@@ -418,41 +418,41 @@ export const kycRouter = t.router({
 			if (!kycVerification) {
 				throw new TRPCError({
 					code: 'NOT_FOUND',
-					message: 'KYC verification record not found'
+					message: 'رکورد تأیید KYC یافت نشد'
 				});
 			}
 
-			// Check if step 1 is completed
+			// بررسی اینکه آیا مرحله ۱ تکمیل شده یا خیر
 			if (kycVerification.step1Status !== 'APPROVED') {
 				throw new TRPCError({
 					code: 'BAD_REQUEST',
-					message: 'Step 1 verification must be completed and approved first'
+					message: 'ابتدا باید تأیید مرحله ۱ تکمیل و تأیید شود'
 				});
 			}
 
-			// Validate that all 3 media files are uploaded
+			// اعتبارسنجی اینکه هر ۳ فایل رسانه آپلود شده‌اند
 			if (!kycVerification.signedTextMediaId) {
 				throw new TRPCError({
 					code: 'BAD_REQUEST',
-					message: 'Signed text document is required'
+					message: 'سند متن امضا شده الزامی است'
 				});
 			}
 
 			if (!kycVerification.selfieMediaId) {
 				throw new TRPCError({
 					code: 'BAD_REQUEST',
-					message: 'Selfie image is required'
+					message: 'تصویر سلفی الزامی است'
 				});
 			}
 
 			if (!kycVerification.nationalCardMediaId) {
 				throw new TRPCError({
 					code: 'BAD_REQUEST',
-					message: 'National card image is required'
+					message: 'تصویر کارت ملی الزامی است'
 				});
 			}
 
-			// Update KYC verification status to pending for step 2
+			// به‌روزرسانی وضعیت تأیید KYC به pending برای مرحله ۲
 			const updatedKyc = await prisma.kycVerification.update({
 				where: { id: kycVerification.id },
 				data: {
@@ -466,7 +466,7 @@ export const kycRouter = t.router({
 			return {
 				success: true,
 				kycId: updatedKyc.id,
-				message: 'KYC step 2 finalized successfully. Awaiting admin review.'
+				message: 'مرحله ۲ KYC با موفقیت نهایی شد. در انتظار بررسی ادمین.'
 			};
 		} catch (error) {
 			if (error instanceof TRPCError) {
@@ -475,16 +475,16 @@ export const kycRouter = t.router({
 
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to finalize KYC step 2',
+				message: 'خطا در نهایی کردن مرحله ۲ KYC',
 				cause: error
 			});
 		}
 	}),
 
-	// Admin: Get detailed KYC information for a specific user
+	// ادمین: دریافت اطلاعات تفصیلی KYC برای کاربر خاص
 	getKycDetails: adminProcedure.input(getKycDetailsSchema).query(async ({ input }) => {
 		try {
-			// Get user's KYC verification record with all related data
+			// دریافت رکورد تأیید KYC کاربر همراه با تمام داده‌های مرتبط
 			const kycVerification = await prisma.kycVerification.findUnique({
 				where: {
 					id: input.kycId
@@ -504,11 +504,11 @@ export const kycRouter = t.router({
 			if (!kycVerification) {
 				throw new TRPCError({
 					code: 'NOT_FOUND',
-					message: 'KYC verification record not found for this user'
+					message: 'رکورد تأیید KYC برای این کاربر یافت نشد'
 				});
 			}
 
-			// Format the response
+			// قالب‌بندی پاسخ
 			return {
 				id: kycVerification.id,
 				userId: kycVerification.userId,
@@ -537,34 +537,34 @@ export const kycRouter = t.router({
 
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to fetch KYC details',
+				message: 'خطا در دریافت جزئیات KYC',
 				cause: error
 			});
 		}
 	}),
 
-	// Admin: Approve a KYC request
+	// ادمین: تأیید درخواست KYC
 	approveKycRequest: adminProcedure
 		.input(approveKycRequestSchema)
 		.mutation(
 			async ({ input, ctx }: { input: z.infer<typeof approveKycRequestSchema>; ctx: any }) => {
 				try {
-					// Get the KYC verification record with step status using helper function
+					// دریافت رکورد تأیید KYC همراه با وضعیت مرحله با استفاده از تابع کمکی
 					const kycVerification = await getKycVerificationById(input.kycId);
 
-					// Determine which step to approve based on current status and create update data
+					// تعیین اینکه کدام مرحله بر اساس وضعیت فعلی تأیید شود و ایجاد داده‌های به‌روزرسانی
 					const { updateData, message } = createApprovalUpdateData(
 						kycVerification,
 						input.adminNotes
 					);
 
-					// Update KYC verification status
+					// به‌روزرسانی وضعیت تأیید KYC
 					const updatedKyc = await prisma.kycVerification.update({
 						where: { id: kycVerification.id },
 						data: updateData
 					});
 
-					// Format and return response using helper function
+					// قالب‌بندی و بازگرداندن پاسخ با استفاده از تابع کمکی
 					return formatKycResponse(kycVerification, message);
 				} catch (error) {
 					if (error instanceof TRPCError) {
@@ -573,36 +573,36 @@ export const kycRouter = t.router({
 
 					throw new TRPCError({
 						code: 'INTERNAL_SERVER_ERROR',
-						message: 'Failed to approve KYC request',
+						message: 'خطا در تأیید درخواست KYC',
 						cause: error
 					});
 				}
 			}
 		),
 
-	// Admin: Reject a KYC request with reason
+	// ادمین: رد درخواست KYC با دلیل
 	rejectKycRequest: adminProcedure
 		.input(rejectKycRequestSchema)
 		.mutation(
 			async ({ input, ctx }: { input: z.infer<typeof rejectKycRequestSchema>; ctx: any }) => {
 				try {
-					// Get the KYC verification record with step status using helper function
+					// دریافت رکورد تأیید KYC همراه با وضعیت مرحله با استفاده از تابع کمکی
 					const kycVerification = await getKycVerificationById(input.kycId);
 
-					// Determine which step to reject based on current status and create update data
+					// تعیین اینکه کدام مرحله بر اساس وضعیت فعلی رد شود و ایجاد داده‌های به‌روزرسانی
 					const { updateData, message } = createRejectionUpdateData(
 						kycVerification,
 						input.rejectionReason,
 						input.adminNotes
 					);
 
-					// Update KYC verification status
+					// به‌روزرسانی وضعیت تأیید KYC
 					const updatedKyc = await prisma.kycVerification.update({
 						where: { id: kycVerification.id },
 						data: updateData
 					});
 
-					// Format and return response using helper function
+					// قالب‌بندی و بازگرداندن پاسخ با استفاده از تابع کمکی
 					return formatKycResponse(kycVerification, message);
 				} catch (error) {
 					if (error instanceof TRPCError) {
@@ -611,7 +611,7 @@ export const kycRouter = t.router({
 
 					throw new TRPCError({
 						code: 'INTERNAL_SERVER_ERROR',
-						message: 'Failed to reject KYC request',
+						message: 'خطا در رد درخواست KYC',
 						cause: error
 					});
 				}
