@@ -1,14 +1,14 @@
+import {
+	activateWalletAddress,
+	createWalletAddress,
+	deleteWalletAddress,
+	getActiveWalletAddressByNetwork,
+	getWalletAddresses,
+	updateWalletAddress
+} from '$lib/services/wallet.service';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import {
-	createWalletAddress,
-	getWalletAddresses,
-	getActiveWalletAddressByNetwork,
-	updateWalletAddress,
-	deleteWalletAddress,
-	activateWalletAddress
-} from '$lib/services/wallet.service';
-import { isAuthenticated, createPermissionMiddleware } from './middleware';
+import { createPermissionMiddleware } from './middleware';
 import { t } from './trpc';
 
 // Input validation schemas
@@ -58,17 +58,7 @@ export const walletRouter = t.router({
 		.input(createWalletAddressSchema)
 		.mutation(async ({ input }) => {
 			try {
-				const walletAddress = await createWalletAddress(
-					input.network,
-					input.address,
-					input.isActive
-				);
-
-				return {
-					...walletAddress,
-					createdAt: walletAddress.createdAt.toISOString(),
-					updatedAt: walletAddress.updatedAt.toISOString()
-				};
+				return await createWalletAddress(input.network, input.address, input.isActive);
 			} catch (error: any) {
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
@@ -81,16 +71,10 @@ export const walletRouter = t.router({
 	// Get all wallet addresses with optional filtering - admin only
 	getWalletAddresses: adminProcedure.input(getWalletAddressesSchema).query(async ({ input }) => {
 		try {
-			const walletAddresses = await getWalletAddresses({
+			return await getWalletAddresses({
 				network: input.network,
 				isActive: input.isActive
 			});
-
-			return walletAddresses.map((address) => ({
-				...address,
-				createdAt: address.createdAt.toISOString(),
-				updatedAt: address.updatedAt.toISOString()
-			}));
 		} catch (error: any) {
 			throw new TRPCError({
 				code: 'INTERNAL_SERVER_ERROR',
@@ -114,11 +98,7 @@ export const walletRouter = t.router({
 					});
 				}
 
-				return {
-					...walletAddress,
-					createdAt: walletAddress.createdAt.toISOString(),
-					updatedAt: walletAddress.updatedAt.toISOString()
-				};
+				return walletAddress;
 			} catch (error: any) {
 				if (error instanceof TRPCError) {
 					throw error;
@@ -137,13 +117,7 @@ export const walletRouter = t.router({
 		.input(updateWalletAddressSchema)
 		.mutation(async ({ input }) => {
 			try {
-				const updatedWallet = await updateWalletAddress(input.id, input.data);
-
-				return {
-					...updatedWallet,
-					createdAt: updatedWallet.createdAt.toISOString(),
-					updatedAt: updatedWallet.updatedAt.toISOString()
-				};
+				return await updateWalletAddress(input.id, input.data);
 			} catch (error: any) {
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
@@ -174,13 +148,7 @@ export const walletRouter = t.router({
 		.input(activateWalletAddressSchema)
 		.mutation(async ({ input }) => {
 			try {
-				const activatedWallet = await activateWalletAddress(input.id);
-
-				return {
-					...activatedWallet,
-					createdAt: activatedWallet.createdAt.toISOString(),
-					updatedAt: activatedWallet.updatedAt.toISOString()
-				};
+				return await activateWalletAddress(input.id);
 			} catch (error: any) {
 				throw new TRPCError({
 					code: 'INTERNAL_SERVER_ERROR',
