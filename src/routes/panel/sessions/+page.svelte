@@ -1,105 +1,16 @@
 <script lang="ts">
+	import DeviceIcon from '$lib/components/DeviceIcon.svelte';
 	import ConfirmDialog from '$lib/dialog/ConfirmDialog.svelte';
 	import { dialogStore } from '$lib/dialog/store';
 	import Card from '$lib/kit/Card.svelte';
 	import DataTable from '$lib/kit/DataTable.svelte';
+	import DTActionButton from '$lib/kit/DTActionButton.svelte';
+	import DTColumn from '$lib/kit/DTColumn.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 	import StatusBadge from '$lib/kit/StatusBadge.svelte';
 	import SessionProvider from '$lib/providers/SessionProvider.svelte';
 	import { toast } from '$lib/toast/store';
-	import type { RouterOutputs } from '$lib/trpc/router';
 	import { tick } from 'svelte';
-
-	type Session = RouterOutputs['sessions']['getSessions'][number];
-
-	// Format date for display
-	function formatDate(date: Date): string {
-		return date.toLocaleString('FA-IR');
-	}
-
-	// Format device type for display
-	function formatDeviceType(deviceType: string | null): string {
-		if (!deviceType) return 'Unknown';
-		return deviceType.charAt(0).toUpperCase() + deviceType.slice(1);
-	}
-
-	// Format browser for display
-	function formatBrowser(browser: string | null): string {
-		if (!browser) return 'Unknown';
-		return browser;
-	}
-
-	// Get device icon based on device type
-	function getDeviceIcon(deviceType: string | null): string {
-		if (!deviceType) return 'icon-[heroicons--device-phone-mobile]';
-
-		switch (deviceType.toLowerCase()) {
-			case 'mobile':
-				return 'icon-[heroicons--device-phone-mobile]';
-			case 'tablet':
-				return 'icon-[heroicons--device-tablet]';
-			default:
-				return 'icon-[heroicons--computer-desktop]';
-		}
-	}
-
-	// Define columns for the DataTable
-	const columns = [
-		{
-			key: 'deviceType',
-			label: 'دستگاه',
-			render: (value: string, row: Session) => `
-				<div class="flex items-center">
-					<span class="${getDeviceIcon(row.deviceType)} h-5 w-5 text-gray-500"></span>
-					<span class="ms-2 text-sm font-medium text-gray-900">${formatDeviceType(row.deviceType)}</span>
-				</div>
-			`
-		},
-		{
-			key: 'browser',
-			label: 'مرورگر',
-			render: (value: string, row: Session) => `
-				<div class="flex items-center">
-					<span class="icon-[heroicons--globe-alt] h-5 w-5 text-gray-500"></span>
-					<span class="ms-2 text-sm text-gray-900">${formatBrowser(row.browser)}</span>
-				</div>
-			`
-		},
-		{
-			key: 'ipAddress',
-			label: 'آدرس IP',
-			render: (value: string) => `
-				<div class="text-sm text-gray-500">
-					${value || 'Unknown'}
-				</div>
-			`
-		},
-		{
-			key: 'createdAt',
-			label: 'زمان ورود',
-			render: (value: Date) => `
-				<div class="text-sm text-gray-500">
-					${formatDate(value)}
-				</div>
-			`
-		},
-		{
-			key: 'actions',
-			label: 'عملیات',
-			render: (value: any, row: Session) => `
-				<div class="flex items-center justify-end gap-2">
-					<button
-						class="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-						data-action="delete"
-						data-id="${row.id}"
-						title="پایان دادن به نشست"
-					>
-						<span class="icon-[heroicons--trash] w-4 h-4"></span>
-					</button>
-				</div>
-			`
-		}
-	];
 </script>
 
 <SessionProvider
@@ -179,18 +90,17 @@
 									<div
 										class="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-100 to-green-100 transition-colors duration-300 group-hover:from-emerald-200 group-hover:to-green-200"
 									>
-										<span
-											class="{getDeviceIcon(
-												currentSession.deviceType || null
-											)} h-4 w-4 text-emerald-600"
-										></span>
+										<DeviceIcon
+											deviceType={currentSession.deviceType}
+											className="h-4 w-4 text-emerald-600"
+										/>
 									</div>
 									<span class="ms-3 text-sm font-semibold text-gray-700">دستگاه</span>
 								</div>
 								<p
 									class="text-base font-bold text-gray-900 transition-colors duration-300 group-hover:text-emerald-700"
 								>
-									{formatDeviceType(currentSession.deviceType || null)}
+									{currentSession.deviceType}
 								</p>
 							</div>
 						</div>
@@ -213,7 +123,7 @@
 								<p
 									class="text-base font-bold text-gray-900 transition-colors duration-300 group-hover:text-blue-700"
 								>
-									{formatBrowser(currentSession.browser || null)}
+									{currentSession.browser || 'Unknown'}
 								</p>
 							</div>
 						</div>
@@ -259,7 +169,7 @@
 								<p
 									class="text-base font-bold text-gray-900 transition-colors duration-300 group-hover:text-orange-700"
 								>
-									{formatDate(new Date(currentSession.createdAt))}
+									{currentSession.createdAt.toLocaleString('FA-IR')}
 								</p>
 							</div>
 						</div>
@@ -347,52 +257,84 @@
 						</p>
 					</div>
 				{:else}
-					<div
-						on:click={(e) => {
-							const target = e.target as HTMLElement;
-							const button = target.closest('button[data-action]');
-
-							if (!button) return;
-
-							const action = button.getAttribute('data-action');
-							const id = button.getAttribute('data-id');
-
-							if (!action || !id) return;
-
-							if (action === 'delete') {
-								const session = sessions?.find((s) => s.id === id);
-								if (session) {
-									dialogStore.open({
-										component: ConfirmDialog,
-										props: {
-											title: 'پایان دادن به نشست',
-											message: `آیا مطمئن هستید که می‌خواهید نشست از ${formatDeviceType(session.deviceType)} در ${formatDate(new Date(session.createdAt))} را پایان دهید؟ این عمل قابل بازگشت نیست.`,
-											confirm: 'پایان دادن',
-											cancel: 'لغو',
-											color: 'red',
-											onConfirm: () => {
-												history.back();
-												tick().then(() => {
-													deleteSession(session.id);
-												});
-											}
-										}
-									});
-								}
-							}
-						}}
+					<DataTable
+						data={sessions?.filter((s) => !s.isCurrent)}
+						itemsPerPage={1000}
+						totalItems={sessions?.filter((s) => !s.isCurrent).length || 0}
+						currentPage={1}
+						showPagination={false}
+						showCheckbox={false}
+						showSearch={false}
 					>
-						<DataTable
-							data={sessions?.filter((s) => !s.isCurrent)}
-							{columns}
-							itemsPerPage={1000}
-							totalItems={sessions?.filter((s) => !s.isCurrent).length || 0}
-							currentPage={1}
-							showPagination={false}
-							showCheckbox={false}
-							showSearch={false}
-						/>
-					</div>
+						<svelte:fragment slot="header" let:handleSort let:getSortIcon>
+							<DTColumn>
+								<svelte:fragment slot="header">دستگاه</svelte:fragment>
+							</DTColumn>
+							<DTColumn>
+								<svelte:fragment slot="header">مرورگر</svelte:fragment>
+							</DTColumn>
+							<DTColumn>
+								<svelte:fragment slot="header">آدرس IP</svelte:fragment>
+							</DTColumn>
+							<DTColumn>
+								<svelte:fragment slot="header">زمان ورود</svelte:fragment>
+							</DTColumn>
+							<DTColumn>
+								<svelte:fragment slot="header">عملیات</svelte:fragment>
+							</DTColumn>
+						</svelte:fragment>
+
+						<svelte:fragment slot="row" let:row>
+							<DTColumn>
+								<div class="flex items-center">
+									<DeviceIcon deviceType={row.deviceType} className="h-5 w-5 text-gray-500" />
+									<span class="ms-2 text-sm font-medium text-gray-900">{row.deviceType}</span>
+								</div>
+							</DTColumn>
+							<DTColumn>
+								<div class="flex items-center">
+									<span class="icon-[heroicons--globe-alt] h-5 w-5 text-gray-500"></span>
+									<span class="ms-2 text-sm text-gray-900">{row.browser || 'Unknown'}</span>
+								</div>
+							</DTColumn>
+							<DTColumn>
+								<div class="text-sm text-gray-500">
+									{row.ipAddress || 'Unknown'}
+								</div>
+							</DTColumn>
+							<DTColumn>
+								<div class="text-sm text-gray-500">
+									{row.createdAt.toLocaleString('FA-IR')}
+								</div>
+							</DTColumn>
+							<DTColumn>
+								<div class="flex items-center justify-end gap-2">
+									<DTActionButton
+										variant="delete"
+										title="پایان دادن به نشست"
+										onClick={() => {
+											dialogStore.open({
+												component: ConfirmDialog,
+												props: {
+													title: 'پایان دادن به نشست',
+													message: `آیا مطمئن هستید که می‌خواهید نشست از ${row.deviceType} در ${row.createdAt.toLocaleString('FA-IR')} را پایان دهید؟ این عمل قابل بازگشت نیست.`,
+													confirm: 'پایان دادن',
+													cancel: 'لغو',
+													color: 'red',
+													onConfirm: () => {
+														history.back();
+														tick().then(() => {
+															deleteSession(row.id);
+														});
+													}
+												}
+											});
+										}}
+									/>
+								</div>
+							</DTColumn>
+						</svelte:fragment>
+					</DataTable>
 				{/if}
 			{/if}
 		</Card>
