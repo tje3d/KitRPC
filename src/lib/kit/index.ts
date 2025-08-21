@@ -5,6 +5,7 @@ export { default as CardNumber } from './CardNumber.svelte';
 export { default as Checkbox } from './Checkbox.svelte';
 export { default as ConfirmPassword } from './ConfirmPassword.svelte';
 export { default as DataTable } from './DataTable.svelte';
+export { default as DTActionButton } from './DTActionButton.svelte';
 export { default as Divider } from './Divider.svelte';
 export { default as DocumentUploadSection } from './DocumentUploadSection.svelte';
 export { default as ErrorDisplay } from './ErrorDisplay.svelte';

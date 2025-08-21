@@ -1,43 +1,20 @@
 <script lang="ts">
 	import PermissionCheck from '$lib/components/PermissionCheck.svelte';
+	import KycDetailsDialog from '$lib/dialog/KycDetailsDialog.svelte';
+	import { dialogStore } from '$lib/dialog/store';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
 	import DataTable from '$lib/kit/DataTable.svelte';
+	import DTColumn from '$lib/kit/DTColumn.svelte';
 	import Input from '$lib/kit/Input.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 	import ListKycProvider from '$lib/providers/ListKycProvider.svelte';
 	import { toast } from '$lib/toast/store';
-	import { dialogStore } from '$lib/dialog/store';
 	import type { KycStatus } from '@prisma/client';
-	import KycDetailsDialog from '$lib/dialog/KycDetailsDialog.svelte';
 
 	// Pagination
 	let currentPage = 1;
 	const itemsPerPage = 10;
-
-	// Handle action button clicks
-	function handleActionClick(event: Event, kycRequests: any[]) {
-		const target = event.target as HTMLElement;
-		const button = target.closest('button[data-action]');
-
-		if (!button) return;
-
-		const action = button.getAttribute('data-action');
-		const id = button.getAttribute('data-kyc-id');
-
-		if (!action || !id) return;
-
-		switch (action) {
-			case 'view-details':
-				dialogStore.open({
-					component: KycDetailsDialog,
-					props: {
-						kycId: id
-					}
-				});
-				break;
-		}
-	}
 
 	// Filters
 	let filters = {
@@ -69,7 +46,7 @@
 	}
 
 	// Format KYC status for display
-	function formatKycStatus(status: KycStatus) {
+	function formatKycStatus(status: KycStatus | null) {
 		switch (status) {
 			case 'PENDING':
 				return { text: 'در انتظار', color: 'bg-yellow-100 text-yellow-800' };
@@ -81,85 +58,6 @@
 				return { text: 'ناشناخته', color: 'bg-gray-100 text-gray-800' };
 		}
 	}
-
-	// Define columns for the DataTable
-	const columns = [
-		{
-			key: 'username',
-			label: 'نام کاربری',
-			sortable: true,
-			render: (_: any, r: any) => {
-				return r?.user?.username;
-			}
-		},
-		{
-			key: 'nationalId',
-			label: 'کد ملی',
-			sortable: true
-		},
-		{
-			key: 'mobile',
-			label: 'شماره موبایل',
-			sortable: true
-		},
-		{
-			key: 'step1Status',
-			label: 'وضعیت مرحله ۱',
-			sortable: true,
-			render: (value: KycStatus) => {
-				const statusInfo = formatKycStatus(value);
-				return `
-					<div class="inline-flex">
-						<span class="inline-flex items-center rounded-full text-xs px-2 py-1 font-medium ${statusInfo.color}">
-							${statusInfo.text}
-						</span>
-					</div>
-				`;
-			}
-		},
-		{
-			key: 'step2Status',
-			label: 'وضعیت مرحله ۲',
-			sortable: true,
-			render: (value: KycStatus) => {
-				const statusInfo = formatKycStatus(value);
-				return `
-					<div class="inline-flex">
-						<span class="inline-flex items-center rounded-full text-xs px-2 py-1 font-medium ${statusInfo.color}">
-							${statusInfo.text}
-						</span>
-					</div>
-				`;
-			}
-		},
-		{
-			key: 'birthDate',
-			label: 'تاریخ تولد',
-			sortable: true,
-			render: (value: string) => `
-				<div class="text-sm whitespace-nowrap text-gray-500">
-					${new Date(value).toLocaleDateString('fa-IR')}
-				</div>
-			`
-		},
-		{
-			key: 'actions',
-			label: 'عملیات',
-			render: (_: any, row: any) => {
-				return `
-					<div class="flex gap-2">
-						<button
-							data-kyc-id="${row.id}"
-							data-action="view-details"
-							class="view-details-btn rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-						>
-							مشاهده جزئیات
-						</button>
-					</div>
-				`;
-			}
-		}
-	];
 </script>
 
 <PermissionCheck permission={{ resource: 'kyc', action: 'manage' }} redirect="/panel">
@@ -294,26 +192,98 @@
 							</p>
 						</div>
 					{:else}
-						<div on:click={(e) => handleActionClick(e, kycRequests)}>
-							<DataTable
-								data={kycRequests?.map((r) => ({
-									...r,
-									birthDate: r.birthDate
-								})) || []}
-								{columns}
-								{itemsPerPage}
-								totalItems={pagination?.totalCount || 0}
-								{currentPage}
-								showPagination={(pagination?.totalCount || 0) > itemsPerPage}
-								onPageChange={(page) => {
-									if (page < 1 || page > Math.ceil((pagination?.totalCount || 1) / itemsPerPage))
-										return;
-									currentPage = page;
-									listKycRequests(requestOpts);
-								}}
-								onSortChange={handleSortChange}
-							/>
-						</div>
+						<DataTable
+							data={kycRequests || []}
+							{itemsPerPage}
+							totalItems={pagination?.totalCount || 0}
+							{currentPage}
+							showPagination={(pagination?.totalCount || 0) > itemsPerPage}
+							onPageChange={(page) => {
+								if (page < 1 || page > Math.ceil((pagination?.totalCount || 1) / itemsPerPage))
+									return;
+								currentPage = page;
+								listKycRequests(requestOpts);
+							}}
+							onSortChange={handleSortChange}
+						>
+							<svelte:fragment slot="header" let:handleSort let:getSortIcon>
+								<DTColumn sortable={true} sortKey="username" onSort={handleSort} {getSortIcon}>
+									<svelte:fragment slot="header">نام کاربری</svelte:fragment>
+								</DTColumn>
+								<DTColumn sortable={true} sortKey="nationalId" onSort={handleSort} {getSortIcon}>
+									<svelte:fragment slot="header">کد ملی</svelte:fragment>
+								</DTColumn>
+								<DTColumn sortable={true} sortKey="mobile" onSort={handleSort} {getSortIcon}>
+									<svelte:fragment slot="header">شماره موبایل</svelte:fragment>
+								</DTColumn>
+								<DTColumn sortable={true} sortKey="step1Status" onSort={handleSort} {getSortIcon}>
+									<svelte:fragment slot="header">وضعیت مرحله ۱</svelte:fragment>
+								</DTColumn>
+								<DTColumn sortable={true} sortKey="step2Status" onSort={handleSort} {getSortIcon}>
+									<svelte:fragment slot="header">وضعیت مرحله ۲</svelte:fragment>
+								</DTColumn>
+								<DTColumn sortable={true} sortKey="birthDate" onSort={handleSort} {getSortIcon}>
+									<svelte:fragment slot="header">تاریخ تولد</svelte:fragment>
+								</DTColumn>
+								<DTColumn>
+									<svelte:fragment slot="header">عملیات</svelte:fragment>
+								</DTColumn>
+							</svelte:fragment>
+
+							<svelte:fragment slot="row" let:row>
+								<DTColumn>
+									{row?.user?.username || ''}
+								</DTColumn>
+								<DTColumn>
+									{row.nationalId}
+								</DTColumn>
+								<DTColumn>
+									{row.mobile}
+								</DTColumn>
+								<DTColumn>
+									{@const statusInfo = formatKycStatus(row.step1Status)}
+									<div class="inline-flex">
+										<span
+											class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium {statusInfo.color}"
+										>
+											{statusInfo.text}
+										</span>
+									</div>
+								</DTColumn>
+								<DTColumn>
+									{@const statusInfo = formatKycStatus(row.step2Status)}
+									<div class="inline-flex">
+										<span
+											class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium {statusInfo.color}"
+										>
+											{statusInfo.text}
+										</span>
+									</div>
+								</DTColumn>
+								<DTColumn>
+									<div class="text-sm whitespace-nowrap text-gray-500">
+										{new Date(row.birthDate).toLocaleDateString('fa-IR')}
+									</div>
+								</DTColumn>
+								<DTColumn>
+									<div class="flex gap-2">
+										<button
+											class="view-details-btn rounded-md bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none"
+											on:click={() => {
+												dialogStore.open({
+													component: KycDetailsDialog,
+													props: {
+														kycId: row.id
+													}
+												});
+											}}
+										>
+											مشاهده جزئیات
+										</button>
+									</div>
+								</DTColumn>
+							</svelte:fragment>
+						</DataTable>
 					{/if}
 				</Card>
 			{/if}

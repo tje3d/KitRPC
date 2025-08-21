@@ -3,9 +3,11 @@
 	import { dialogStore } from '$lib/dialog/store';
 	import { Button, DataTable, PanelPageWrapper } from '$lib/kit';
 	import Card from '$lib/kit/Card.svelte';
-	import { toast } from '$lib/toast/store';
-	import ListUsersProvider from '$lib/providers/ListUsersProvider.svelte';
+	import DTActionButton from '$lib/kit/DTActionButton.svelte';
+	import DTColumn from '$lib/kit/DTColumn.svelte';
 	import DeleteUserProvider from '$lib/providers/DeleteUserProvider.svelte';
+	import ListUsersProvider from '$lib/providers/ListUsersProvider.svelte';
+	import { toast } from '$lib/toast/store';
 	import type { RouterOutputs } from '$lib/trpc/router';
 	import { tick } from 'svelte';
 
@@ -94,116 +96,6 @@
 	function handleDeleteError(error: string) {
 		toast.error(error || 'حذف کاربر ناموفق بود');
 	}
-
-	// Handle row actions
-	function handleRowAction(event: Event, users: User[]) {
-		const target = event.target as HTMLElement;
-		const button = target.closest('button[data-action]');
-
-		if (!button) return;
-
-		const action = button.getAttribute('data-action');
-		const id = button.getAttribute('data-id');
-
-		if (!action || !id) return;
-
-		switch (action) {
-			case 'delete':
-				// Find the user in the current list
-				const user = users?.find((u: User) => u.id === id);
-				if (user) {
-					confirmDelete(user);
-				}
-				break;
-		}
-	}
-
-	// DataTable columns configuration
-	const columns = [
-		{
-			key: 'id',
-			label: 'شناسه',
-			sortable: true,
-			render: (value: any, row: User) => {
-				return `
-					<div class="font-mono text-sm">
-						${row.id.substring(0, 8)}
-					</div>
-				`;
-			}
-		},
-		{
-			key: 'user',
-			label: 'کاربر',
-			sortable: true,
-			render: (value: any, row: User) => {
-				return `
-					<div class="flex items-center">
-						<div class="flex-shrink-0 h-10 w-10">
-							<div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-								<span class="text-sm font-medium text-gray-700">
-									${row.username.charAt(0).toUpperCase()}
-								</span>
-							</div>
-						</div>
-						<div class="ms-4">
-							<div class="text-sm font-medium text-gray-900">${row.username}</div>
-							${row.email ? `<div class="text-sm text-gray-500">${row.email}</div>` : ''}
-						</div>
-					</div>
-				`;
-			}
-		},
-		{
-			key: 'role',
-			label: 'نقش',
-			sortable: true,
-			render: (value: any, row: User) => {
-				const roleName = getUserRoleName(row);
-				const roleColor = getUserRoleColor(row);
-				return `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-${roleColor === 'success' ? 'green' : roleColor === 'warning' ? 'yellow' : roleColor === 'error' ? 'red' : 'blue'}-100 text-${roleColor === 'success' ? 'green' : roleColor === 'warning' ? 'yellow' : roleColor === 'error' ? 'red' : 'blue'}-800">${roleName}</span>`;
-			}
-		},
-		{
-			key: 'createdAt',
-			label: 'ایجاد شده',
-			sortable: true,
-			render: (value: any, row: User) => {
-				return formatDate(row.createdAt);
-			}
-		},
-		{
-			key: 'actions',
-			label: 'عملیات',
-			render: (value: any, row: User) => {
-				return `
-					<div class="flex items-center justify-end gap-2">
-						<a href="/panel/admin/users/${row.id}/edit" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-							<span class="icon-[heroicons--pencil] w-4 h-4"></span>
-						</a>
-						${
-							row.username !== 'admin'
-								? `<button
-									class="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-									data-action="delete"
-									data-id="${row.id}"
-									title="حذف کاربر"
-								>
-									<span class="icon-[heroicons--trash] w-4 h-4"></span>
-								</button>`
-								: `<button
-									class="inline-flex items-center px-3 py-1.5 border border-gray-200 shadow-sm text-xs font-medium rounded text-gray-400 bg-gray-50 cursor-not-allowed"
-									disabled
-									title="نمی‌توان کاربر مدیر را حذف کرد"
-								>
-									<span class="icon-[heroicons--trash] w-4 h-4"></span>
-								</button>`
-						}
-					</div>
-				`;
-			}
-		}
-	];
 </script>
 
 <PanelPageWrapper title="مدیریت کاربران" description="مدیریت کاربران سیستم و نقش‌های آن‌ها">
@@ -243,17 +135,108 @@
 						</div>
 					</div>
 				{:else}
-					<div on:click={(e) => handleRowAction(e, users)}>
-						<DataTable
-							data={users}
-							{columns}
-							itemsPerPage={10}
-							totalItems={pagination?.total || 0}
-							{currentPage}
-							onPageChange={handlePageChange}
-							showPagination={true}
-						/>
-					</div>
+					<DataTable
+						data={users}
+						itemsPerPage={10}
+						totalItems={pagination?.total || 0}
+						{currentPage}
+						onPageChange={handlePageChange}
+						showPagination={true}
+					>
+						<svelte:fragment slot="header" let:handleSort let:getSortIcon>
+							<DTColumn sortable={true} sortKey="id" onSort={handleSort} {getSortIcon}>
+								<svelte:fragment slot="header">شناسه</svelte:fragment>
+							</DTColumn>
+							<DTColumn sortable={true} sortKey="user" onSort={handleSort} {getSortIcon}>
+								<svelte:fragment slot="header">کاربر</svelte:fragment>
+							</DTColumn>
+							<DTColumn sortable={true} sortKey="role" onSort={handleSort} {getSortIcon}>
+								<svelte:fragment slot="header">نقش</svelte:fragment>
+							</DTColumn>
+							<DTColumn sortable={true} sortKey="createdAt" onSort={handleSort} {getSortIcon}>
+								<svelte:fragment slot="header">ایجاد شده</svelte:fragment>
+							</DTColumn>
+							<DTColumn>
+								<svelte:fragment slot="header">عملیات</svelte:fragment>
+							</DTColumn>
+						</svelte:fragment>
+
+						<svelte:fragment slot="row" let:row>
+							<DTColumn>
+								<div class="font-mono text-sm">
+									{row.id.substring(0, 8)}
+								</div>
+							</DTColumn>
+							<DTColumn>
+								<div class="flex items-center">
+									<div class="h-10 w-10 flex-shrink-0">
+										<div
+											class="flex h-10 w-10 items-center justify-center rounded-full bg-gray-300"
+										>
+											<span class="text-sm font-medium text-gray-700">
+												{row.username.charAt(0).toUpperCase()}
+											</span>
+										</div>
+									</div>
+									<div class="ms-4">
+										<div class="text-sm font-medium text-gray-900">{row.username}</div>
+										{#if row.email}
+											<div class="text-sm text-gray-500">{row.email}</div>
+										{/if}
+									</div>
+								</div>
+							</DTColumn>
+							<DTColumn>
+								{@const roleName = getUserRoleName(row)}
+								{@const roleColor = getUserRoleColor(row)}
+								<span
+									class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-{roleColor ===
+									'success'
+										? 'green'
+										: roleColor === 'warning'
+											? 'yellow'
+											: roleColor === 'error'
+												? 'red'
+												: 'blue'}-100 text-{roleColor === 'success'
+										? 'green'
+										: roleColor === 'warning'
+											? 'yellow'
+											: roleColor === 'error'
+												? 'red'
+												: 'blue'}-800"
+								>
+									{roleName}
+								</span>
+							</DTColumn>
+							<DTColumn>
+								{formatDate(row.createdAt)}
+							</DTColumn>
+							<DTColumn>
+								<div class="flex items-center justify-end gap-2">
+									<DTActionButton
+										variant="edit"
+										href="/panel/admin/users/{row.id}/edit"
+										ariaLabel="ویرایش"
+									/>
+									{#if row.username !== 'admin'}
+										<DTActionButton
+											variant="delete"
+											title="حذف کاربر"
+											ariaLabel="حذف"
+											onClick={() => confirmDelete(row)}
+										/>
+									{:else}
+										<DTActionButton
+											variant="delete"
+											title="نمی‌توان کاربر مدیر را حذف کرد"
+											ariaLabel="حذف"
+											disabled={true}
+										/>
+									{/if}
+								</div>
+							</DTColumn>
+						</svelte:fragment>
+					</DataTable>
 				{/if}
 			</ListUsersProvider>
 		</DeleteUserProvider>

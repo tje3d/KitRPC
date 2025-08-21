@@ -1,26 +1,15 @@
 <script lang="ts" module>
-	// Define types
-	export type Column = {
-		key: string;
-		label: string;
-		sortable?: boolean;
-		render?: (value: any, row: any) => any;
-		component?: LegacyComponentType;
-	};
-
 	type Row = Record<string, any>;
 </script>
 
-<script lang="ts">
-	import type { LegacyComponentType } from 'svelte/legacy';
+<script lang="ts" generics="T extends Row">
 	import { fade } from 'svelte/transition';
 	import Checkbox from './Checkbox.svelte';
 	import Input from './Input.svelte';
 	import Pagination from './Pagination.svelte';
 
-	// Define props using Svelte 4 syntax
-	export let data: Array<Row> = [];
-	export let columns: Array<Column> = [];
+	// Define props
+	export let data: Array<T> = [];
 	export let itemsPerPage: number = 10;
 	export let className: string = '';
 	export let showPagination: boolean = true;
@@ -33,11 +22,11 @@
 	export let showSearch = false;
 	export let showCheckbox = false;
 
-	// State for client-side sorting (when server-side callbacks are not provided)
+	// State for client-side sorting
 	let sortKey: string | null = null;
 	let sortDirection: 'asc' | 'desc' = 'asc';
 
-	// State for search
+	// State for selection
 	let selectedRows: Record<any, boolean> = {};
 
 	// Computed properties
@@ -47,33 +36,26 @@
 		: Math.ceil(data.length / itemsPerPage);
 	$: selectedRowsCount = Object.values(selectedRows).filter(Boolean).length;
 
-	// Filtered data based on search term and column filters
+	// Filtered data based on search term
 	$: filteredData = (() => {
 		if (isServerSide) return data;
 
-		return data.filter((row: Row) => {
-			// Global search
+		return data.filter((row: T) => {
 			if (searchTerm) {
 				const searchLower = searchTerm.toLowerCase();
-				const matchesSearch = columns.some((column: Column) => {
-					const value = row[column.key];
+				const matchesSearch = Object.values(row).some((value) => {
 					return value && value.toString().toLowerCase().includes(searchLower);
 				});
 				if (!matchesSearch) return false;
 			}
-
-			// Column filters
-			return columns.every((column: Column) => {
-				const cellValue = row[column.key];
-				return cellValue && cellValue.toString().toLowerCase();
-			});
+			return true;
 		});
 	})();
 
 	$: sortedData = (() => {
 		if (isServerSide) return filteredData;
 
-		return filteredData.slice().sort((a: Row, b: Row) => {
+		return filteredData.slice().sort((a: T, b: T) => {
 			if (!sortKey) return 0;
 
 			const aValue = a[sortKey];
@@ -114,41 +96,31 @@
 	}
 
 	function handleSearchChange() {
-		// Reset to first page when search changes
+		// Reset to first page when search changes in client-side mode
 		if (!isServerSide && currentPage !== 1) {
-			// In client-side mode, we would need to update currentPage
-			// But since it's a prop, we can't directly modify it
+			// Note: currentPage is a prop, parent component should handle this
 		}
 	}
 
 	function handleSelectAll() {
-		// Create a copy of the current selectedRows object to avoid direct mutation
 		const newSelectedRows = { ...selectedRows };
-
-		// Check if all rows in the current page are already selected
 		const allSelected = selectedRowsCount === paginatedData.length && paginatedData.length > 0;
 
-		// Toggle selection state for all rows in the current page
 		for (const row of paginatedData) {
-			// Use row.id as the key if available, otherwise skip (with a console warning)
 			if (row.id === undefined) {
 				console.warn('Row missing id property, cannot select:', row);
 				continue;
 			}
-
-			// Set selection state based on whether all were previously selected
 			newSelectedRows[row.id] = !allSelected;
 		}
 
-		// Update the selectedRows object to trigger reactivity
 		selectedRows = newSelectedRows;
 	}
 </script>
 
-<!-- Search and filter controls -->
+<!-- Search controls -->
 {#if showSearch}
 	<div class="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-		<!-- Global search -->
 		<div class="w-full md:w-64">
 			<Input
 				id="datatable-search"
@@ -179,21 +151,8 @@
 						/>
 					</th>
 				{/if}
-				{#each columns as column (column.key)}
-					<th
-						scope="col"
-						class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
-						class:cursor-pointer={column.sortable}
-						on:click={() => column.sortable && handleSort(column.key)}
-					>
-						<div class="flex items-center">
-							{column.label}
-							{#if column.sortable}
-								<span class="ms-1 h-4 w-4 text-gray-400 icon-[{getSortIcon(column.key)}]"></span>
-							{/if}
-						</div>
-					</th>
-				{/each}
+				<!-- Header slot for custom headers -->
+				<slot name="header" {handleSort} {getSortIcon} {sortKey} {sortDirection} />
 			</tr>
 		</thead>
 		<tbody class="divide-y divide-gray-200 bg-white">
@@ -209,24 +168,12 @@
 							/>
 						</td>
 					{/if}
-					{#each columns as column (column.key)}
-						<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
-							{#if column.component}
-								<svelte:component this={column.component} value={row[column.key]} {row} {column} />
-							{:else if column.render}
-								{@html column.render(row[column.key], row)}
-							{:else}
-								{row[column.key]}
-							{/if}
-						</td>
-					{/each}
+					<!-- Row slot for custom column rendering -->
+					<slot name="row" {row} {i} />
 				</tr>
 			{:else}
 				<tr>
-					<td
-						colspan={columns.length + (showCheckbox ? 1 : 0)}
-						class="px-6 py-4 text-center text-gray-500"
-					>
+					<td class="px-6 py-4 text-center text-gray-500" colspan="100">
 						<slot name="empty">داده‌ای در دسترس نیست</slot>
 					</td>
 				</tr>
@@ -242,9 +189,6 @@
 			onPageChange={(page) => {
 				if (isServerSide && onPageChange) {
 					onPageChange(page);
-				} else {
-					// In client-side mode, we would need to update currentPage
-					// But since it's a prop, we can't directly modify it
 				}
 			}}
 			className="mt-4"

@@ -1,76 +1,16 @@
 <script lang="ts">
 	import ConfirmDialog from '$lib/dialog/ConfirmDialog.svelte';
 	import { dialogStore } from '$lib/dialog/store';
-	import { Button, DataTable, PanelPageWrapper } from '$lib/kit';
+	import { Button, DataTable, DTActionButton, PanelPageWrapper } from '$lib/kit';
 	import Card from '$lib/kit/Card.svelte';
+	import DTColumn from '$lib/kit/DTColumn.svelte';
 	import DeletePermissionProvider from '$lib/providers/DeletePermissionProvider.svelte';
 	import ListPermissionsProvider from '$lib/providers/ListPermissionsProvider.svelte';
 	import { toast } from '$lib/toast/store';
-	import type { RouterOutputs } from '$lib/trpc/router';
-	import { tick } from 'svelte';
-
-	type Permission = RouterOutputs['permissions']['listPermissions']['permissions'][0];
-	type Pagination = RouterOutputs['permissions']['listPermissions']['pagination'];
 
 	// State
 	let currentPage = 1;
 	let searchTerm = '';
-
-	// DataTable columns configuration
-	const columns = [
-		{
-			key: 'name',
-			label: 'نام',
-			sortable: true
-		},
-		{
-			key: 'resource',
-			label: 'منبع',
-			sortable: true
-		},
-		{
-			key: 'action',
-			label: 'عمل',
-			sortable: true
-		},
-		{
-			key: 'description',
-			label: 'توضیحات',
-			sortable: true,
-			render: (value: string) => {
-				return value || '<span class="text-gray-400">بدون توضیحات</span>';
-			}
-		},
-		{
-			key: 'createdAt',
-			label: 'ایجاد شده',
-			sortable: true,
-			render: (value: any, row: Permission) => {
-				return row.createdAt.toLocaleString('fa-IR');
-			}
-		},
-		{
-			key: 'actions',
-			label: 'عملیات',
-			render: (value: any, row: Permission) => {
-				return `
-					<div class="flex items-center justify-end gap-2">
-						<a href="/panel/admin/permissions/${row.id}/edit" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-							<span class="icon-[heroicons--pencil] w-4 h-4"></span>
-						</a>
-						<button
-							class="inline-flex items-center px-3 py-1.5 border border-red-300 shadow-sm text-xs font-medium rounded text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-							data-action="delete"
-							data-id="${row.id}"
-							title="حذف مجوز"
-						>
-							<span class="icon-[heroicons--trash] w-4 h-4"></span>
-						</button>
-					</div>
-				`;
-			}
-		}
-	];
 </script>
 
 <PanelPageWrapper title="مدیریت مجوزها" description="مدیریت مجوزهای سیستم برای نقش‌ها و کاربران">
@@ -118,57 +58,82 @@
 						</div>
 					</div>
 				{:else}
-					<div
-						on:click={(e) => {
-							const target = e.target as HTMLElement;
-							const button = target.closest('button[data-action]');
-
-							if (!button) return;
-
-							const action = button.getAttribute('data-action');
-							const id = button.getAttribute('data-id');
-
-							if (!action || !id) return;
-
-							if (action === 'delete') {
-								// Find the permission in the current list
-								const permission = permissions?.find((p) => p.id === id);
-								if (permission) {
-									dialogStore.open({
-										component: ConfirmDialog,
-										props: {
-											title: 'حذف مجوز',
-											message: `آیا مطمئن هستید که می‌خواهید مجوز "${permission.name}" را حذف کنید؟ این عمل قابل بازگشت نیست.`,
-											confirm: 'حذف',
-											cancel: 'لغو',
-											color: 'red',
-											onConfirm: () => {
-												history.back();
-												tick().then(() => {
-													deletePermission({ id: permission.id });
-												});
-											}
-										}
-									});
-								}
-							}
+					<DataTable
+						data={permissions}
+						itemsPerPage={10}
+						totalItems={pagination?.total || 0}
+						{currentPage}
+						onPageChange={(page) => {
+							currentPage = page;
+							listPermissions({ page: currentPage, limit: 10, search: searchTerm });
 						}}
+						showPagination={true}
+						bind:searchTerm
+						{loading}
 					>
-						<DataTable
-							data={permissions}
-							{columns}
-							itemsPerPage={10}
-							totalItems={pagination?.total || 0}
-							{currentPage}
-							onPageChange={(page) => {
-								currentPage = page;
-								listPermissions({ page: currentPage, limit: 10, search: searchTerm });
-							}}
-							showPagination={true}
-							bind:searchTerm
-							{loading}
-						/>
-					</div>
+						<svelte:fragment slot="header" let:handleSort let:getSortIcon>
+							<DTColumn sortable sortKey="name" onSort={handleSort} {getSortIcon}>
+								<svelte:fragment slot="header">نام</svelte:fragment>
+							</DTColumn>
+							<DTColumn sortable sortKey="resource" onSort={handleSort} {getSortIcon}>
+								<svelte:fragment slot="header">منبع</svelte:fragment>
+							</DTColumn>
+							<DTColumn sortable sortKey="action" onSort={handleSort} {getSortIcon}>
+								<svelte:fragment slot="header">عمل</svelte:fragment>
+							</DTColumn>
+							<DTColumn sortable sortKey="description" onSort={handleSort} {getSortIcon}>
+								<svelte:fragment slot="header">توضیحات</svelte:fragment>
+							</DTColumn>
+							<DTColumn sortable sortKey="createdAt" onSort={handleSort} {getSortIcon}>
+								<svelte:fragment slot="header">ایجاد شده</svelte:fragment>
+							</DTColumn>
+							<DTColumn>
+								<svelte:fragment slot="header">عملیات</svelte:fragment>
+							</DTColumn>
+						</svelte:fragment>
+
+						<svelte:fragment slot="row" let:row>
+							<DTColumn>{row.name}</DTColumn>
+							<DTColumn>{row.resource}</DTColumn>
+							<DTColumn>{row.action}</DTColumn>
+							<DTColumn>
+								{#if row.description}
+									{row.description}
+								{:else}
+									<span class="text-gray-400">بدون توضیحات</span>
+								{/if}
+							</DTColumn>
+							<DTColumn>{row.createdAt.toLocaleString('fa-IR')}</DTColumn>
+							<DTColumn>
+								<div class="flex items-center justify-end gap-2">
+									<DTActionButton
+										variant="edit"
+										href="/panel/admin/permissions/{row.id}/edit"
+									/>
+									<DTActionButton
+										variant="delete"
+										title="حذف مجوز"
+										onClick={() => {
+											dialogStore.open({
+												component: ConfirmDialog,
+												props: {
+													title: 'حذف مجوز',
+													message: `آیا مطمئن هستید که می‌خواهید مجوز "${row.name}" را حذف کنید؟ این عمل قابل بازگشت نیست.`,
+													confirm: 'حذف',
+													cancel: 'لغو',
+													color: 'red',
+													onConfirm: () => {
+														history.back();
+														deletePermission({ id: row.id });
+													}
+												}
+											});
+										}}
+									/>
+								</div>
+							</DTColumn>
+						</svelte:fragment>
+					</DataTable>
 				{/if}
 			</DeletePermissionProvider>
 		</ListPermissionsProvider>

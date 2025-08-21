@@ -1,17 +1,17 @@
-import { TRPCError } from '@trpc/server';
-import { z } from 'zod';
-import { t } from './trpc';
-import { isAuthenticated, createPermissionMiddleware } from './middleware';
 import {
+	createMediaRecord,
+	deleteMedia,
 	getMediaById,
 	getMediaByUser,
-	deleteMedia,
 	getMediaForAdmin,
-	saveMediaFile,
-	createMediaRecord,
-	getMediaStatistics
+	getMediaStatistics,
+	saveMediaFile
 } from '$lib/services/media.service';
 import { MediaReason, MediaVisibility } from '@prisma/client';
+import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
+import { createPermissionMiddleware, isAuthenticated } from './middleware';
+import { t } from './trpc';
 
 // Input validation schemas
 const uploadSchema = z.object({
@@ -107,11 +107,7 @@ export const mediaRouter = t.router({
 			});
 
 			// Return the created media record
-			return {
-				...mediaRecord,
-				createdAt: mediaRecord.createdAt.toISOString(),
-				updatedAt: mediaRecord.updatedAt.toISOString()
-			};
+			return mediaRecord;
 		} catch (error) {
 			if (error instanceof TRPCError) {
 				throw error;
@@ -130,11 +126,7 @@ export const mediaRouter = t.router({
 		try {
 			const media = await getMediaById(input.id, ctx.user.id);
 
-			return {
-				...media,
-				createdAt: media.createdAt.toISOString(),
-				updatedAt: media.updatedAt.toISOString()
-			};
+			return media;
 		} catch (error: any) {
 			if (error.message && error.message.includes('Access denied')) {
 				throw new TRPCError({
@@ -167,11 +159,7 @@ export const mediaRouter = t.router({
 			const result = await getMediaByUser(ctx.user.id, limit, offset);
 
 			return {
-				media: result.media.map((media) => ({
-					...media,
-					createdAt: media.createdAt.toISOString(),
-					updatedAt: media.updatedAt.toISOString()
-				})),
+				media: result.media,
 				pagination: {
 					page,
 					limit,
@@ -240,8 +228,6 @@ export const mediaRouter = t.router({
 			return {
 				media: result.media.map((media) => ({
 					...media,
-					createdAt: media.createdAt.toISOString(),
-					updatedAt: media.updatedAt.toISOString(),
 					owner: media.owner
 						? {
 								id: media.owner.id,

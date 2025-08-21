@@ -3,7 +3,6 @@
 	import { renderCurrencyWithIcon } from '$lib/helpers/Currency.helper';
 	import { formatCurrency } from '$lib/helpers/utils.helper';
 	import { Button, Card, DataTable, FormGroup, Input, PanelPageWrapper } from '$lib/kit';
-	import type { Column } from '$lib/kit/DataTable.svelte';
 	import CreateCapacityTransactionProvider from '$lib/providers/CreateCapacityTransactionProvider.svelte';
 	import GetCapacityTransactionsProvider from '$lib/providers/GetCapacityTransactionsProvider.svelte';
 	import GetSystemCapacityStatsProvider from '$lib/providers/GetSystemCapacityStatsProvider.svelte';
@@ -40,45 +39,6 @@
 			color: 'from-blue-500 to-indigo-600'
 		}
 	};
-
-	// ستون‌های جدول برای تراکنش‌ها
-	const transactionColumns: Column[] = [
-		{
-			key: 'id',
-			label: 'ID',
-			sortable: true
-		},
-		{
-			key: 'currency',
-			label: 'ارز',
-			sortable: true,
-			render: (value) => {
-				return renderCurrencyWithIcon(value);
-			}
-		},
-		{
-			key: 'amount',
-			label: 'مقدار',
-			sortable: true,
-			render: (value, row) => {
-				const num = parseFloat(value);
-				const formatted = formatCurrency(Math.abs(num), row.currency);
-				return num >= 0 ? `+${formatted}` : `-${formatted}`;
-			}
-		},
-		{
-			key: 'description',
-			label: 'توضیحات'
-		},
-		{
-			key: 'createdAt',
-			label: 'تاریخ ایجاد',
-			sortable: true,
-			render: (value) => {
-				return value.toLocaleString('fa-IR');
-			}
-		}
-	];
 
 	// اعتبارسنجی فرم
 	$: isFormValid =
@@ -296,7 +256,6 @@
 					<Card>
 						<DataTable
 							data={transactions || []}
-							columns={transactionColumns}
 							loading={transactionsLoading}
 							totalItems={totalCount}
 							{currentPage}
@@ -310,7 +269,74 @@
 								});
 							}}
 							showPagination={true}
-						/>
+						>
+							<svelte:fragment slot="header" let:handleSort let:getSortIcon>
+								<th
+									scope="col"
+									class="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100"
+									on:click={() => handleSort('id')}
+								>
+									<div class="flex items-center space-x-1">
+										<span>ID</span>
+										<span class="{getSortIcon('id')} h-4 w-4"></span>
+									</div>
+								</th>
+								<th
+									scope="col"
+									class="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100"
+									on:click={() => handleSort('currency')}
+								>
+									<div class="flex items-center space-x-1">
+										<span>ارز</span>
+										<span class="{getSortIcon('currency')} h-4 w-4"></span>
+									</div>
+								</th>
+								<th
+									scope="col"
+									class="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100"
+									on:click={() => handleSort('amount')}
+								>
+									<div class="flex items-center space-x-1">
+										<span>مقدار</span>
+										<span class="{getSortIcon('amount')} h-4 w-4"></span>
+									</div>
+								</th>
+								<th
+									scope="col"
+									class="px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase"
+								>
+									توضیحات
+								</th>
+								<th
+									scope="col"
+									class="cursor-pointer px-6 py-3 text-left text-xs font-medium tracking-wider text-gray-500 uppercase hover:bg-gray-100"
+									on:click={() => handleSort('createdAt')}
+								>
+									<div class="flex items-center space-x-1">
+										<span>تاریخ ایجاد</span>
+										<span class="{getSortIcon('createdAt')} h-4 w-4"></span>
+									</div>
+								</th>
+							</svelte:fragment>
+
+							<svelte:fragment slot="row" let:row>
+								<td class="px-6 py-4 text-sm font-medium whitespace-nowrap text-gray-900">
+									{row.id}
+								</td>
+								<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+									{@html renderCurrencyWithIcon(row.currency)}
+								</td>
+								<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+									{formatCurrency(row.amount, row.currency)}
+								</td>
+								<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+									{row.description || '-'}
+								</td>
+								<td class="px-6 py-4 text-sm whitespace-nowrap text-gray-500">
+									{row.createdAt.toLocaleString('fa-IR')}
+								</td>
+							</svelte:fragment>
+						</DataTable>
 					</Card>
 				</CreateCapacityTransactionProvider>
 			</GetCapacityTransactionsProvider>
