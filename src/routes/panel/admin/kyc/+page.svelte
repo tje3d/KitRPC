@@ -7,10 +7,13 @@
 	import DataTable from '$lib/kit/DataTable.svelte';
 	import DTColumn from '$lib/kit/DTColumn.svelte';
 	import Input from '$lib/kit/Input.svelte';
+	import KycStatusIndicator from '$lib/kit/KycStatusIndicator.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
+	import Select from '$lib/kit/Select.svelte';
 	import ListKycProvider from '$lib/providers/ListKycProvider.svelte';
 	import { toast } from '$lib/toast/store';
 	import type { KycStatus } from '@prisma/client';
+	import { tick } from 'svelte';
 
 	// Pagination
 	let currentPage = 1;
@@ -37,27 +40,6 @@
 		step1Status: filters.step1Status || undefined,
 		step2Status: filters.step2Status || undefined
 	};
-
-	// Handle sorting (for future implementation)
-	function handleSortChange(key: string, direction: 'asc' | 'desc') {
-		// For now, we'll just log the sort change
-		// In the future, this can be implemented to send sort parameters to the API
-		console.log('Sort changed:', key, direction);
-	}
-
-	// Format KYC status for display
-	function formatKycStatus(status: KycStatus | null) {
-		switch (status) {
-			case 'PENDING':
-				return { text: 'در انتظار', color: 'bg-yellow-100 text-yellow-800' };
-			case 'APPROVED':
-				return { text: 'تأیید شده', color: 'bg-green-100 text-green-800' };
-			case 'REJECTED':
-				return { text: 'رد شده', color: 'bg-red-100 text-red-800' };
-			default:
-				return { text: 'ناشناخته', color: 'bg-gray-100 text-gray-800' };
-		}
-	}
 </script>
 
 <PermissionCheck permission={{ resource: 'kyc', action: 'manage' }} redirect="/panel">
@@ -92,7 +74,9 @@
 									step2Status: ''
 								};
 								currentPage = 1;
-								listKycRequests(requestOpts);
+								tick().then(() => {
+									listKycRequests(requestOpts);
+								});
 							}}
 						>
 							<span class="icon-[heroicons--arrow-path] me-1 h-4 w-4"></span>
@@ -102,7 +86,9 @@
 							size="sm"
 							onClick={() => {
 								currentPage = 1;
-								listKycRequests(requestOpts);
+								tick().then(() => {
+									listKycRequests(requestOpts);
+								});
 							}}
 						>
 							<span class="icon-[heroicons--magnifying-glass] me-1 h-4 w-4"></span>
@@ -128,38 +114,34 @@
 
 					<!-- Step 1 Status -->
 					<div>
-						<label for="step1Status" class="mb-2 block text-sm font-medium text-gray-700">
-							وضعیت مرحله ۱
-						</label>
-						<select
+						<Select
 							id="step1Status"
 							name="step1Status"
-							class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-							bind:value={filters.step1Status}
-						>
-							<option value="">همه</option>
-							{#each kycStatuses as status}
-								<option value={status.value}>{status.label}</option>
-							{/each}
-						</select>
+							label="وضعیت مرحله ۱"
+							value={filters.step1Status}
+							options={[{ value: '', label: 'همه' }, ...kycStatuses]}
+							placeholder="انتخاب کنید"
+							onChange={(value) => {
+								filters.step1Status = value as KycStatus | '';
+							}}
+							className="text-sm"
+						/>
 					</div>
 
 					<!-- Step 2 Status -->
 					<div>
-						<label for="step2Status" class="mb-2 block text-sm font-medium text-gray-700">
-							وضعیت مرحله ۲
-						</label>
-						<select
+						<Select
 							id="step2Status"
 							name="step2Status"
-							class="block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
-							bind:value={filters.step2Status}
-						>
-							<option value="">همه</option>
-							{#each kycStatuses as status}
-								<option value={status.value}>{status.label}</option>
-							{/each}
-						</select>
+							label="وضعیت مرحله ۲"
+							value={filters.step2Status}
+							options={[{ value: '', label: 'همه' }, ...kycStatuses]}
+							placeholder="انتخاب کنید"
+							onChange={(value) => {
+								filters.step2Status = value as KycStatus | '';
+							}}
+							className="text-sm"
+						/>
 					</div>
 				</div>
 			</Card>
@@ -204,7 +186,6 @@
 								currentPage = page;
 								listKycRequests(requestOpts);
 							}}
-							onSortChange={handleSortChange}
 						>
 							<svelte:fragment slot="header" let:handleSort let:getSortIcon>
 								<DTColumn sortable={true} sortKey="username" onSort={handleSort} {getSortIcon}>
@@ -241,24 +222,10 @@
 									{row.mobile}
 								</DTColumn>
 								<DTColumn>
-									{@const statusInfo = formatKycStatus(row.step1Status)}
-									<div class="inline-flex">
-										<span
-											class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium {statusInfo.color}"
-										>
-											{statusInfo.text}
-										</span>
-									</div>
+									<KycStatusIndicator status={row.step1Status} size="sm" />
 								</DTColumn>
 								<DTColumn>
-									{@const statusInfo = formatKycStatus(row.step2Status)}
-									<div class="inline-flex">
-										<span
-											class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium {statusInfo.color}"
-										>
-											{statusInfo.text}
-										</span>
-									</div>
+									<KycStatusIndicator status={row.step2Status} size="sm" />
 								</DTColumn>
 								<DTColumn>
 									<div class="text-sm whitespace-nowrap text-gray-500">

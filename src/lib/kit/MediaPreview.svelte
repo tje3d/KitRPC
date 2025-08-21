@@ -6,7 +6,7 @@
 		mimeType: string;
 		originalName: string;
 		fileSize: number;
-		createdAt: string;
+		createdAt: Date;
 	} | null = null;
 
 	/** @type {string} - Label for the media */
@@ -84,11 +84,6 @@
 	function togglePreview(): void {
 		showPreviewModal = !showPreviewModal;
 	}
-
-	// Format date
-	function formatDate(dateString: string): string {
-		return new Date(dateString).toLocaleDateString();
-	}
 </script>
 
 <div class={`mb-4 ${className}`}>
@@ -100,7 +95,7 @@
 					<div class="text-sm font-medium break-all text-gray-900">{media.originalName}</div>
 					{#if showFileInfo}
 						<div class="text-xs text-gray-500">
-							{formatFileSize(media.fileSize)} • {formatDate(media.createdAt)}
+							{formatFileSize(media.fileSize)} • {media.createdAt.toLocaleDateString()}
 						</div>
 					{/if}
 				</div>

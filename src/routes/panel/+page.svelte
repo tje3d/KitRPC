@@ -1,77 +1,75 @@
 <script lang="ts">
 	import { base } from '$app/paths';
+	import CurrencyIcon from '$lib/components/CurrencyIcon.svelte';
 	import { authUser } from '$lib/flow/auth.flow';
-	import { formatCurrency, formatDateTimeTwoLines } from '$lib/helpers/utils.helper';
 	import { renderCurrencyWithIcon } from '$lib/helpers/Currency.helper';
+	import { formatCurrency, formatDateTimeTwoLines } from '$lib/helpers/utils.helper';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
-	import type { Column } from '$lib/kit/DataTable.svelte';
 	import DataTable from '$lib/kit/DataTable.svelte';
+	import DTColumn from '$lib/kit/DTColumn.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 	import GetBankProvider from '$lib/providers/GetBankProvider.svelte';
 	import GetCardsProvider from '$lib/providers/GetCardsProvider.svelte';
 	import TransactionHistoryProvider from '$lib/providers/TransactionHistoryProvider.svelte';
-	import CurrencyIcon from '$lib/components/CurrencyIcon.svelte';
-	import type { CurrencyType, TransactionStatus, TransactionType } from '@prisma/client';
+	import type { TransactionStatus, TransactionType } from '@prisma/client';
 
-	// Transaction history columns
-	const transactionColumns: Column[] = [
-		{
-			key: 'type',
-			label: 'نوع',
-			render: (value: TransactionType) => {
-				switch (value) {
-					case 'DEPOSIT':
-						return '<span class="text-green-600">واریز</span>';
-					case 'WITHDRAWAL':
-						return '<span class="text-red-600">برداشت</span>';
-					case 'TRANSFER':
-						return '<span class="text-blue-600">انتقال</span>';
-					default:
-						return value;
-				}
-			}
-		},
-		{
-			key: 'amount',
-			label: 'مبلغ',
-			render: (value: number, row: any) => {
-				return formatCurrency(value, row.currency);
-			}
-		},
-		{
-			key: 'currency',
-			label: 'واحد پول',
-			render: (value: CurrencyType) => {
-				return renderCurrencyWithIcon(value);
-			}
-		},
-		{
-			key: 'status',
-			label: 'وضعیت',
-			render: (value: TransactionStatus) => {
-				switch (value) {
-					case 'PENDING':
-						return '<span class="text-yellow-600">در انتظار</span>';
-					case 'COMPLETED':
-						return '<span class="text-green-600">تکمیل شده</span>';
-					case 'FAILED':
-						return '<span class="text-red-600">ناموفق</span>';
-					case 'CANCELLED':
-						return '<span class="text-gray-600">لغو شده</span>';
-					default:
-						return value;
-				}
-			}
-		},
-		{
-			key: 'createdAt',
-			label: 'تاریخ',
-			render: (value: string) => {
-				return formatDateTimeTwoLines(value, 'fa-IR');
-			}
+	// Helper functions for rendering transaction data
+	function renderTransactionType(type: TransactionType) {
+		switch (type) {
+			case 'DEPOSIT':
+				return 'واریز';
+			case 'WITHDRAWAL':
+				return 'برداشت';
+			case 'TRANSFER':
+				return 'انتقال';
+			default:
+				return type;
 		}
-	];
+	}
+
+	function getTransactionTypeClass(type: TransactionType) {
+		switch (type) {
+			case 'DEPOSIT':
+				return 'text-green-600';
+			case 'WITHDRAWAL':
+				return 'text-red-600';
+			case 'TRANSFER':
+				return 'text-blue-600';
+			default:
+				return 'text-gray-600';
+		}
+	}
+
+	function renderTransactionStatus(status: TransactionStatus) {
+		switch (status) {
+			case 'PENDING':
+				return 'در انتظار';
+			case 'COMPLETED':
+				return 'تکمیل شده';
+			case 'FAILED':
+				return 'ناموفق';
+			case 'CANCELLED':
+				return 'لغو شده';
+			default:
+				return status;
+		}
+	}
+
+	function getTransactionStatusClass(status: TransactionStatus) {
+		switch (status) {
+			case 'PENDING':
+				return 'text-yellow-600';
+			case 'COMPLETED':
+				return 'text-green-600';
+			case 'FAILED':
+				return 'text-red-600';
+			case 'CANCELLED':
+				return 'text-gray-600';
+			default:
+				return 'text-gray-600';
+		}
+	}
 
 	// Quick actions
 	const quickActions = [
@@ -335,13 +333,51 @@
 					<div class="overflow-hidden rounded-lg border border-gray-200">
 						<DataTable
 							data={transactions}
-							columns={transactionColumns}
 							itemsPerPage={5}
 							showPagination={false}
 							className=""
 							showSearch={false}
 							showCheckbox={false}
-						/>
+						>
+							<svelte:fragment slot="header" let:handleSort let:getSortIcon>
+								<DTColumn>
+									<svelte:fragment slot="header">نوع</svelte:fragment>
+								</DTColumn>
+								<DTColumn>
+									<svelte:fragment slot="header">مبلغ</svelte:fragment>
+								</DTColumn>
+								<DTColumn>
+									<svelte:fragment slot="header">واحد پول</svelte:fragment>
+								</DTColumn>
+								<DTColumn>
+									<svelte:fragment slot="header">وضعیت</svelte:fragment>
+								</DTColumn>
+								<DTColumn>
+									<svelte:fragment slot="header">تاریخ</svelte:fragment>
+								</DTColumn>
+							</svelte:fragment>
+							<svelte:fragment slot="row" let:row>
+								<DTColumn>
+									<span class={getTransactionTypeClass(row.type)}>
+										{renderTransactionType(row.type)}
+									</span>
+								</DTColumn>
+								<DTColumn>
+									{formatCurrency(row.amount, row.currency)}
+								</DTColumn>
+								<DTColumn>
+									{@html renderCurrencyWithIcon(row.currency)}
+								</DTColumn>
+								<DTColumn>
+									<span class={getTransactionStatusClass(row.status)}>
+										{renderTransactionStatus(row.status)}
+									</span>
+								</DTColumn>
+								<DTColumn>
+									{@html formatDateTimeTwoLines(row.createdAt, 'fa-IR')}
+								</DTColumn>
+							</svelte:fragment>
+						</DataTable>
 					</div>
 				{:else}
 					<div class="flex items-center justify-center p-12 text-center">

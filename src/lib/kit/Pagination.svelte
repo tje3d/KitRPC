@@ -78,36 +78,36 @@
 			on:click={() => goToPage(currentPage - 1)}
 			disabled={currentPage === 1}
 		>
-			Previous
+			قبلی
 		</button>
 		<button
 			class="relative ms-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
 			on:click={() => goToPage(currentPage + 1)}
 			disabled={currentPage === totalPages}
 		>
-			Next
+			بعدی
 		</button>
 	</div>
 	<div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
 		<div>
 			<p class="text-sm text-gray-700">
-				Showing
+				نمایش
 				<span class="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span>
-				to
+				تا
 				<span class="font-medium">{Math.min(currentPage * itemsPerPage, totalItems)}</span>
-				of
+				از
 				<span class="font-medium">{totalItems}</span>
-				results
+				نتیجه
 			</p>
 		</div>
 		<div>
-			<nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
+			<nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="صفحه‌بندی">
 				<button
 					class="relative inline-flex items-center rounded-s-md border border-gray-300 bg-white px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-50"
 					on:click={() => goToPage(currentPage - 1)}
 					disabled={currentPage === 1}
 				>
-					<span class="sr-only">Previous</span>
+					<span class="sr-only">قبلی</span>
 					<span class="icon-[heroicons--chevron-right] h-5 w-5"></span>
 				</button>
 
@@ -142,7 +142,7 @@
 					on:click={() => goToPage(currentPage + 1)}
 					disabled={currentPage === totalPages}
 				>
-					<span class="sr-only">Next</span>
+					<span class="sr-only">بعدی</span>
 					<span class="icon-[heroicons--chevron-left] h-5 w-5"></span>
 				</button>
 			</nav>

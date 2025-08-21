@@ -9,8 +9,10 @@
 	import { formatCurrency } from '$lib/helpers/utils.helper';
 	import Card from '$lib/kit/Card.svelte';
 	import DataTable from '$lib/kit/DataTable.svelte';
+	import DTColumn from '$lib/kit/DTColumn.svelte';
 	import FilterPanel from '$lib/kit/FilterPanel.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
+	import StatusBadge from '$lib/kit/StatusBadge.svelte';
 	import TransactionHistoryProvider from '$lib/providers/TransactionHistoryProvider.svelte';
 	import { toast } from '$lib/toast/store';
 	import type { CurrencyType, TransactionStatus, TransactionType } from '@prisma/client';
@@ -146,13 +148,6 @@
 		currentPage
 	} = filterState);
 
-	// Handle sorting (for future implementation)
-	function handleSortChange(key: string, direction: 'asc' | 'desc') {
-		// For now, we'll just log the sort change
-		// In the future, this can be implemented to send sort parameters to the API
-		console.log('Sort changed:', key, direction);
-	}
-
 	// Get type icon
 	function getTypeIcon(type: string): string {
 		switch (type) {
@@ -167,94 +162,15 @@
 		}
 	}
 
-	// Define columns for the DataTable
-	const columns = [
-		{
-			key: 'type',
-			label: 'نوع',
-			render: (value: string, row: any) => `
-				<div class="flex items-center">
-					<span class="${getTypeIcon(value)} h-5 w-5 text-gray-500"></span>
-					<span class="ms-2 text-sm font-medium text-gray-900">${value}</span>
-				</div>
-			`
-		},
-		{
-			key: 'amount',
-			label: 'مبلغ',
-			render: (value: number, row: any) => {
-				return `<span class="font-medium">${formatCurrency(value, row.currency)}</span>`;
-			}
-		},
-		{
-			key: 'currency',
-			label: 'ارز',
-			render: (value: CurrencyType) => {
-				return renderCurrencyWithIcon(value);
-			}
-		},
-		{
-			key: 'status',
-			label: 'وضعیت',
-			sortable: true,
-			render: (value: string) => {
-				// Map status values to badge variants
-				const statusMap: Record<string, string> = {
-					COMPLETED: 'success',
-					PENDING: 'pending',
-					FAILED: 'error',
-					CANCELLED: 'info'
-				};
-
-				const statusVariant = statusMap[value] || 'info';
-				const statusLabel = value.charAt(0) + value.slice(1).toLowerCase();
-
-				return `
-					<div class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium
-						${statusVariant === 'success' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-						${statusVariant === 'pending' ? 'bg-gray-100 text-gray-800 border-gray-200' : ''}
-						${statusVariant === 'error' ? 'bg-red-100 text-red-800 border-red-200' : ''}
-						${statusVariant === 'info' ? 'bg-blue-100 text-blue-800 border-blue-200' : ''}">
-						<span class="me-1.5 h-3 w-3
-						${statusVariant === 'success' ? 'text-green-600' : ''}
-						${statusVariant === 'pending' ? 'text-gray-600' : ''}
-						${statusVariant === 'error' ? 'text-red-600' : ''}
-						${statusVariant === 'info' ? 'text-blue-600' : ''}
-						${
-							statusVariant === 'success'
-								? 'icon-[heroicons--check-circle]'
-								: statusVariant === 'pending'
-									? 'icon-[heroicons--clock]'
-									: statusVariant === 'error'
-										? 'icon-[heroicons--x-circle]'
-										: 'icon-[heroicons--information-circle]'
-						}">
-						</span>
-						<span>${statusLabel}</span>
-					</div>
-				`;
-			}
-		},
-		{
-			key: 'createdAt',
-			label: 'تاریخ',
-			sortable: true,
-			render: (value: Date) => `
-				<div class="text-sm whitespace-nowrap text-gray-500">
-					${value.toLocaleString('fa-IR')}
-				</div>
-			`
-		},
-		{
-			key: 'description',
-			label: 'توضیحات',
-			render: (value: string) => `
-				<div class="text-sm text-gray-500">
-					${value || '-'}
-				</div>
-			`
-		}
-	];
+	// Helper function to get type label
+	function getTypeLabel(type: string): string {
+		const labels: Record<string, string> = {
+			DEPOSIT: 'واریز',
+			WITHDRAWAL: 'برداشت',
+			TRANSFER: 'انتقال'
+		};
+		return labels[type] || type;
+	}
 </script>
 
 <TransactionHistoryProvider
@@ -345,7 +261,6 @@
 							createdAt: new Date(r.createdAt),
 							updatedAt: new Date(r.updatedAt)
 						}))}
-						{columns}
 						{itemsPerPage}
 						totalItems={totalCount}
 						{currentPage}
@@ -355,8 +270,67 @@
 							if (page < 1 || page > Math.ceil(totalCount / itemsPerPage)) return;
 							filterManager.handlePageChange(page);
 						}}
-						onSortChange={handleSortChange}
-					/>
+					>
+						<svelte:fragment slot="header">
+							<DTColumn>
+								<svelte:fragment slot="header">نوع</svelte:fragment>
+							</DTColumn>
+							<DTColumn>
+								<svelte:fragment slot="header">مبلغ</svelte:fragment>
+							</DTColumn>
+							<DTColumn>
+								<svelte:fragment slot="header">ارز</svelte:fragment>
+							</DTColumn>
+							<DTColumn>
+								<svelte:fragment slot="header">وضعیت</svelte:fragment>
+							</DTColumn>
+							<DTColumn>
+								<svelte:fragment slot="header">تاریخ</svelte:fragment>
+							</DTColumn>
+							<DTColumn>
+								<svelte:fragment slot="header">توضیحات</svelte:fragment>
+							</DTColumn>
+						</svelte:fragment>
+
+						<svelte:fragment slot="row" let:row>
+							<!-- Type Column -->
+							<DTColumn>
+								<div class="flex items-center">
+									<span class="{getTypeIcon(row.type)} h-5 w-5 text-gray-500"></span>
+									<span class="ms-2 text-sm font-medium text-gray-900"
+										>{getTypeLabel(row.type)}</span
+									>
+								</div>
+							</DTColumn>
+
+							<!-- Amount Column -->
+							<DTColumn>
+								<span class="font-medium text-gray-900"
+									>{formatCurrency(row.amount, row.currency)}</span
+								>
+							</DTColumn>
+
+							<!-- Currency Column -->
+							<DTColumn>
+								{@html renderCurrencyWithIcon(row.currency)}
+							</DTColumn>
+
+							<!-- Status Column -->
+							<DTColumn>
+								<StatusBadge status={row.status} />
+							</DTColumn>
+
+							<!-- Date Column -->
+							<DTColumn className="text-gray-500">
+								{row.createdAt.toLocaleString('fa-IR')}
+							</DTColumn>
+
+							<!-- Description Column -->
+							<DTColumn className="text-gray-500">
+								{row.description || '-'}
+							</DTColumn>
+						</svelte:fragment>
+					</DataTable>
 				{/if}
 			</Card>
 		{/if}
