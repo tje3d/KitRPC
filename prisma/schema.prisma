@@ -191,6 +191,61 @@ model Otp {
   @@index([userId])
 }
 
+model SystemCapacity {
+  id        String       @id @default(cuid())
+  currency  CurrencyType
+  amount    Float
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([currency])
+  @@index([currency])
+}
+
+model KycVerification {
+  id                   String     @id @default(cuid())
+  userId               String
+  step1Status          KycStatus?
+  step2Status          KycStatus?
+  step1VerifiedAt      DateTime?
+  step2VerifiedAt      DateTime?
+  step1RejectedAt      DateTime?
+  step2RejectedAt      DateTime?
+  step1RejectionReason String?    @db.Text
+  step2RejectionReason String?    @db.Text
+  adminNotes           String?    @db.Text
+  lastStepUpdatedAt    DateTime   @default(now())
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
+  nationalId           String
+  mobile               String
+  birthDate            DateTime
+  selfieMediaId        String?
+  signedTextMediaId    String?
+  nationalCardMediaId  String?
+  approvedById         String?
+  rejectedById         String?
+  approvedBy           User?      @relation(fields: [approvedById], references: [id], name: "KycApprovedBy")
+  rejectedBy           User?      @relation(fields: [rejectedById], references: [id], name: "KycRejectedBy")
+
+  // روابط
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, name: "KycUser")
+
+  @@unique([userId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model UsdtPrice {
+  id        String   @id @default(cuid())
+  buyPrice  Float
+  sellPrice Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}
+
 enum TransactionType {
   DEPOSIT
   WITHDRAWAL
@@ -226,49 +281,4 @@ enum KycStatus {
   PENDING
   APPROVED
   REJECTED
-}
-
-model SystemCapacity {
-  id           String       @id @default(cuid())
-  currency     CurrencyType
-  amount       Float
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-
-  @@unique([currency])
-  @@index([currency])
-}
-
-model KycVerification {
-  id                   String     @id @default(cuid())
-  userId               String
-  step1Status          KycStatus?
-  step2Status          KycStatus?
-  step1VerifiedAt      DateTime?
-  step2VerifiedAt      DateTime?
-  step1RejectedAt      DateTime?
-  step2RejectedAt      DateTime?
-  step1RejectionReason String? @db.Text
-  step2RejectionReason String? @db.Text
-  adminNotes           String? @db.Text
-  lastStepUpdatedAt    DateTime   @default(now())
-  createdAt            DateTime   @default(now())
-  updatedAt            DateTime   @updatedAt
-  nationalId           String
-  mobile               String
-  birthDate            DateTime
-  selfieMediaId        String?
-  signedTextMediaId    String?
-  nationalCardMediaId  String?
-  approvedById         String?
-  rejectedById         String?
-  approvedBy           User?      @relation(fields: [approvedById], references: [id], name: "KycApprovedBy")
-  rejectedBy           User?      @relation(fields: [rejectedById], references: [id], name: "KycRejectedBy")
-
-  // روابط
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade, name: "KycUser")
-
-  @@unique([userId])
-  @@index([userId])
-  @@index([createdAt])
 }

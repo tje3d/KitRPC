@@ -32,50 +32,56 @@ async function main() {
 		console.log('🔐 ایجاد مجوزهای پیش‌فرض...');
 
 		const permissions = [
-				// مجوزهای کاربر
-				{ name: 'user:manage', description: 'مدیریت کاربران', resource: 'user', action: 'manage' },
+			// مجوزهای کاربر
+			{ name: 'user:manage', description: 'مدیریت کاربران', resource: 'user', action: 'manage' },
 
-				// مجوزهای کیف پول
-				{
-					name: 'wallet:manage',
-					description: 'مدیریت آدرس‌های کیف پول',
-					resource: 'wallet',
-					action: 'manage'
-				},
+			// مجوزهای کیف پول
+			{
+				name: 'wallet:manage',
+				description: 'مدیریت آدرس‌های کیف پول',
+				resource: 'wallet',
+				action: 'manage'
+			},
 
-				// مجوزهای مدیر
-				{
-					name: 'admin:manage',
-					description: 'دسترسی کامل مدیر',
-					resource: 'admin',
-					action: 'manage'
-				},
-				{ name: 'role:manage', description: 'مدیریت نقش‌ها', resource: 'role', action: 'manage' },
-				{
-					name: 'permission:manage',
-					description: 'مدیریت مجوزها',
-					resource: 'permission',
-					action: 'manage'
-				},
-				{
-					name: 'media:manage',
-					description: 'مدیریت فایل‌های رسانه',
-					resource: 'media',
-					action: 'manage'
-				},
-				{
-					name: 'kyc:manage',
-					description: 'مدیریت تأییدیه‌های احراز هویت',
-					resource: 'kyc',
-					action: 'manage'
-				},
-				{
-					name: 'capacity:manage',
-					description: 'مدیریت ظرفیت سیستم',
-					resource: 'capacity',
-					action: 'manage'
-				}
-			];
+			// مجوزهای مدیر
+			{
+				name: 'admin:manage',
+				description: 'دسترسی کامل مدیر',
+				resource: 'admin',
+				action: 'manage'
+			},
+			{ name: 'role:manage', description: 'مدیریت نقش‌ها', resource: 'role', action: 'manage' },
+			{
+				name: 'permission:manage',
+				description: 'مدیریت مجوزها',
+				resource: 'permission',
+				action: 'manage'
+			},
+			{
+				name: 'media:manage',
+				description: 'مدیریت فایل‌های رسانه',
+				resource: 'media',
+				action: 'manage'
+			},
+			{
+				name: 'kyc:manage',
+				description: 'مدیریت تأییدیه‌های احراز هویت',
+				resource: 'kyc',
+				action: 'manage'
+			},
+			{
+				name: 'capacity:manage',
+				description: 'مدیریت ظرفیت سیستم',
+				resource: 'capacity',
+				action: 'manage'
+			},
+			{
+				name: 'usdtprice:manage',
+				description: 'مدیریت قیمت USDT',
+				resource: 'usdtprice',
+				action: 'manage'
+			}
+		];
 
 		const createdPermissions = await Promise.all(
 			permissions.map((permission) => prisma.permission.create({ data: permission }))
@@ -419,6 +425,23 @@ async function main() {
 		console.log('✅ ظرفیت‌های سیستم ایجاد شدند!');
 	} else {
 		console.log('⚡ ظرفیت‌های سیستم قبلاً ایجاد شده‌اند، از ایجاد ظرفیت جدید صرف نظر شد.');
+	}
+
+	// بررسی وجود قیمت USDT
+	const existingUsdtPrice = await prisma.usdtPrice.count();
+	if (existingUsdtPrice === 0) {
+		console.log('💵 ایجاد قیمت اولیه USDT...');
+
+		await prisma.usdtPrice.create({
+			data: {
+				buyPrice: 95000,
+				sellPrice: 105000
+			}
+		});
+
+		console.log('✅ قیمت اولیه USDT ایجاد شد!');
+	} else {
+		console.log('💵 قیمت USDT قبلاً ایجاد شده است، از ایجاد قیمت جدید صرف نظر شد.');
 	}
 
 	console.log('✅ عملیات پر کردن پایگاه داده با موفقیت انجام شد!');

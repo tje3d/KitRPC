@@ -10,6 +10,7 @@ import { sessionsRouter } from './sessions';
 import { transactionsRouter } from './transactions';
 import { t } from './trpc';
 import { usersRouter } from './users';
+import { usdtPriceRouter } from './usdtPrice';
 import { walletRouter } from './wallet';
 
 export const router = t.router({
@@ -44,7 +45,10 @@ export const router = t.router({
 	kyc: kycRouter,
 
 	// System capacity procedures
-	capacity: capacityRouter
+	capacity: capacityRouter,
+
+	// USDT price management procedures
+	usdtPrice: usdtPriceRouter
 });
 
 export type Router = typeof router;

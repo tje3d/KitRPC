@@ -58,7 +58,8 @@
 			help: 'icon-[heroicons--question-mark-circle]',
 			theme: 'icon-[heroicons--moon]',
 			logout: 'icon-[heroicons--arrow-left-on-rectangle]',
-			'arrow-down-on-square': 'icon-[heroicons--arrow-down-on-square]'
+			'arrow-down-on-square': 'icon-[heroicons--arrow-down-on-square]',
+			'currency-dollar': 'icon-[heroicons--currency-dollar]'
 		};
 		return icons[iconName] || icons.dashboard;
 	}

@@ -138,6 +138,19 @@
 						category: 'مدیریت'
 					}
 				]
+			: []),
+		// Add USDT price management link for users with appropriate permissions
+		...(($authUser?.role?.permissions || []).some(
+			(p) => p.permission.resource === 'usdtprice' && p.permission.action === 'manage'
+		)
+			? [
+					{
+						name: 'قیمت USDT',
+						href: `${base}/panel/admin/usdtprice`,
+						icon: 'currency-dollar',
+						category: 'مدیریت'
+					}
+				]
 			: [])
 	];
 
