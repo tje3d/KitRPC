@@ -1,6 +1,8 @@
 @import 'tailwindcss';
 @plugin "@iconify/tailwind4";
 
+@config "../tailwind.config.js";
+
 @font-face {
 	font-family: YekanBakh;
 	font-style: normal;

@@ -95,7 +95,7 @@
 <!-- Sidebar backdrop (mobile only) -->
 {#if isMobile && isOpen}
 	<div
-		class="bg-opacity-50 fixed inset-0 z-[90] touch-manipulation bg-black/25 lg:hidden"
+		class="bg-opacity-50 fixed inset-0 z-[90] touch-manipulation bg-black/25 lg:hidden dark:bg-gray-900/50"
 		transition:fade|local
 		on:click={handleToggle}
 	></div>
@@ -103,15 +103,17 @@
 
 <!-- Sidebar -->
 <aside
-	class={` inset-y-0 start-0 z-[100] w-64 transform bg-white shadow-xl transition-all duration-300 ease-in-out 
+	class={`dark inset-y-0 start-0 z-[100] w-64 transform shadow-xl transition-all duration-300 ease-in-out 
 		${isOpen ? 'translate-x-0' : 'translate-x-full'}
-		${isMobile ? 'fixed h-full' : 'h-screen lg:static lg:translate-x-0'}`}
+		${isMobile ? 'fixed h-full' : 'h-screen lg:static lg:translate-x-0'} bg-gray-800`}
 >
 	<div class="flex h-full flex-col">
 		<!-- Navigation -->
 		<nav class="flex-1 overflow-y-auto p-4">
 			<!-- Sidebar header -->
-			<div class="mb-4 flex items-center justify-between border-b border-gray-100 p-5">
+			<div
+				class="mb-4 flex items-center justify-between border-b border-gray-100 p-5 dark:border-gray-700"
+			>
 				<div class="flex items-center space-x-3">
 					<div
 						class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 text-white shadow-md"
@@ -125,14 +127,14 @@
 							></path>
 						</svg>
 					</div>
-					<h1 class="text-xl font-bold text-gray-900">KitRPC</h1>
+					<h1 class="text-xl font-bold text-gray-900 dark:text-white">KitRPC</h1>
 				</div>
 
 				<!-- Close button (mobile only) -->
 				{#if isMobile}
 					<button
 						on:click={handleToggle}
-						class="rounded-lg p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+						class="rounded-lg p-2 text-gray-500 transition-colors duration-200 hover:bg-gray-100 hover:text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-200"
 					>
 						<svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
@@ -151,7 +153,7 @@
 					{#if category !== 'General'}
 						<button
 							on:click={() => toggleSection(category)}
-							class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold tracking-wider text-gray-500 transition-colors duration-200 hover:bg-gray-100"
+							class="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-xs font-semibold tracking-wider text-gray-500 transition-colors duration-200 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700"
 						>
 							<span>{category}</span>
 							<svg
@@ -181,7 +183,7 @@
 										${
 											active
 												? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md'
-												: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900'
+												: 'text-gray-700 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white'
 										}`}
 								>
 									<span class={getIcon(item.icon) + ' h-5 w-5'}></span>
@@ -200,12 +202,12 @@
 		</div>
 
 		<!-- User profile section -->
-		<div class="border-t border-gray-100 p-4">
+		<div class="border-t border-gray-100 p-4 dark:border-gray-700">
 			<LogoutProvider {onLoggedOut} let:loading let:errorMessage let:clearError let:logout>
 				<Popover position="auto" offset={10} showOnHover={false}>
 					<div
 						slot="trigger"
-						class="flex cursor-pointer items-center space-x-3 rounded-lg p-2 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+						class="flex cursor-pointer items-center space-x-3 rounded-lg p-2 transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-700"
 					>
 						<div
 							class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-gray-200 to-gray-300 text-gray-600 shadow-sm dark:from-gray-700 dark:to-gray-800 dark:text-gray-300"
