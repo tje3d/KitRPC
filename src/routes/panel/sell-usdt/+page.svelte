@@ -73,7 +73,7 @@
 		let:clearError
 		let:sellUsdt
 		onSuccess={(data) => {
-			successMessage = `فروش ${formatNumber(data.transaction?.amount || 0)} با موفقیت انجام شد.`;
+			successMessage = `فروش ${formatNumber(data.transaction?.amount || 0)} تتر با موفقیت انجام شد.`;
 			resetValidation();
 			amountUsdt = '';
 

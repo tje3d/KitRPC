@@ -138,7 +138,9 @@ async function main() {
 			data: {
 				username: 'admin',
 				password: hashedPassword,
-				roleId: adminRole.id
+				roleId: adminRole.id,
+				balanceUSDT: 100,
+				balanceIRT: 1000000
 			}
 		});
 
@@ -391,6 +393,27 @@ async function main() {
 					transactionHash: '0xffffffffffffffffffffffffffffffffffffff',
 					fromAddress: '0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
 					toAddress: '0x1234567890abcdef1234567890abcdef12345678'
+				},
+				// تراکنش‌های اضافی برای افزایش موجودی کاربر ادمین
+				{
+					userId: users[1].id,
+					type: 'DEPOSIT' as const,
+					currency: 'USDT' as const,
+					amount: 100, // 100 USDT
+					status: 'COMPLETED' as const,
+					description: 'افزایش موجودی USDT برای کاربر ادمین',
+					transactionHash: '0x11111111111111111',
+					fromAddress: '0x111111111111111111111',
+					toAddress: '0x1234567890abcdef1234567890abcdef12345678'
+				},
+				{
+					userId: users[1].id,
+					type: 'DEPOSIT' as const,
+					currency: 'IRT' as const,
+					amount: 1000000, // 1,000,000 IRT (1M IRT)
+					status: 'COMPLETED' as const,
+					description: 'افزایش موجودی IRT برای کاربر ادمین',
+					bankCardId: bankCards.length > 0 ? bankCards[0].id : null
 				}
 			];
 
@@ -430,18 +453,27 @@ async function main() {
 	// بررسی وجود قیمت USDT
 	const existingUsdtPrice = await prisma.usdtPrice.count();
 	if (existingUsdtPrice === 0) {
-		console.log('💵 ایجاد قیمت اولیه USDT...');
+		console.log('💵 ایجاد قیمت‌های USDT...');
 
-		await prisma.usdtPrice.create({
-			data: {
-				buyPrice: 95000,
-				sellPrice: 105000
-			}
+		// ایجاد 10 رکورد قیمت USDT با تفاوت‌های جزئی
+		const usdtPrices: { buyPrice: number; sellPrice: number }[] = [];
+		const baseBuyPrice = 95000;
+		const baseSellPrice = 105000;
+
+		for (let i = 0; i < 10; i++) {
+			usdtPrices.push({
+				buyPrice: baseBuyPrice + i * 100, // افزایش 100 تومانی در قیمت خرید
+				sellPrice: baseSellPrice + i * 100 // افزایش 100 تومانی در قیمت فروش
+			});
+		}
+
+		await prisma.usdtPrice.createMany({
+			data: usdtPrices
 		});
 
-		console.log('✅ قیمت اولیه USDT ایجاد شد!');
+		console.log('✅ قیمت‌های USDT ایجاد شدند!');
 	} else {
-		console.log('💵 قیمت USDT قبلاً ایجاد شده است، از ایجاد قیمت جدید صرف نظر شد.');
+		console.log('💵 قیمت‌های USDT قبلاً ایجاد شده‌اند، از ایجاد قیمت جدید صرف نظر شد.');
 	}
 
 	console.log('✅ عملیات پر کردن پایگاه داده با موفقیت انجام شد!');
