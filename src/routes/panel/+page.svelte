@@ -86,10 +86,10 @@
 			href: `${base}/panel/withdraw`
 		},
 		{
-			title: 'انتقال',
-			description: 'انتقال وجه به کاربران دیگر',
-			icon: 'icon-[heroicons--arrows-right-left]',
-			href: `${base}/panel/transfer`
+			title: 'نقد کردن درآمد ارزی',
+			description: 'خرید تتر از شما',
+			icon: 'icon-[heroicons--currency-dollar]',
+			href: `${base}/panel/sell-usdt`
 		},
 		{
 			title: 'کارت‌ها',
