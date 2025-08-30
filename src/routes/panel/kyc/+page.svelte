@@ -131,6 +131,7 @@
 				{@const step1Pending = kycStatus.step1Status === 'PENDING'}
 				{@const step1Rejected = kycStatus.step1Status === 'REJECTED'}
 				{@const step2Rejected = kycStatus.step2Status === 'REJECTED'}
+				{@const step1ApprovedAndNoStep2 = step1Approved && !kycStatus.step2Status}
 
 				<div class="mb-8">
 					<div
@@ -155,7 +156,8 @@
 											class:icon-[heroicons--check-circle]={bothStepsCompleted}
 											class:icon-[heroicons--clock]={step2Pending || step1Pending}
 											class:icon-[heroicons--x-circle]={step1Rejected || step2Rejected}
-											class:icon-[heroicons--document-text]={!step1Approved &&
+											class:icon-[heroicons--document-text]={step1ApprovedAndNoStep2}
+											class:icon-[heroicons--user-circle]={!step1Approved &&
 												!step1Pending &&
 												!step1Rejected}
 										></span>
@@ -172,7 +174,7 @@
 												اسناد در انتظار بررسی
 											{:else if step1Pending}
 												اطلاعات در انتظار بررسی
-											{:else if step1Approved && !kycStatus.step2Status}
+											{:else if step1ApprovedAndNoStep2}
 												آماده برای ارسال اسناد
 											{:else if step1Approved && kycStatus.step2Status}
 												اسناد ارسال شده
@@ -192,7 +194,7 @@
 												مرحله دوم احراز هویت تکمیل شد و در انتظار بررسی توسط تیم پشتیبانی است.
 											{:else if step1Pending}
 												اطلاعات شخصی شما ارسال شد و در انتظار تأیید است.
-											{:else if step1Approved && !kycStatus.step2Status}
+											{:else if step1ApprovedAndNoStep2}
 												اطلاعات شخصی تأیید شد. اکنون می‌توانید اسناد مورد نیاز را آپلود کنید.
 											{:else if step1Approved && kycStatus.step2Status}
 												اطلاعات شخصی تأیید شده و اسناد ارسال شده است.
