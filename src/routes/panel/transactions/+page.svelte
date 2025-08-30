@@ -6,6 +6,7 @@
 		getSelectedValue,
 		type FilterGroup
 	} from '$lib/helpers/filter.helper';
+	import { getTransactionTypeIcon, getTransactionTypeLabel } from '$lib/helpers/transaction.helper';
 	import { formatCurrency } from '$lib/helpers/utils.helper';
 	import Card from '$lib/kit/Card.svelte';
 	import DataTable from '$lib/kit/DataTable.svelte';
@@ -49,6 +50,18 @@
 					label: 'انتقال',
 					icon: 'icon-[heroicons--arrows-right-left]',
 					colorScheme: 'blue' as const
+				},
+				{
+					value: 'SELL_USDT',
+					label: 'فروش USDT',
+					icon: 'icon-[heroicons--arrow-trending-down]',
+					colorScheme: 'red' as const
+				},
+				{
+					value: 'BUY_USDT',
+					label: 'خرید USDT',
+					icon: 'icon-[heroicons--arrow-trending-up]',
+					colorScheme: 'green' as const
 				}
 			],
 			selected: {} as Record<string, boolean>,
@@ -147,30 +160,6 @@
 		endDate,
 		currentPage
 	} = filterState);
-
-	// Get type icon
-	function getTypeIcon(type: string): string {
-		switch (type) {
-			case 'DEPOSIT':
-				return 'icon-[heroicons--arrow-down-tray]';
-			case 'WITHDRAWAL':
-				return 'icon-[heroicons--arrow-up-tray]';
-			case 'TRANSFER':
-				return 'icon-[heroicons--arrows-right-left]';
-			default:
-				return 'icon-[heroicons--currency-dollar]';
-		}
-	}
-
-	// Helper function to get type label
-	function getTypeLabel(type: string): string {
-		const labels: Record<string, string> = {
-			DEPOSIT: 'واریز',
-			WITHDRAWAL: 'برداشت',
-			TRANSFER: 'انتقال'
-		};
-		return labels[type] || type;
-	}
 </script>
 
 <TransactionHistoryProvider
@@ -296,9 +285,9 @@
 							<!-- Type Column -->
 							<DTColumn>
 								<div class="flex items-center">
-									<span class="{getTypeIcon(row.type)} h-5 w-5 text-gray-500"></span>
-									<span class="ms-2 text-sm font-medium text-gray-900"
-										>{getTypeLabel(row.type)}</span
+									<span class="{getTransactionTypeIcon(row.type)} me-2 size-5 text-gray-500"></span>
+									<span class="text-sm font-medium text-gray-900"
+										>{getTransactionTypeLabel(row.type)}</span
 									>
 								</div>
 							</DTColumn>

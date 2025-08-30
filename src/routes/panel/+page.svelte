@@ -3,6 +3,12 @@
 	import CurrencyIcon from '$lib/components/CurrencyIcon.svelte';
 	import { authUser } from '$lib/flow/auth.flow';
 	import { renderCurrencyWithIcon } from '$lib/helpers/Currency.helper';
+	import {
+		getTransactionStatusClass,
+		getTransactionStatusLabel,
+		getTransactionTypeClass,
+		getTransactionTypeLabel
+	} from '$lib/helpers/transaction.helper';
 	import { formatCurrency, formatDateTimeTwoLines } from '$lib/helpers/utils.helper';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
@@ -12,64 +18,6 @@
 	import GetBankProvider from '$lib/providers/GetBankProvider.svelte';
 	import GetCardsProvider from '$lib/providers/GetCardsProvider.svelte';
 	import TransactionHistoryProvider from '$lib/providers/TransactionHistoryProvider.svelte';
-	import type { TransactionStatus, TransactionType } from '@prisma/client';
-
-	// Helper functions for rendering transaction data
-	function renderTransactionType(type: TransactionType) {
-		switch (type) {
-			case 'DEPOSIT':
-				return 'واریز';
-			case 'WITHDRAWAL':
-				return 'برداشت';
-			case 'TRANSFER':
-				return 'انتقال';
-			default:
-				return type;
-		}
-	}
-
-	function getTransactionTypeClass(type: TransactionType) {
-		switch (type) {
-			case 'DEPOSIT':
-				return 'text-green-600';
-			case 'WITHDRAWAL':
-				return 'text-red-600';
-			case 'TRANSFER':
-				return 'text-blue-600';
-			default:
-				return 'text-gray-600';
-		}
-	}
-
-	function renderTransactionStatus(status: TransactionStatus) {
-		switch (status) {
-			case 'PENDING':
-				return 'در انتظار';
-			case 'COMPLETED':
-				return 'تکمیل شده';
-			case 'FAILED':
-				return 'ناموفق';
-			case 'CANCELLED':
-				return 'لغو شده';
-			default:
-				return status;
-		}
-	}
-
-	function getTransactionStatusClass(status: TransactionStatus) {
-		switch (status) {
-			case 'PENDING':
-				return 'text-yellow-600';
-			case 'COMPLETED':
-				return 'text-green-600';
-			case 'FAILED':
-				return 'text-red-600';
-			case 'CANCELLED':
-				return 'text-gray-600';
-			default:
-				return 'text-gray-600';
-		}
-	}
 
 	// Quick actions
 	const quickActions = [
@@ -415,7 +363,7 @@
 							<svelte:fragment slot="row" let:row>
 								<DTColumn>
 									<span class={getTransactionTypeClass(row.type)}>
-										{renderTransactionType(row.type)}
+										{getTransactionTypeLabel(row.type)}
 									</span>
 								</DTColumn>
 								<DTColumn>
@@ -426,7 +374,7 @@
 								</DTColumn>
 								<DTColumn>
 									<span class={getTransactionStatusClass(row.status)}>
-										{renderTransactionStatus(row.status)}
+										{getTransactionStatusLabel(row.status)}
 									</span>
 								</DTColumn>
 								<DTColumn>
@@ -517,7 +465,8 @@
 											</div>
 											<div class="ms-4">
 												<h3
-													class="text-lg font-semibold text-gray-900 transition-colors duration-300 group-hover:text-blue-700"
+													class="text-end text-lg font-semibold text-gray-900 transition-colors duration-300 group-hover:text-blue-700"
+													dir="ltr"
 												>
 													{#if card.cardNumber}
 														**** **** **** {card.cardNumber.slice(-4)}
