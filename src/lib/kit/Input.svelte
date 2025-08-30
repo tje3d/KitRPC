@@ -1,5 +1,6 @@
 <script lang="ts">
 	import cardNumberInput from '$lib/actions/cardNumberInput.action';
+	import OnlyNumber from '$lib/actions/onlyNumber.action';
 
 	/** @type {string} - Input ID (required) */
 	export let id: string;
@@ -52,6 +53,27 @@
 	/** @type {boolean} - Whether to format input as card number */
 	export let formatCard: boolean = false;
 
+	/** @type {boolean} - Whether to enable only number input */
+	export let onlyNumber: boolean = false;
+
+	/** @type {number} - Maximum value allowed */
+	export let max: number | undefined = undefined;
+
+	/** @type {number} - Maximum decimal places allowed */
+	export let maxDecimals: number | undefined = undefined;
+
+	/** @type {boolean} - Whether to add thousand separators */
+	export let thousandSeparator: boolean = false;
+
+	/** @type {boolean} - Whether to allow leading zeros */
+	export let allowLeadingZero: boolean = false;
+
+	/** @type {number} - Maximum number of leading zeros allowed */
+	export let leadingZeroLimit: number | undefined = undefined;
+
+	/** @type {boolean} - Whether to convert leading zeros to regular numbers */
+	export let convertLeadingZeros: boolean = false;
+
 	// Base input classes with modern styling
 	const baseInputClasses =
 		'w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-700 placeholder-gray-400 shadow-sm transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:shadow-md disabled:opacity-50 disabled:cursor-not-allowed';
@@ -99,6 +121,15 @@
 		on:change={onChange}
 		on:input={handleInput}
 		use:cardNumberInput={{ disable: !formatCard }}
+		use:OnlyNumber={{
+			enable: onlyNumber,
+			max,
+			maxDecimals,
+			thousandSeparator,
+			allowLeadingZero,
+			leadingZeroLimit,
+			convertLeadingZeros
+		}}
 	/>
 	{#if error && errorMessage}
 		<p class="text-sm text-red-600" id={`${id}-error`}>

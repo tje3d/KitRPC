@@ -251,6 +251,8 @@ enum TransactionType {
   WITHDRAWAL
   TRANSFER
   CAPACITY
+  BUY_USDT
+  SELL_USDT
 }
 
 enum CurrencyType {

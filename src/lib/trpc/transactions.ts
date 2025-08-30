@@ -1,9 +1,13 @@
+import {
+	getTransactions,
+	processBuyUsdt,
+	processSellUsdt
+} from '$lib/services/transaction.service';
+import { CurrencyType, TransactionStatus, TransactionType } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { getTransactions } from '$lib/services/transaction.service';
 import { isAuthenticated } from './middleware';
 import { t } from './trpc';
-import { TransactionType, CurrencyType, TransactionStatus } from '@prisma/client';
 
 // Input validation schemas
 const getHistorySchema = z.object({
@@ -14,6 +18,15 @@ const getHistorySchema = z.object({
 	toDate: z.date().optional(),
 	limit: z.number().min(1).max(100).default(10),
 	offset: z.number().min(0).default(0)
+});
+
+// Input validation schemas for buy/sell USDT
+const buyUsdtSchema = z.object({
+	amountUsdt: z.number().positive()
+});
+
+const sellUsdtSchema = z.object({
+	amountUsdt: z.number().positive()
 });
 
 // Protected procedure for authenticated users
@@ -51,6 +64,7 @@ export const transactionsRouter = t.router({
 
 			// Format dates for client
 			return {
+				success: true,
 				transactions: result.transactions.map((transaction) => ({
 					...transaction,
 					createdAt: transaction.createdAt.toISOString(),
@@ -60,9 +74,40 @@ export const transactionsRouter = t.router({
 			};
 		} catch (error: any) {
 			throw new TRPCError({
-				code: 'INTERNAL_SERVER_ERROR',
-				message: 'Failed to fetch transaction history',
-				cause: error
+				code: 'BAD_REQUEST',
+				message: error.message || 'Failed to fetch transaction history'
+			});
+		}
+	}),
+
+	// Buy USDT
+	buyUsdt: authenticatedProcedure.input(buyUsdtSchema).mutation(async ({ input, ctx }) => {
+		try {
+			const transaction = await processBuyUsdt(ctx.user.id, input.amountUsdt);
+			return {
+				success: true,
+				transaction
+			};
+		} catch (error: any) {
+			throw new TRPCError({
+				code: 'BAD_REQUEST',
+				message: error.message || 'خطا در خرید USDT'
+			});
+		}
+	}),
+
+	// Sell USDT
+	sellUsdt: authenticatedProcedure.input(sellUsdtSchema).mutation(async ({ input, ctx }) => {
+		try {
+			const transaction = await processSellUsdt(ctx.user.id, input.amountUsdt);
+			return {
+				success: true,
+				transaction
+			};
+		} catch (error: any) {
+			throw new TRPCError({
+				code: 'BAD_REQUEST',
+				message: error.message || 'خطا در فروش USDT'
 			});
 		}
 	})

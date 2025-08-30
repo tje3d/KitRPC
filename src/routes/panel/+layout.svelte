@@ -48,6 +48,12 @@
 			icon: 'arrow-down-tray',
 			category: 'مالی'
 		},
+		{
+			name: 'نقد کردن درآمد ارزی',
+			href: `${base}/panel/sell-usdt`,
+			icon: 'arrow-up-tray',
+			category: 'مالی'
+		},
 
 		// Account & Security
 		{

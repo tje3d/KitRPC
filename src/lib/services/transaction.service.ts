@@ -1,5 +1,6 @@
-import { Prisma, TransactionType, CurrencyType, TransactionStatus } from '@prisma/client';
+import { CurrencyType, TransactionStatus, TransactionType } from '@prisma/client';
 import { prisma as defaultPrisma } from '../prisma';
+import { updateUserBalance } from './balance.service';
 import { validateAmount, validateTransactionHash } from './validation.utils';
 
 // Create a type for our prisma client instance
@@ -177,4 +178,147 @@ export const cancelTransaction = async (transactionId: string, userId: string) =
 };
 
 // Export validation functions for potential reuse
-export { validateTransactionHash, validateAmount };
+export { validateAmount, validateTransactionHash };
+
+// Process a BUY_USDT transaction atomically
+export const processBuyUsdt = async (
+	userId: string,
+	amountUsdt: number, // Amount of USDT to buy
+	description?: string
+) => {
+	// Validate amount
+	if (!validateAmount(amountUsdt, CurrencyType.USDT)) {
+		throw new Error('مبلغ USDT نامعتبر');
+	}
+
+	// Get current USDT price
+	const currentPrice = await defaultPrisma.usdtPrice.findFirst({
+		orderBy: {
+			createdAt: 'desc'
+		}
+	});
+
+	if (!currentPrice) {
+		throw new Error('قیمت USDT یافت نشد');
+	}
+
+	// Calculate IRT amount needed
+	const amountIrt = amountUsdt * currentPrice.buyPrice;
+
+	// Check if the user has sufficient IRT balance
+	const user = await defaultPrisma.user.findUnique({
+		where: { id: userId },
+		select: {
+			balanceIRT: true,
+			balanceUSDT: true
+		}
+	});
+
+	if (!user) {
+		throw new Error('کاربر یافت نشد');
+	}
+
+	if (user.balanceIRT < amountIrt) {
+		throw new Error('موجودی تومان کافی نیست');
+	}
+
+	// Use a transaction to ensure atomicity between:
+	// 1. Creating the transaction record
+	// 2. Updating the user's IRT balance (decrease)
+	// 3. Updating the user's USDT balance (increase)
+	return await defaultPrisma.$transaction(async (prisma) => {
+		// Create the transaction record
+		const transaction = await prisma.transaction.create({
+			data: {
+				userId,
+				type: TransactionType.BUY_USDT,
+				currency: CurrencyType.USDT,
+				amount: amountUsdt,
+				status: TransactionStatus.COMPLETED,
+				description: description || `خرید ${amountUsdt} USDT به قیمت ${currentPrice.buyPrice} تومان`
+				// Store additional info in description
+				// We could also add a separate field if needed
+			}
+		});
+
+		// Update the user's IRT balance (decrease)
+		await updateUserBalance(prisma, userId, CurrencyType.IRT, amountIrt, 'subtract');
+
+		// Update the user's USDT balance (increase)
+		await updateUserBalance(prisma, userId, CurrencyType.USDT, amountUsdt, 'add');
+
+		return transaction;
+	});
+};
+
+// Process a SELL_USDT transaction atomically
+export const processSellUsdt = async (
+	userId: string,
+	amountUsdt: number, // Amount of USDT to sell
+	description?: string
+) => {
+	// Validate amount
+	if (!validateAmount(amountUsdt, CurrencyType.USDT)) {
+		throw new Error('مبلغ USDT نامعتبر');
+	}
+
+	// Get current USDT price
+	const currentPrice = await defaultPrisma.usdtPrice.findFirst({
+		orderBy: {
+			createdAt: 'desc'
+		}
+	});
+
+	if (!currentPrice) {
+		throw new Error('قیمت USDT یافت نشد');
+	}
+
+	// Calculate IRT amount to receive
+	const amountIrt = amountUsdt * currentPrice.sellPrice;
+
+	// Check if the user has sufficient USDT balance
+	const user = await defaultPrisma.user.findUnique({
+		where: { id: userId },
+		select: {
+			balanceIRT: true,
+			balanceUSDT: true
+		}
+	});
+
+	if (!user) {
+		throw new Error('کاربر یافت نشد');
+	}
+
+	if (user.balanceUSDT < amountUsdt) {
+		throw new Error('موجودی USDT کافی نیست');
+	}
+
+	// Use a transaction to ensure atomicity between:
+	// 1. Creating the transaction record
+	// 2. Updating the user's USDT balance (decrease)
+	// 3. Updating the user's IRT balance (increase)
+	return await defaultPrisma.$transaction(async (prisma) => {
+		// Create the transaction record
+		const transaction = await prisma.transaction.create({
+			data: {
+				userId,
+				type: TransactionType.SELL_USDT,
+				currency: CurrencyType.USDT,
+				amount: amountUsdt,
+				status: TransactionStatus.COMPLETED,
+				description:
+					description || `فروش ${amountUsdt} USDT به قیمت ${currentPrice.sellPrice} تومان`
+				// Store additional info in description
+				// We could also add a separate field if needed
+			}
+		});
+
+		// Update the user's USDT balance (decrease)
+		await updateUserBalance(prisma, userId, CurrencyType.USDT, amountUsdt, 'subtract');
+
+		// Update the user's IRT balance (increase)
+		await updateUserBalance(prisma, userId, CurrencyType.IRT, amountIrt, 'add');
+
+		return transaction;
+	});
+};
