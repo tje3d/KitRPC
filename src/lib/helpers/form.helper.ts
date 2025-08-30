@@ -145,6 +145,22 @@ export const rules = {
 			return false; // None of the formats matched
 		},
 		message: MESSAGES.gregorianDate
+	}),
+
+	minAmount: (min: number) => ({
+		validate: (value: string) => {
+			const numValue = parseFloat(value);
+			return !isNaN(numValue) && numValue >= min;
+		},
+		message: (label: string) => `مقدار ${label} باید حداقل ${min} باشد`
+	}),
+
+	maxAmount: (max: number) => ({
+		validate: (value: string) => {
+			const numValue = parseFloat(value);
+			return !isNaN(numValue) && numValue <= max;
+		},
+		message: (label: string) => `مقدار ${label} نمی‌تواند بیشتر از ${max} باشد`
 	})
 };
 

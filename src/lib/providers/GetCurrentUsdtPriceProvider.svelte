@@ -17,6 +17,7 @@
 			return trpc(page).usdtPrice.getCurrentUsdtPrice.query();
 		}),
 		{
+			interval: 5000,
 			initialData: null,
 			requestOnSubscribe: true
 		}
