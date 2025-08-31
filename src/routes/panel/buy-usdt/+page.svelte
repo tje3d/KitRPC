@@ -3,6 +3,8 @@
 	import CurrencyIcon from '$lib/components/CurrencyIcon.svelte';
 	import { authUser } from '$lib/flow/auth.flow';
 	import { rules, useForm, type FormConfig } from '$lib/helpers/form.helper';
+	import { formatNumberAdvanced } from '$lib/helpers/formatNumber.helper';
+	import { Instructions, Notes } from '$lib/kit';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
 	import ErrorDisplay from '$lib/kit/ErrorDisplay.svelte';
@@ -10,10 +12,9 @@
 	import Input from '$lib/kit/Input.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 	import SuccessDisplay from '$lib/kit/SuccessDisplay.svelte';
-	import GetCurrentUsdtPriceProvider from '$lib/providers/GetCurrentUsdtPriceProvider.svelte';
 	import BuyUsdtProvider from '$lib/providers/BuyUsdtProvider.svelte';
+	import GetCurrentUsdtPriceProvider from '$lib/providers/GetCurrentUsdtPriceProvider.svelte';
 	import { toast } from '$lib/toast/store';
-	import { formatNumberAdvanced } from '$lib/helpers/formatNumber.helper';
 
 	// Form configuration
 	const formConfig: FormConfig = {
@@ -347,66 +348,29 @@
 				<!-- Sidebar with instructions and information -->
 				<div class="space-y-6">
 					<!-- Instructions -->
-					<Card variant="elevated">
-						<h3 class="flex items-center text-lg font-semibold text-gray-800">
-							<span class="icon-[heroicons--information-circle] me-3 h-6 w-6 text-blue-500"></span>
-							دستورالعمل‌های خرید
-						</h3>
-						<div class="mt-4 space-y-4">
-							<ul class="space-y-3">
-								<li class="flex items-start">
-									<span class="icon-[heroicons--check-circle] me-3 mt-0.5 h-5 w-5 text-green-500"
-									></span>
-									<span class="text-gray-600">
-										مبلغ USDT که می‌خواهید خریداری کنید را وارد کنید
-									</span>
-								</li>
-								<li class="flex items-start">
-									<span class="icon-[heroicons--check-circle] me-3 mt-0.5 h-5 w-5 text-green-500"
-									></span>
-									<span class="text-gray-600"> قیمت خرید بر اساس نرخ لحظه‌ای محاسبه می‌شود </span>
-								</li>
-								<li class="flex items-start">
-									<span class="icon-[heroicons--check-circle] me-3 mt-0.5 h-5 w-5 text-green-500"
-									></span>
-									<span class="text-gray-600">
-										پس از تایید، مبلغ تومان معادل از حساب شما کسر و USDT به حساب شما واریز خواهد شد
-									</span>
-								</li>
-							</ul>
-						</div>
-					</Card>
+					<Instructions
+						title="دستورالعمل‌های خرید"
+						items={[
+							'مبلغ USDT که می‌خواهید خریداری کنید را وارد کنید',
+							'قیمت خرید بر اساس نرخ لحظه‌ای محاسبه می‌شود',
+							'پس از تایید، مبلغ تومان معادل از حساب شما کسر و USDT به حساب شما واریز خواهد شد'
+						]}
+					/>
 
 					<!-- Important notes -->
-					<Card variant="elevated">
-						<h3 class="flex items-center text-lg font-semibold text-gray-800">
-							<span class="icon-[heroicons--exclamation-triangle] me-3 h-6 w-6 text-yellow-500"
-							></span>
-							نکات مهم
-						</h3>
-						<div class="mt-4 space-y-4">
-							<div
-								class="rounded-xl border border-yellow-200 bg-gradient-to-r from-yellow-50 to-amber-50 p-4"
-							>
-								<div class="flex">
-									<span
-										class="icon-[heroicons--information-circle] me-2 mt-0.5 h-5 w-5 text-yellow-600"
-									></span>
-									<p class="text-yellow-700">حداقل مبلغ قابل خرید 0.01 USDT می‌باشد.</p>
-								</div>
-							</div>
-							<div
-								class="rounded-xl border border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 p-4"
-							>
-								<div class="flex">
-									<span class="icon-[heroicons--clock] me-2 mt-0.5 h-5 w-5 text-blue-600"></span>
-									<p class="text-blue-700">
-										پس از خرید، مبلغ USDT معادل طی چند دقیقه به حساب شما واریز خواهد شد.
-									</p>
-								</div>
-							</div>
-						</div>
-					</Card>
+					<Notes
+						title="نکات مهم"
+						notes={[
+							{
+								text: 'حداقل مبلغ قابل خرید 0.01 USDT می‌باشد.',
+								type: 'warning'
+							},
+							{
+								text: 'پس از خرید، مبلغ USDT معادل طی چند دقیقه به حساب شما واریز خواهد شد.',
+								type: 'info'
+							}
+						]}
+					/>
 				</div>
 			</div>
 		</PanelPageWrapper>

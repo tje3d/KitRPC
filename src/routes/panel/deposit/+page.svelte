@@ -1,9 +1,10 @@
 <script lang="ts">
 	import { BankCardInfo } from '$lib';
+	import CurrencyIcon from '$lib/components/CurrencyIcon.svelte';
+	import { Instructions, Notes } from '$lib/kit';
 	import Card from '$lib/kit/Card.svelte';
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 	import QRCode from '$lib/kit/QRCode.svelte';
-	import CurrencyIcon from '$lib/components/CurrencyIcon.svelte';
 	import { trpc } from '$lib/trpc/client';
 	import type { BankCard } from '@prisma/client';
 	import { onMount } from 'svelte';
@@ -358,91 +359,39 @@
 		<!-- Sidebar with instructions and information -->
 		<div class="space-y-6">
 			<!-- Deposit instructions -->
-			<Card variant="elevated">
-				<h3 class="flex items-center text-sm font-semibold text-gray-800">
-					<span class="icon-[heroicons--information-circle] me-2 h-5 w-5 text-blue-500"></span>
-					دستورالعمل‌های واریز
-				</h3>
-				<div class="mt-4 space-y-4">
-					{#if activeTab === 'usdt'}
-						<ul class="space-y-3">
-							<li class="flex items-start">
-								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
-								></span>
-								<span class="text-sm text-gray-600">
-									USDT خود را با استفاده از شبکه‌ی {selectedNetwork.toUpperCase()} به آدرس بالا ارسال
-									کنید
-								</span>
-							</li>
-							<li class="flex items-start">
-								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
-								></span>
-								<span class="text-sm text-gray-600">
-									برای جلوگیری از از دست دادن وجه، مطمئن شوید از شبکه صحیح استفاده می‌کنید
-								</span>
-							</li>
-							<li class="flex items-start">
-								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
-								></span>
-								<span class="text-sm text-gray-600">
-									واریز شما پس از تایید به صورت خودکار پردازش خواهد شد
-								</span>
-							</li>
-							<li class="flex items-start">
-								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
-								></span>
-								<span class="text-sm text-gray-600">
-									نیازی به مبلغ یا توضیحات نیست - فقط به این آدرس ارسال کنید
-								</span>
-							</li>
-						</ul>
-					{:else}
-						<ul class="space-y-3">
-							<li class="flex items-start">
-								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
-								></span>
-								<span class="text-sm text-gray-600"> کارت بانکی خود را از لیست انتخاب کنید </span>
-							</li>
-							<li class="flex items-start">
-								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
-								></span>
-								<span class="text-sm text-gray-600"> انتقال وجه به حساب انتخاب شده </span>
-							</li>
-							<li class="flex items-start">
-								<span class="icon-[heroicons--check-circle] me-2 mt-0.5 h-5 w-5 text-green-500"
-								></span>
-								<span class="text-sm text-gray-600"> ارسال جزئیات تراکنش برای تایید </span>
-							</li>
-						</ul>
-					{/if}
-				</div>
-			</Card>
+			<Instructions
+				title="دستورالعمل‌های واریز"
+				items={activeTab === 'usdt'
+					? [
+							`USDT خود را با استفاده از شبکه‌ی ${selectedNetwork.toUpperCase()} به آدرس بالا ارسال کنید`,
+							'برای جلوگیری از از دست دادن وجه، مطمئن شوید از شبکه صحیح استفاده می‌کنید',
+							'واریز شما پس از تایید به صورت خودکار پردازش خواهد شد',
+							'نیازی به مبلغ یا توضیحات نیست - فقط به این آدرس ارسال کنید'
+						]
+					: [
+							'کارت بانکی خود را از لیست انتخاب کنید',
+							'انتقال وجه به حساب انتخاب شده',
+							'ارسال جزئیات تراکنش برای تایید'
+						]}
+			/>
 
 			<!-- Important notes -->
-			<Card variant="elevated">
-				<h3 class="flex items-center text-sm font-semibold text-gray-800">
-					<span class="icon-[heroicons--exclamation-triangle] me-2 h-5 w-5 text-yellow-500"></span>
-					نکات مهم
-				</h3>
-				<div class="mt-4 space-y-4">
-					<div class="rounded-lg bg-yellow-50 p-3">
-						<p class="text-sm text-yellow-700">
-							{#if activeTab === 'usdt'}
-								فقط USDT (TRC20) را به این آدرس ارسال کنید. ارسال هر ارز دیجیتال دیگر یا استفاده از
-								شبکه متفاوت ممکن است منجر به از دست دادن دائمی وجه شود.
-							{:else}
-								واریز IRT در حال توسعه است. این قابلیت در بروزرسانی بعدی در دسترس خواهد بود.
-							{/if}
-						</p>
-					</div>
-					<div class="rounded-lg bg-blue-50 p-3">
-						<p class="text-sm text-blue-700">
-							واریزها معمولاً طی ۱۰ دقیقه پردازش می‌شوند. تراکنش‌های بزرگ ممکن است نیاز به تایید
-							اضافی داشته باشند.
-						</p>
-					</div>
-				</div>
-			</Card>
+			<Notes
+				title="نکات مهم"
+				notes={[
+					{
+						text:
+							activeTab === 'usdt'
+								? 'فقط USDT (TRC20) را به این آدرس ارسال کنید. ارسال هر ارز دیجیتال دیگر یا استفاده از شبکه متفاوت ممکن است منجر به از دست دادن دائمی وجه شود.'
+								: 'واریز IRT در حال توسعه است. این قابلیت در بروزرسانی بعدی در دسترس خواهد بود.',
+						type: 'warning'
+					},
+					{
+						text: 'واریزها معمولاً طی ۱۰ دقیقه پردازش می‌شوند. تراکنش‌های بزرگ ممکن است نیاز به تایید اضافی داشته باشند.',
+						type: 'info'
+					}
+				]}
+			/>
 		</div>
 	</div>
 </PanelPageWrapper>
