@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { CardNumber } from '$lib';
 	import ConfirmDialog from '$lib/dialog/ConfirmDialog.svelte';
 	import { dialogStore } from '$lib/dialog/store';
 	import { rules } from '$lib/helpers/form.helper';
+	import BankCardItem from '$lib/kit/BankCardItem.svelte';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
 	import FormGroup from '$lib/kit/FormGroup.svelte';
@@ -129,8 +129,8 @@
 
 						<!-- Add/Edit Card Form -->
 						{#if showAddForm}
-							<Card variant="flat" className="mb-6">
-								<h2 class="mb-4 text-lg font-bold text-gray-800">
+							<Card variant="flat" className="mb-8 rounded-2xl shadow-lg">
+								<h2 class="mb-6 text-xl font-bold text-gray-800">
 									{editingCard ? 'ویرایش کارت' : 'افزودن کارت جدید'}
 								</h2>
 
@@ -162,7 +162,7 @@
 												});
 											}
 										}}
-										class="space-y-4"
+										class="space-y-6"
 									>
 										<FormGroup
 											label="شماره کارت"
@@ -178,21 +178,24 @@
 												name="cardNumber"
 												dir="ltr"
 												formatCard={true}
+												className="text-lg"
 											/>
-											<p class="mt-1 text-sm text-gray-500">یک شماره کارت ۱۶ رقمی وارد کنید</p>
+											<p class="mt-2 text-sm text-gray-500">یک شماره کارت ۱۶ رقمی وارد کنید</p>
 
 											{#if bank}
-												<div class="mt-2 flex items-center gap-2 rounded-md bg-green-50 p-2">
-													<span class="icon-[heroicons--check-circle] h-4 w-4 text-green-600"
+												<div
+													class="mt-3 flex items-center gap-3 rounded-lg bg-green-50 p-3 transition-all duration-300"
+												>
+													<span class="icon-[heroicons--check-circle-solid] h-5 w-5 text-green-600"
 													></span>
-													<span class="text-sm text-green-800">
+													<span class="text-sm font-medium text-green-800">
 														تشخیص داده شده: {bank.name}
 													</span>
 												</div>
 											{/if}
 										</FormGroup>
 
-										<div class="flex justify-end space-x-3 pt-2">
+										<div class="flex justify-end space-x-4 pt-4">
 											<Button
 												variant="secondary"
 												onClick={() => {
@@ -202,10 +205,15 @@
 													cardNumberError = '';
 												}}
 												disabled={createLoading || updateLoading}
+												className="px-6 py-2"
 											>
 												لغو
 											</Button>
-											<Button type="submit" disabled={createLoading || updateLoading}>
+											<Button
+												type="submit"
+												disabled={createLoading || updateLoading}
+												className="px-6 py-2"
+											>
 												{#if createLoading || updateLoading}
 													<span class="flex items-center justify-center gap-2">
 														<span
@@ -235,11 +243,11 @@
 
 							{#if cards?.length === 0 && !loading}
 								<div class="py-12 text-center">
-									<div class="mx-auto h-12 w-12 text-gray-400">
-										<span class="iconify h-12 w-12" data-icon="heroicons:credit-card"></span>
+									<div class="mx-auto h-16 w-16 text-gray-400">
+										<span class="icon-[heroicons--credit-card-solid] h-16 w-16"></span>
 									</div>
-									<h3 class="mt-2 text-sm font-medium text-gray-900">کارتی وجود ندارد</h3>
-									<p class="mt-1 text-sm text-gray-500">با افزودن یک کارت بانکی جدید شروع کنید.</p>
+									<h3 class="mt-4 text-lg font-medium text-gray-900">کارتی وجود ندارد</h3>
+									<p class="mt-2 text-sm text-gray-500">با افزودن یک کارت بانکی جدید شروع کنید.</p>
 									<div class="mt-6">
 										<Button
 											onClick={() => {
@@ -253,103 +261,39 @@
 									</div>
 								</div>
 							{:else}
-								<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+								<div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
 									{#each cards || [] as card (card.id)}
-										<GetBankProvider cardNumber={card.cardNumber} let:bank>
-											<Card variant="flat" className="border rounded-lg p-4">
-												<div class="flex items-start justify-between">
-													<div>
-														<div class="flex items-center">
-															{#if bank}
-																<img
-																	src="/img/banks/{bank.id}.svg"
-																	alt={bank.name}
-																	class="h-8 w-8"
-																/>
-															{:else}
-																<span
-																	class="iconify h-8 w-8 text-gray-400"
-																	data-icon="heroicons:credit-card"
-																></span>
-															{/if}
-															{#if card.isDefault}
-																<span
-																	class="ms-2 inline-flex items-center rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800"
-																>
-																	پیش‌فرض
-																</span>
-															{/if}
-														</div>
-														<p class="mt-2 text-lg font-medium text-gray-900">
-															<CardNumber cardNumber={card.cardNumber} />
-														</p>
-														{#if bank}
-															<p class="text-sm text-gray-600">
-																{bank.name}
-															</p>
-														{/if}
-														<p class="text-sm text-gray-500">
-															افزوده شده در {card.createdAt.toLocaleString('fa-IR')}
-														</p>
-													</div>
-												</div>
-
-												<div class="mt-4 flex space-x-2">
-													{#if !card.isDefault}
-														<Button
-															variant="secondary"
-															size="sm"
-															onClick={() => setDefaultCard({ cardId: card.id })}
-															className="flex-1"
-															disabled={setDefaultLoading}
-														>
-															پیش فرض
-														</Button>
-													{/if}
-													<Button
-														variant="secondary"
-														size="sm"
-														onClick={() => {
-															// Convert string dates to Date objects
-															const cardWithDates = {
-																...card,
-																createdAt: new Date(card.createdAt),
-																updatedAt: new Date(card.updatedAt)
-															};
-															editingCard = cardWithDates;
-															cardNumber = card.cardNumber;
-															showAddForm = true;
-														}}
-														className="flex-1"
-													>
-														ویرایش
-													</Button>
-													<Button
-														variant="secondary"
-														size="sm"
-														onClick={() => {
-															dialogStore.open({
-																component: ConfirmDialog,
-																props: {
-																	title: 'حذف کارت',
-																	message: `آیا مطمئن هستید که می‌خواهید کارتی که به ${card.cardNumber.slice(-4)} ختم می‌شود را حذف کنید؟ این عملیات قابل بازگشت نیست.`,
-																	confirm: 'حذف',
-																	cancel: 'لغو',
-																	color: 'red',
-																	onConfirm: () => {
-																		deleteCard({ cardId: card.id });
-																	}
-																}
-															});
-														}}
-														className="flex-1 text-red-600 hover:bg-red-50"
-														disabled={deleteLoading}
-													>
-														حذف
-													</Button>
-												</div>
-											</Card>
-										</GetBankProvider>
+										<BankCardItem
+											{card}
+											onSetDefault={(cardId) => setDefaultCard({ cardId })}
+											onEdit={(card) => {
+												// Convert string dates to Date objects
+												const cardWithDates = {
+													...card,
+													createdAt: new Date(card.createdAt),
+													updatedAt: new Date(card.updatedAt)
+												};
+												editingCard = cardWithDates;
+												cardNumber = card.cardNumber;
+												showAddForm = true;
+											}}
+											onDelete={(cardId) => {
+												dialogStore.open({
+													component: ConfirmDialog,
+													props: {
+														title: 'حذف کارت',
+														message: `آیا مطمئن هستید که می‌خواهید کارتی که به ${card.cardNumber.slice(-4)} ختم می‌شود را حذف کنید؟ این عملیات قابل بازگشت نیست.`,
+														confirm: 'حذف',
+														cancel: 'لغو',
+														color: 'red',
+														onConfirm: () => {
+															deleteCard({ cardId });
+														}
+													}
+												});
+											}}
+											{...{ setDefaultLoading, deleteLoading }}
+										/>
 									{/each}
 								</div>
 							{/if}
