@@ -50,23 +50,25 @@
 
 	// Color scheme mapping for pills
 	function getPillClasses(isSelected: boolean, colorScheme: string = 'blue', value?: string) {
+		const baseClasses = 'border shadow-sm hover:shadow-md transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95';
+		
 		if (isSelected) {
 			switch (colorScheme) {
 				case 'green':
-					return 'border border-green-200 bg-green-100 text-green-800';
+					return `${baseClasses} border-green-400 bg-gradient-to-r from-green-100 to-green-200 text-green-800 shadow-green-200/50`;
 				case 'yellow':
-					return 'border border-yellow-200 bg-yellow-100 text-yellow-800';
+					return `${baseClasses} border-yellow-400 bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800 shadow-yellow-200/50`;
 				case 'red':
-					return 'border border-red-200 bg-red-100 text-red-800';
+					return `${baseClasses} border-red-400 bg-gradient-to-r from-red-100 to-red-200 text-red-800 shadow-red-200/50`;
 				case 'purple':
-					return 'border border-purple-200 bg-purple-100 text-purple-800';
+					return `${baseClasses} border-purple-400 bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 shadow-purple-200/50`;
 				case 'gray':
-					return 'border border-gray-200 bg-gray-100 text-gray-800';
+					return `${baseClasses} border-gray-400 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 shadow-gray-200/50`;
 				default:
-					return 'border border-blue-200 bg-blue-100 text-blue-800';
+					return `${baseClasses} border-blue-400 bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 shadow-blue-200/50`;
 			}
 		}
-		return 'border border-gray-200 bg-gray-100 text-gray-700 hover:bg-gray-200';
+		return `${baseClasses} border-gray-300 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-700`;
 	}
 
 	// Handle pill click
@@ -174,15 +176,15 @@
 
 	<!-- Quick Filter Pills -->
 	{#if filterGroups.length > 0}
-		<div class="py-4">
-			<div class="flex flex-wrap items-center gap-3">
+		<div class="py-3">
+			<div class="flex flex-wrap items-center gap-4">
 				{#each filterGroups as group, groupIndex}
 					<div class="flex items-center space-x-2">
-						<span class="text-sm font-medium text-gray-600">{group.label}:</span>
-						<div class="flex space-x-1">
+						<span class="text-xs font-medium text-gray-600">{group.label}:</span>
+						<div class="flex flex-wrap gap-1">
 							{#each group.options as option}
 								<button
-									class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium transition-colors {getPillClasses(
+									class="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-opacity-30 {getPillClasses(
 										group.selected[option.value],
 										option.colorScheme,
 										option.value
