@@ -21,7 +21,7 @@
 		</Button>
 	</div>
 
-	<Card variant="flat">
+	<Card variant="elevated">
 		<ListPermissionsProvider
 			let:permissions
 			let:pagination
@@ -106,10 +106,7 @@
 							<DTColumn>{row.createdAt.toLocaleString('fa-IR')}</DTColumn>
 							<DTColumn>
 								<div class="flex items-center justify-end gap-2">
-									<DTActionButton
-										variant="edit"
-										href="/panel/admin/permissions/{row.id}/edit"
-									/>
+									<DTActionButton variant="edit" href="/panel/admin/permissions/{row.id}/edit" />
 									<DTActionButton
 										variant="delete"
 										title="حذف مجوز"

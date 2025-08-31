@@ -143,7 +143,7 @@
 
 						<!-- Add/Edit Wallet Form -->
 						{#if showAddForm}
-							<Card variant="flat" className="mb-6">
+							<Card variant="elevated" className="mb-6">
 								<h2 class="mb-4 text-lg font-bold text-gray-800">
 									{editingWallet ? 'ویرایش آدرس کیف پول' : 'افزودن آدرس کیف پول جدید'}
 								</h2>
@@ -240,7 +240,7 @@
 						{/if}
 
 						<!-- Wallets List -->
-						<Card variant="flat">
+						<Card variant="elevated">
 							<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
 								<div>
 									<h2 class="text-lg font-bold text-gray-800">آدرس‌های کیف پول</h2>

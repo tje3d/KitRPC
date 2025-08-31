@@ -16,14 +16,15 @@
 	/** @type {string} - Additional CSS classes */
 	export let className: string = '';
 
-	/** @type {string} - Button variant (primary, secondary, gradient, outline) */
+	/** @type {string} - Button variant (primary, secondary, gradient, outline, ghost) */
 	export let variant:
 		| 'primary'
 		| 'secondary'
 		| 'gradient'
 		| 'gradient-secondary'
 		| 'gradient-success'
-		| 'outline' = 'primary';
+		| 'outline'
+		| 'ghost' = 'primary';
 
 	/** @type {string} - Button size (default, sm, lg) */
 	export let size: 'default' | 'sm' | 'lg' = 'default';
@@ -34,42 +35,44 @@
 	/** @type {string} - Optional href to render as anchor link */
 	export let href: string | undefined = undefined;
 
-	// Base button classes
+	// Base button classes with modern design
 	const baseButtonClasses =
-		'cursor-pointer inline-flex items-center justify-center transform rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+		'cursor-pointer inline-flex items-center justify-center font-semibold transition-all duration-300 ease-out focus:outline-none focus:ring-4 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 disabled:transform-none relative overflow-hidden group';
 
 	const dispatch = createEventDispatcher();
 
-	// Size classes
+	// Size classes with modern spacing and typography
 	$: sizeClasses =
 		{
-			default: 'px-4 py-2 text-sm shadow',
-			sm: 'px-3 py-1.5 text-xs shadow-sm',
-			lg: 'px-6 py-3 text-base shadow-md'
-		}[size] || 'px-4 py-2 text-sm shadow';
+			default: 'px-6 py-3 text-sm rounded-xl shadow-lg hover:shadow-xl',
+			sm: 'px-4 py-2 text-xs rounded-lg shadow-md hover:shadow-lg',
+			lg: 'px-8 py-4 text-base rounded-2xl shadow-xl hover:shadow-2xl'
+		}[size] || 'px-6 py-3 text-sm rounded-xl shadow-lg hover:shadow-xl';
 
 	// Full width class
 	$: fullWidthClass = fullWidth ? 'w-full' : '';
 
-	// Variant classes
+	// Modern variant classes with enhanced gradients and effects
 	$: variantClasses =
 		{
 			primary:
-				'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 hover:-translate-y-0.5 hover:shadow-md',
+				'text-white bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 hover:from-blue-700 hover:via-blue-800 hover:to-blue-900 focus:ring-blue-500/50 hover:scale-105 active:scale-95 shadow-blue-500/25',
 			secondary:
-				'text-gray-700 bg-gray-100 hover:bg-gray-200 focus:ring-gray-500 hover:-translate-y-0.5 hover:shadow-sm',
+				'text-gray-700 bg-gradient-to-r from-gray-50 via-gray-100 to-gray-200 hover:from-gray-100 hover:via-gray-200 hover:to-gray-300 focus:ring-gray-500/50 border border-gray-200 hover:border-gray-300 hover:scale-105 active:scale-95 shadow-gray-500/10',
 			outline:
-				'text-blue-600 bg-transparent border border-blue-600 hover:bg-blue-50 focus:ring-blue-500 hover:-translate-y-0.5 hover:shadow-sm',
+				'text-blue-600 bg-transparent border-2 border-blue-600 hover:bg-gradient-to-r hover:from-blue-600 hover:to-blue-700 hover:text-white focus:ring-blue-500/50 hover:scale-105 active:scale-95 shadow-blue-500/20 hover:shadow-blue-500/40',
+			ghost:
+				'text-gray-600 bg-transparent hover:bg-gray-100 hover:text-gray-800 focus:ring-gray-500/50 hover:scale-105 active:scale-95 shadow-none hover:shadow-md',
 			gradient:
-				'text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 focus:ring-blue-500 hover:-translate-y-0.5 hover:shadow-md',
+				'text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:via-indigo-700 hover:to-purple-700 focus:ring-blue-500/50 hover:scale-105 active:scale-95 shadow-blue-500/30',
 			'gradient-secondary':
-				'text-white bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 focus:ring-gray-500 hover:-translate-y-0.5 hover:shadow-md',
+				'text-white bg-gradient-to-r from-slate-600 via-gray-700 to-slate-800 hover:from-slate-700 hover:via-gray-800 hover:to-slate-900 focus:ring-gray-500/50 hover:scale-105 active:scale-95 shadow-slate-500/30',
 			'gradient-success':
-				'text-white bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 focus:ring-green-500 hover:-translate-y-0.5 hover:shadow-md'
-		}[variant] || 'text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500';
+				'text-white bg-gradient-to-r from-emerald-500 via-green-600 to-teal-600 hover:from-emerald-600 hover:via-green-700 hover:to-teal-700 focus:ring-emerald-500/50 hover:scale-105 active:scale-95 shadow-emerald-500/30'
+		}[variant] || 'text-white bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 hover:from-blue-700 hover:via-blue-800 hover:to-blue-900 focus:ring-blue-500/50 hover:scale-105 active:scale-95 shadow-blue-500/25';
 
 	// Disabled classes
-	$: disabledClasses = disabled || loading ? 'transform-none shadow' : '';
+	$: disabledClasses = disabled || loading ? 'hover:scale-100 active:scale-100 opacity-60 cursor-not-allowed' : '';
 
 	// Combined classes
 	$: buttonClasses = `${baseButtonClasses} ${sizeClasses} ${variantClasses} ${disabledClasses} ${fullWidthClass} ${className}`;
@@ -99,14 +102,20 @@
 		role="button"
 		tabindex={isDisabled ? -1 : 0}
 	>
-		{#if loading}
-			<div class="flex items-center">
-				<span class="icon-[svg-spinners--bars-scale-fade] mr-2 h-4 w-4"></span>
-				<slot name="loading-text">Loading...</slot>
-			</div>
-		{:else}
-			<slot />
-		{/if}
+		<!-- Shimmer effect overlay -->
+		<div class="absolute inset-0 -top-2 -left-2 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -skew-x-12 group-hover:animate-pulse"></div>
+		
+		<!-- Content -->
+		<div class="relative z-10 flex items-center">
+			{#if loading}
+				<div class="flex items-center">
+					<div class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+					<slot name="loading-text">Loading...</slot>
+				</div>
+			{:else}
+				<slot />
+			{/if}
+		</div>
 	</a>
 {:else}
 	<button
@@ -117,13 +126,19 @@
 		aria-busy={loading}
 		aria-disabled={isDisabled}
 	>
-		{#if loading}
-			<div class="flex items-center">
-				<span class="icon-[svg-spinners--bars-scale-fade] mr-2 h-4 w-4"></span>
-				<slot name="loading-text" />
-			</div>
-		{:else}
-			<slot />
-		{/if}
+		<!-- Shimmer effect overlay -->
+		<div class="absolute inset-0 -top-2 -left-2 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform -skew-x-12 group-hover:animate-pulse"></div>
+		
+		<!-- Content -->
+		<div class="relative z-10 flex items-center">
+			{#if loading}
+				<div class="flex items-center">
+					<div class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></div>
+					<slot name="loading-text" />
+				</div>
+			{:else}
+				<slot />
+			{/if}
+		</div>
 	</button>
 {/if}

@@ -237,12 +237,7 @@
 							></span>
 							<span class="text-sm text-amber-100">احراز هویت انجام نشده</span>
 						</div>
-						<Button
-							href="{base}/panel/kyc"
-							variant="secondary"
-							size="sm"
-							className="mt-3 w-full bg-white/20 text-white hover:bg-white/30"
-						>
+						<Button href="{base}/panel/kyc" variant="secondary" size="sm" className="mt-3 w-full">
 							شروع احراز هویت
 						</Button>
 					</div>
@@ -252,7 +247,7 @@
 	</div>
 
 	<!-- Quick Actions -->
-	<Card variant="flat" className="mt-8 relative z-10">
+	<Card variant="elevated" className="mt-8 relative z-10">
 		<div class="mb-6 flex items-center">
 			<span class="icon-[heroicons--bolt] ml-3 h-6 w-6 text-blue-600"></span>
 			<h2 class="text-xl font-bold text-gray-800">عملیات سریع</h2>
@@ -301,7 +296,7 @@
 			onSuccess={() => {}}
 			onError={() => {}}
 		>
-			<Card variant="flat" className="h-fit">
+			<Card variant="elevated" className="h-fit">
 				<div class="mb-6 flex items-center justify-between">
 					<div class="flex items-center">
 						<span class="icon-[heroicons--clock] ml-3 h-6 w-6 text-green-600"></span>
@@ -402,7 +397,7 @@
 
 		<!-- Connected Bank Cards -->
 		<GetCardsProvider let:cards let:loading let:errorMessage let:getCards>
-			<Card variant="flat" className="h-fit">
+			<Card variant="elevated" className="h-fit">
 				<div class="mb-6 flex items-center justify-between">
 					<div class="flex items-center">
 						<span class="icon-[heroicons--credit-card] ml-3 h-6 w-6 text-blue-600"></span>

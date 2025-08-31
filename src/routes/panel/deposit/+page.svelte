@@ -107,36 +107,36 @@
 	<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
 		<!-- Main content area -->
 		<div class="lg:col-span-2">
-			<Card variant="flat">
+			<Card variant="elevated">
 				<!-- Currency selector -->
 				<div class="mb-6">
 					<h2 class="text-lg font-semibold text-gray-800">انتخاب روش واریز</h2>
 					<p class="mt-1 text-sm text-gray-600">روش افزایش موجودی حساب خود را انتخاب کنید</p>
 					<div class="mt-4 inline-flex rounded-lg bg-gray-100 p-1" role="group">
 						<button
-					type="button"
-					on:click={() => changeTab('usdt')}
-					class={`rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
-						activeTab === 'usdt'
-							? 'bg-white text-blue-600 shadow-sm'
-							: 'text-gray-600 hover:text-gray-900'
-					} focus:z-10 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
-				>
-					<CurrencyIcon currency="USDT" size="sm" />
-					واریز USDT
-				</button>
-				<button
-					type="button"
-					on:click={() => changeTab('irt')}
-					class={`rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
-						activeTab === 'irt'
-							? 'bg-white text-blue-600 shadow-sm'
-							: 'text-gray-600 hover:text-gray-900'
-					} focus:z-10 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
-				>
-					<CurrencyIcon currency="IRT" size="sm" />
-					واریز IRT
-				</button>
+							type="button"
+							on:click={() => changeTab('usdt')}
+							class={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 ${
+								activeTab === 'usdt'
+									? 'bg-white text-blue-600 shadow-sm'
+									: 'text-gray-600 hover:text-gray-900'
+							} focus:z-10 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
+						>
+							<CurrencyIcon currency="USDT" size="sm" />
+							واریز USDT
+						</button>
+						<button
+							type="button"
+							on:click={() => changeTab('irt')}
+							class={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all duration-200 ${
+								activeTab === 'irt'
+									? 'bg-white text-blue-600 shadow-sm'
+									: 'text-gray-600 hover:text-gray-900'
+							} focus:z-10 focus:ring-2 focus:ring-blue-500 focus:outline-none`}
+						>
+							<CurrencyIcon currency="IRT" size="sm" />
+							واریز IRT
+						</button>
 					</div>
 				</div>
 
@@ -358,7 +358,7 @@
 		<!-- Sidebar with instructions and information -->
 		<div class="space-y-6">
 			<!-- Deposit instructions -->
-			<Card variant="flat">
+			<Card variant="elevated">
 				<h3 class="flex items-center text-sm font-semibold text-gray-800">
 					<span class="icon-[heroicons--information-circle] me-2 h-5 w-5 text-blue-500"></span>
 					دستورالعمل‌های واریز
@@ -419,7 +419,7 @@
 			</Card>
 
 			<!-- Important notes -->
-			<Card variant="flat">
+			<Card variant="elevated">
 				<h3 class="flex items-center text-sm font-semibold text-gray-800">
 					<span class="icon-[heroicons--exclamation-triangle] me-2 h-5 w-5 text-yellow-500"></span>
 					نکات مهم

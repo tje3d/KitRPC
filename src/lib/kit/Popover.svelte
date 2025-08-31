@@ -216,7 +216,7 @@
 
 	{#if isVisible}
 		<div
-			class={`fixed z-50 origin-center scale-100 transform rounded-lg border border-white/20 bg-white opacity-100 shadow-xl backdrop-blur-xl transition-all duration-200 ease-in-out ${className}`}
+			class={`fixed z-50 origin-center scale-100 transform rounded-lg border border-gray-200 bg-white opacity-100 shadow-xl backdrop-blur-xl transition-all duration-200 ease-in-out dark:border-gray-700 dark:bg-gray-800 ${className}`}
 			bind:this={popoverElement}
 			style={`top: ${popoverStyles.top}; ${popoverStyles.right ? `right: ${popoverStyles.right};` : `left: ${popoverStyles.left};`}`}
 		>

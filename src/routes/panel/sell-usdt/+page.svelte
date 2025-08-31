@@ -3,7 +3,7 @@
 	import CurrencyIcon from '$lib/components/CurrencyIcon.svelte';
 	import { authUser } from '$lib/flow/auth.flow';
 	import { rules, useForm, type FormConfig } from '$lib/helpers/form.helper';
-	import { formatNumberAdvanced } from '$lib/helpers/FormatNumber.helper';
+	import { formatNumberAdvanced } from '$lib/helpers/formatNumber.helper';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
 	import ErrorDisplay from '$lib/kit/ErrorDisplay.svelte';
@@ -99,10 +99,7 @@
 				<!-- Main content area -->
 				<div class="lg:col-span-2">
 					<!-- Glass morphism card -->
-					<Card
-						variant="flat"
-						className="bg-white/80 backdrop-blur-lg border border-white/30 shadow-xl rounded-2xl"
-					>
+					<Card variant="elevated">
 						<form
 							on:submit|preventDefault={() => {
 								// Reset messages
@@ -342,10 +339,7 @@
 				<!-- Sidebar with instructions and information -->
 				<div class="space-y-6">
 					<!-- Instructions -->
-					<Card
-						variant="flat"
-						className="bg-white/80 backdrop-blur-lg border border-white/30 shadow-xl rounded-2xl"
-					>
+					<Card variant="elevated">
 						<h3 class="flex items-center text-lg font-semibold text-gray-800">
 							<span class="icon-[heroicons--information-circle] me-3 h-6 w-6 text-blue-500"></span>
 							دستورالعمل‌های فروش
@@ -374,10 +368,7 @@
 					</Card>
 
 					<!-- Important notes -->
-					<Card
-						variant="flat"
-						className="bg-white/80 backdrop-blur-lg border border-white/30 shadow-xl rounded-2xl"
-					>
+					<Card variant="elevated">
 						<h3 class="flex items-center text-lg font-semibold text-gray-800">
 							<span class="icon-[heroicons--exclamation-triangle] me-3 h-6 w-6 text-yellow-500"
 							></span>

@@ -56,7 +56,7 @@
 			description="مشاهده و مدیریت درخواست‌های احراز هویت کاربران."
 		>
 			<!-- Filters Section -->
-			<Card variant="flat" className="mb-6">
+			<Card variant="elevated" className="mb-6">
 				<!-- Filter Header with Toggle -->
 				<div class="flex items-center justify-between border-b border-gray-200 pb-4">
 					<div class="flex items-center gap-2">
@@ -155,7 +155,7 @@
 
 			<!-- KYC Requests Table -->
 			{#if !loading}
-				<Card variant="flat">
+				<Card variant="elevated">
 					<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
 						<div>
 							<h2 class="text-lg font-bold text-gray-800">درخواست‌های احراز هویت</h2>

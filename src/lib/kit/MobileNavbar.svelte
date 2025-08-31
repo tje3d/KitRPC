@@ -30,7 +30,7 @@
 			<!-- Left side - Menu toggle -->
 			<div class="flex items-center">
 				<Button
-					variant="secondary"
+					variant="ghost"
 					onClick={onToggleSidebar}
 					className="p-2.5 rounded-xl hover:bg-gray-100/80 transition-all duration-200 hover:scale-105 active:scale-95"
 				>

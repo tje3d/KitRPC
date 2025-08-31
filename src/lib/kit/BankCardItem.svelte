@@ -27,10 +27,7 @@
 	$: bankInfo = detectIranianBank(card.cardNumber);
 </script>
 
-<Card
-	variant="flat"
-	className="relative transform overflow-hidden rounded-2xl border border-gray-200 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
->
+<Card variant="elevated">
 	<!-- Bank color accent -->
 	{#if bankInfo}
 		<div

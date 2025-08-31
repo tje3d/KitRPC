@@ -91,14 +91,14 @@
 					<!-- Current prices display -->
 					<div class="grid gap-4">
 						{#if currentPriceLoading}
-							<Card variant="flat">
+							<Card variant="elevated">
 								<div class="flex items-center justify-center py-8">
 									<span class="icon-[svg-spinners--ring-resize] h-6 w-6 text-blue-600"></span>
 									<span class="ms-2 text-gray-600">در حال بارگذاری قیمت فعلی...</span>
 								</div>
 							</Card>
 						{:else if currentPrice}
-							<Card variant="flat">
+							<Card variant="elevated">
 								<div class="flex flex-col">
 									<h3 class="mb-4 text-lg font-medium text-gray-800">قیمت‌های فعلی USDT</h3>
 
@@ -184,7 +184,7 @@
 								</div>
 							</Card>
 						{:else}
-							<Card variant="flat">
+							<Card variant="elevated">
 								<div class="py-8 text-center">
 									<span class="icon-[heroicons--information-circle] mx-auto h-12 w-12 text-gray-400"
 									></span>
@@ -199,7 +199,7 @@
 						<h2 class="text-xl font-semibold text-gray-800">تاریخچه قیمت‌ها</h2>
 						<div class="flex gap-2">
 							<Button
-								variant="secondary"
+								variant="ghost"
 								onClick={() => {
 									getCurrentUsdtPrice();
 									getUsdtPriceHistory({

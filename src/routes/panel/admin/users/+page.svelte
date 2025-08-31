@@ -106,7 +106,7 @@
 		</Button>
 	</div>
 
-	<Card variant="flat">
+	<Card variant="elevated">
 		<DeleteUserProvider
 			bind:this={deleteUserProvider}
 			onSuccess={handleDeleteSuccess}

@@ -143,7 +143,7 @@
 		<!-- Statistics Summary Cards -->
 		<div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 			<!-- Total Media Count -->
-			<Card variant="flat" compact className="border-s-4 border-s-blue-500">
+			<Card variant="elevated" compact className="border-s-4 border-s-blue-500">
 				<div class="flex items-center">
 					<div class="flex-shrink-0 rounded-full bg-blue-100 p-3">
 						<span class="icon-[heroicons--photo] block h-6 w-6 text-blue-600"></span>
@@ -160,7 +160,7 @@
 			</Card>
 
 			<!-- Total File Size -->
-			<Card variant="flat" compact className="border-s-4 border-s-green-500">
+			<Card variant="elevated" compact className="border-s-4 border-s-green-500">
 				<div class="flex items-center">
 					<div class="flex-shrink-0 rounded-full bg-green-100 p-3">
 						<span class="icon-[heroicons--server-stack] block h-6 w-6 text-green-600"></span>
@@ -179,7 +179,7 @@
 			</Card>
 
 			<!-- Public Media Count -->
-			<Card variant="flat" compact className="border-s-4 border-s-yellow-500">
+			<Card variant="elevated" compact className="border-s-4 border-s-yellow-500">
 				<div class="flex items-center">
 					<div class="flex-shrink-0 rounded-full bg-yellow-100 p-3">
 						<span class="icon-[heroicons--eye] block h-6 w-6 text-yellow-600"></span>
@@ -198,7 +198,7 @@
 			</Card>
 
 			<!-- Private Media Count -->
-			<Card variant="flat" compact className="border-s-4 border-s-purple-500">
+			<Card variant="elevated" compact className="border-s-4 border-s-purple-500">
 				<div class="flex items-center">
 					<div class="flex-shrink-0 rounded-full bg-purple-100 p-3">
 						<span class="icon-[heroicons--lock-closed] block h-6 w-6 text-purple-600"></span>
@@ -218,7 +218,7 @@
 		</div>
 
 		{#if statsErrorMessage}
-			<Card variant="flat" className="mb-6">
+			<Card variant="elevated" className="mb-6">
 				<div class="rounded-lg border border-red-200 bg-red-50 p-4">
 					<div class="flex items-center">
 						<span class="icon-[heroicons--exclamation-circle] me-2 h-5 w-5 text-red-500"></span>
@@ -246,7 +246,7 @@
 		/>
 
 		{#if listErrorMessage}
-			<Card variant="flat" className="mb-6">
+			<Card variant="elevated" className="mb-6">
 				<div class="rounded-lg border border-red-200 bg-red-50 p-4">
 					<div class="flex items-center">
 						<span class="icon-[heroicons--exclamation-circle] me-2 h-5 w-5 text-red-500"></span>
@@ -256,7 +256,7 @@
 			</Card>
 		{/if}
 
-		<Card variant="flat">
+		<Card variant="elevated">
 			<DataTable
 				data={media}
 				itemsPerPage={pageSize}

@@ -198,7 +198,7 @@
 		</nav>
 
 		<!-- Balance section -->
-		<div class="px-4 pb-4">
+		<div class="p-4">
 			<Balance />
 		</div>
 

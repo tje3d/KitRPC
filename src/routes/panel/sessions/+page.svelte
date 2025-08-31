@@ -40,7 +40,7 @@
 	>
 		<!-- Current Session Section -->
 		<Card
-			variant="flat"
+			variant="elevated"
 			className="mb-8 relative overflow-hidden bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50 shadow-xl ring ring-emerald-100/50"
 		>
 			<div class="relative z-10">
@@ -199,7 +199,7 @@
 		</Card>
 
 		<!-- All Sessions Section -->
-		<Card variant="flat">
+		<Card variant="elevated">
 			<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
 				<div>
 					<h2 class="text-lg font-bold text-gray-800">نشست‌های فعال</h2>
@@ -216,7 +216,7 @@
 
 			<!-- Error State -->
 			{#if errorMessage}
-				<Card variant="flat" className="mb-6">
+				<Card variant="elevated" className="mb-6">
 					<div class="rounded-md bg-red-50 p-4">
 						<div class="flex">
 							<div class="flex-shrink-0">

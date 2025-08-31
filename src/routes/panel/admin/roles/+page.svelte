@@ -19,7 +19,7 @@
 		</Button>
 	</div>
 
-	<Card variant="flat">
+	<Card variant="elevated">
 		<ListRolesProvider
 			requestOnSubscribe={true}
 			let:roles

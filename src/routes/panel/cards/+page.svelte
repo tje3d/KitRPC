@@ -129,7 +129,7 @@
 
 						<!-- Add/Edit Card Form -->
 						{#if showAddForm}
-							<Card variant="flat" className="mb-8 rounded-2xl shadow-lg">
+							<Card variant="elevated" className="mb-8 rounded-2xl shadow-lg">
 								<h2 class="mb-6 text-xl font-bold text-gray-800">
 									{editingCard ? 'ویرایش کارت' : 'افزودن کارت جدید'}
 								</h2>
@@ -233,7 +233,7 @@
 						{/if}
 
 						<!-- Cards List -->
-						<Card variant="flat">
+						<Card variant="elevated">
 							<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
 								<div>
 									<h2 class="text-lg font-bold text-gray-800">کارت‌های شما</h2>

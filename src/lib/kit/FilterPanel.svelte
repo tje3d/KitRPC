@@ -149,7 +149,7 @@
 	}
 </script>
 
-<Card variant="flat" {className}>
+<Card variant="elevated" {className}>
 	<!-- Filter Header -->
 	<div class="flex items-center justify-between border-b border-gray-200 pb-4">
 		<div class="flex items-center space-x-2">
@@ -158,7 +158,7 @@
 		</div>
 		<div class="flex items-center space-x-3">
 			{#if showResetButton}
-				<Button size="sm" variant="secondary" onClick={handleReset}>
+				<Button size="sm" variant="ghost" onClick={handleReset}>
 					<span class="icon-[heroicons--arrow-path] me-1 h-4 w-4"></span>
 					{resetButtonText}
 				</Button>

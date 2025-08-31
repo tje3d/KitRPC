@@ -197,7 +197,7 @@
 
 		<!-- Error State -->
 		{#if error}
-			<Card variant="flat" className="mb-6">
+			<Card variant="elevated" className="mb-6">
 				<div class="rounded-md bg-red-50 p-4">
 					<div class="flex">
 						<div class="flex-shrink-0">
@@ -225,7 +225,7 @@
 
 		<!-- Transactions Table -->
 		{#if !loading && !error}
-			<Card variant="flat">
+			<Card variant="elevated">
 				<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between">
 					<div>
 						<h2 class="text-lg font-bold text-gray-800">تراکنش‌ها</h2>
