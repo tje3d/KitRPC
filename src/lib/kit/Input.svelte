@@ -112,7 +112,6 @@
 		{disabled}
 		{maxlength}
 		{required}
-		bind:value
 		class={inputClasses}
 		aria-invalid={error}
 		aria-describedby={error && errorMessage ? `${id}-error` : undefined}
@@ -130,6 +129,7 @@
 			leadingZeroLimit,
 			convertLeadingZeros
 		}}
+		bind:value
 	/>
 	{#if error && errorMessage}
 		<p class="text-sm text-red-600" id={`${id}-error`}>

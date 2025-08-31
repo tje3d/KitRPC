@@ -54,6 +54,12 @@
 			icon: 'arrow-up-tray',
 			category: 'مالی'
 		},
+		{
+			name: 'خدمات ارز دیجیتال',
+			href: `${base}/panel/buy-usdt`,
+			icon: 'arrow-down-tray',
+			category: 'مالی'
+		},
 
 		// Account & Security
 		{

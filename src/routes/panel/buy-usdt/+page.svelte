@@ -3,7 +3,6 @@
 	import CurrencyIcon from '$lib/components/CurrencyIcon.svelte';
 	import { authUser } from '$lib/flow/auth.flow';
 	import { rules, useForm, type FormConfig } from '$lib/helpers/form.helper';
-	import { formatNumberAdvanced } from '$lib/helpers/FormatNumber.helper';
 	import Button from '$lib/kit/Button.svelte';
 	import Card from '$lib/kit/Card.svelte';
 	import ErrorDisplay from '$lib/kit/ErrorDisplay.svelte';
@@ -12,8 +11,9 @@
 	import PanelPageWrapper from '$lib/kit/PanelPageWrapper.svelte';
 	import SuccessDisplay from '$lib/kit/SuccessDisplay.svelte';
 	import GetCurrentUsdtPriceProvider from '$lib/providers/GetCurrentUsdtPriceProvider.svelte';
-	import SellUsdtProvider from '$lib/providers/SellUsdtProvider.svelte';
+	import BuyUsdtProvider from '$lib/providers/BuyUsdtProvider.svelte';
 	import { toast } from '$lib/toast/store';
+	import { formatNumberAdvanced } from '$lib/helpers/FormatNumber.helper';
 
 	// Form configuration
 	const formConfig: FormConfig = {
@@ -30,20 +30,23 @@
 	let amountUsdt: string = '';
 	let successMessage: string | null = null;
 	let errorMessage: string | null = null;
-	let sellUsdtProvider: SellUsdtProvider | null = null;
+	let buyUsdtProvider: BuyUsdtProvider | null = null;
+	let currentUsdtPrice: { buyPrice: number; sellPrice: number } | null = null;
 
 	// Set amount based on percentage of balance
 	function setAmountByPercentage(percentage: number) {
-		if ($authUser?.balanceUSDT !== undefined) {
-			const amount = $authUser.balanceUSDT * (percentage / 100);
-			amountUsdt = formatNumberAdvanced(amount, { decimals: 2, separator: false });
+		if ($authUser?.balanceIRT !== undefined && currentUsdtPrice?.buyPrice) {
+			// For buying, we need to calculate based on IRT balance and current buy price
+			const usdtAmount = ($authUser.balanceIRT / currentUsdtPrice.buyPrice) * (percentage / 100);
+			amountUsdt = formatNumberAdvanced(usdtAmount, { decimals: 2, separator: false });
 		}
 	}
 
-	// Set amount to maximum balance
+	// Set amount to maximum based on IRT balance
 	function setMaxBalance() {
-		if ($authUser?.balanceUSDT !== undefined) {
-			amountUsdt = formatNumberAdvanced($authUser.balanceUSDT, { decimals: 2, separator: false });
+		if ($authUser?.balanceIRT !== undefined && currentUsdtPrice?.buyPrice) {
+			const maxUsdt = $authUser.balanceIRT / currentUsdtPrice.buyPrice;
+			amountUsdt = formatNumberAdvanced(maxUsdt, { decimals: 2, separator: false });
 		}
 	}
 
@@ -66,15 +69,18 @@
 <GetCurrentUsdtPriceProvider
 	let:loading={usdtPriceLoading}
 	let:currentPrice={currentUsdtPrice}
+	onSuccess={(data) => {
+		currentUsdtPrice = data;
+	}}
 	onError={handleError}
 >
-	<SellUsdtProvider
-		bind:this={sellUsdtProvider}
-		let:loading={sellLoading}
+	<BuyUsdtProvider
+		bind:this={buyUsdtProvider}
+		let:loading={buyLoading}
 		let:clearError
-		let:sellUsdt
+		let:buyUsdt
 		onSuccess={(data) => {
-			successMessage = `فروش ${formatNumber(data.transaction?.amount || 0)} تتر با موفقیت انجام شد.`;
+			successMessage = `خرید ${formatNumber(data.transaction?.amount || 0)} تتر با موفقیت انجام شد.`;
 			resetValidation();
 			amountUsdt = '';
 
@@ -86,7 +92,7 @@
 		}}
 		onError={handleError}
 	>
-		<PanelPageWrapper title="نقد کردن درآمد ارزی" description="فروش USDT و تبدیل آن به تومان">
+		<PanelPageWrapper title="خدمات ارز دیجیتال" description="خرید USDT با تومان">
 			<!-- Background with gradient -->
 			<div
 				class="to-indigo-10 absolute inset-0 -z-10 bg-gradient-to-br from-slate-50 via-blue-50"
@@ -127,29 +133,31 @@
 									return;
 								}
 
-								// Check if user has enough USDT balance
-								if ($authUser?.balanceUSDT !== undefined && amount > $authUser.balanceUSDT) {
-									errorMessage = 'موجودی USDT شما کافی نیست';
+								// Check if user has enough IRT balance
+								if (
+									$authUser?.balanceIRT !== undefined &&
+									currentUsdtPrice?.buyPrice &&
+									amount * currentUsdtPrice.buyPrice > $authUser.balanceIRT
+								) {
+									errorMessage = 'موجودی تومان شما کافی نیست';
 									return;
 								}
 
-								// Trigger sell USDT request
-								sellUsdt({ amountUsdt: amount });
+								// Trigger buy USDT request
+								buyUsdt({ amountUsdt: amount });
 							}}
 						>
 							<div class="space-y-6">
 								<!-- Live USDT Price Display -->
-								<div
-									class="rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 p-6 shadow-lg"
-								>
+								<div class="rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-600 p-6 shadow-lg">
 									<div class="flex items-center justify-between">
 										<div>
-											<h3 class="text-sm font-medium text-emerald-100">نرخ لحظه‌ای فروش USDT</h3>
+											<h3 class="text-sm font-medium text-blue-100">نرخ لحظه‌ای خرید USDT</h3>
 											{#if usdtPriceLoading}
-												<div class="mt-2 h-8 w-32 animate-pulse rounded-lg bg-emerald-400/30"></div>
+												<div class="mt-2 h-8 w-32 animate-pulse rounded-lg bg-blue-400/30"></div>
 											{:else}
 												<p class="mt-1 text-2xl font-bold text-white">
-													{formatNumber(currentUsdtPrice?.sellPrice)}
+													{formatNumber(currentUsdtPrice?.buyPrice)}
 													<span class="text-lg">تومان</span>
 												</p>
 											{/if}
@@ -214,7 +222,7 @@
 											type="text"
 											placeholder="مثلا: 100"
 											bind:value={amountUsdt}
-											disabled={sellLoading}
+											disabled={buyLoading}
 											dir="ltr"
 											onlyNumber={true}
 											maxDecimals={2}
@@ -230,7 +238,7 @@
 											type="button"
 											on:click={setMaxBalance}
 											class="absolute start-2 top-1/2 -translate-y-1/2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-md transition-all hover:scale-105 hover:shadow-lg focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 focus:outline-none"
-											disabled={sellLoading || $authUser?.balanceUSDT === undefined}
+											disabled={buyLoading || $authUser?.balanceIRT === undefined}
 										>
 											حداکثر
 										</button>
@@ -243,7 +251,7 @@
 										type="button"
 										on:click={() => setAmountByPercentage(20)}
 										class="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-100 to-gray-200 px-3 py-3 text-sm font-medium text-gray-700 backdrop-blur-sm transition-all hover:scale-105 hover:shadow-md focus:ring-2 focus:ring-gray-500 focus:ring-offset-1 focus:outline-none"
-										disabled={sellLoading || $authUser?.balanceUSDT === undefined}
+										disabled={buyLoading || $authUser?.balanceIRT === undefined}
 									>
 										۲۰٪
 									</button>
@@ -251,7 +259,7 @@
 										type="button"
 										on:click={() => setAmountByPercentage(40)}
 										class="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-100 to-gray-200 px-3 py-3 text-sm font-medium text-gray-700 backdrop-blur-sm transition-all hover:scale-105 hover:shadow-md focus:ring-2 focus:ring-gray-500 focus:ring-offset-1 focus:outline-none"
-										disabled={sellLoading || $authUser?.balanceUSDT === undefined}
+										disabled={buyLoading || $authUser?.balanceIRT === undefined}
 									>
 										۴۰٪
 									</button>
@@ -259,23 +267,23 @@
 										type="button"
 										on:click={() => setAmountByPercentage(60)}
 										class="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-100 to-gray-200 px-3 py-3 text-sm font-medium text-gray-700 backdrop-blur-sm transition-all hover:scale-105 hover:shadow-md focus:ring-2 focus:ring-gray-500 focus:ring-offset-1 focus:outline-none"
-										disabled={sellLoading || $authUser?.balanceUSDT === undefined}
+										disabled={buyLoading || $authUser?.balanceIRT === undefined}
 									>
 										۶۰٪
 									</button>
 									<button
 										type="button"
 										on:click={() => setAmountByPercentage(80)}
-										class="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-100 to-gray-200 px-3 py-3 text-sm font-medium text-gray-700 backdrop-blur-sm transition-all hover:scale-105 hover:shadow-md focus:ring-2 focus:ring-gray-500 focus:ring-offset-1 focus:outline-none"
-										disabled={sellLoading || $authUser?.balanceUSDT === undefined}
+										class="rounded-xl border-gray-200 bg-gradient-to-br from-gray-100 to-gray-200 px-3 py-3 text-sm font-medium text-gray-700 backdrop-blur-sm transition-all hover:scale-105 hover:shadow-md focus:ring-2 focus:ring-gray-500 focus:ring-offset-1 focus:outline-none"
+										disabled={buyLoading || $authUser?.balanceIRT === undefined}
 									>
 										۸۰٪
 									</button>
 									<button
 										type="button"
 										on:click={() => setAmountByPercentage(100)}
-										class="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-100 to-gray-200 px-3 py-3 text-sm font-medium text-gray-700 backdrop-blur-sm transition-all hover:scale-105 hover:shadow-md focus:ring-2 focus:ring-gray-500 focus:ring-offset-1 focus:outline-none"
-										disabled={sellLoading || $authUser?.balanceUSDT === undefined}
+										class="rounded-xl border-gray-200 bg-gradient-to-br from-gray-100 to-gray-200 px-3 py-3 text-sm font-medium text-gray-700 backdrop-blur-sm transition-all hover:scale-105 hover:shadow-md focus:ring-2 focus:ring-gray-500 focus:ring-offset-1 focus:outline-none"
+										disabled={buyLoading || $authUser?.balanceIRT === undefined}
 									>
 										۱۰۰٪
 									</button>
@@ -283,16 +291,16 @@
 
 								<!-- USDT to IRT conversion display -->
 								<div
-									class="rounded-2xl border border-green-200/50 bg-gradient-to-br from-green-500/10 to-emerald-50/10 p-5 backdrop-blur-sm"
+									class="rounded-2xl border border-blue-200/50 bg-gradient-to-br from-blue-500/10 to-indigo-50/10 p-5 backdrop-blur-sm"
 								>
 									<div class="flex items-center justify-between">
 										<div class="flex items-center gap-2">
-											<span class="icon-[heroicons--arrows-right-left] h-5 w-5 text-green-600"
+											<span class="icon-[heroicons--arrows-right-left] h-5 w-5 text-blue-600"
 											></span>
-											<span class="text-sm font-medium text-green-700">معادل تومان</span>
+											<span class="text-sm font-medium text-blue-700">هزینه خرید</span>
 										</div>
-										<span class="text-lg font-bold text-green-900">
-											{formatNumber((currentUsdtPrice?.sellPrice || 0) * parseFloat(amountUsdt))} تومان
+										<span class="text-lg font-bold text-blue-900">
+											{formatNumber((currentUsdtPrice?.buyPrice || 0) * parseFloat(amountUsdt))} تومان
 										</span>
 									</div>
 								</div>
@@ -316,12 +324,12 @@
 								<div class="flex justify-end">
 									<Button
 										type="submit"
-										loading={sellLoading}
-										disabled={sellLoading}
+										loading={buyLoading}
+										disabled={buyLoading}
 										variant="primary"
 										className="rounded-xl px-6 py-3 text-lg font-medium shadow-lg hover:shadow-xl transition-all"
 									>
-										{#if sellLoading}
+										{#if buyLoading}
 											<div class="flex items-center">
 												<span class="icon-[svg-spinners--bars-scale] me-2 h-5 w-5"></span>
 												در حال پردازش...
@@ -329,7 +337,7 @@
 										{:else}
 											<div class="flex items-center">
 												<span class="icon-[heroicons--arrow-down-tray] me-2 h-5 w-5"></span>
-												نقد کردن
+												خرید USDT
 											</div>
 										{/if}
 									</Button>
@@ -348,25 +356,27 @@
 					>
 						<h3 class="flex items-center text-lg font-semibold text-gray-800">
 							<span class="icon-[heroicons--information-circle] me-3 h-6 w-6 text-blue-500"></span>
-							دستورالعمل‌های فروش
+							دستورالعمل‌های خرید
 						</h3>
 						<div class="mt-4 space-y-4">
 							<ul class="space-y-3">
 								<li class="flex items-start">
 									<span class="icon-[heroicons--check-circle] me-3 mt-0.5 h-5 w-5 text-green-500"
 									></span>
-									<span class="text-gray-600"> مبلغ USDT که می‌خواهید بفروشید را وارد کنید </span>
+									<span class="text-gray-600">
+										مبلغ USDT که می‌خواهید خریداری کنید را وارد کنید
+									</span>
 								</li>
 								<li class="flex items-start">
 									<span class="icon-[heroicons--check-circle] me-3 mt-0.5 h-5 w-5 text-green-500"
 									></span>
-									<span class="text-gray-600"> قیمت فروش بر اساس نرخ لحظه‌ای محاسبه می‌شود </span>
+									<span class="text-gray-600"> قیمت خرید بر اساس نرخ لحظه‌ای محاسبه می‌شود </span>
 								</li>
 								<li class="flex items-start">
 									<span class="icon-[heroicons--check-circle] me-3 mt-0.5 h-5 w-5 text-green-500"
 									></span>
 									<span class="text-gray-600">
-										پس از تایید، مبلغ تومان معادل به حساب شما واریز خواهد شد
+										پس از تایید، مبلغ تومان معادل از حساب شما کسر و USDT به حساب شما واریز خواهد شد
 									</span>
 								</li>
 							</ul>
@@ -391,7 +401,7 @@
 									<span
 										class="icon-[heroicons--information-circle] me-2 mt-0.5 h-5 w-5 text-yellow-600"
 									></span>
-									<p class="text-yellow-700">حداقل مبلغ قابل فروش 0.01 USDT می‌باشد.</p>
+									<p class="text-yellow-700">حداقل مبلغ قابل خرید 0.01 USDT می‌باشد.</p>
 								</div>
 							</div>
 							<div
@@ -400,7 +410,7 @@
 								<div class="flex">
 									<span class="icon-[heroicons--clock] me-2 mt-0.5 h-5 w-5 text-blue-600"></span>
 									<p class="text-blue-700">
-										پس از فروش، مبلغ تومان معادل طی چند دقیقه به حساب شما واریز خواهد شد.
+										پس از خرید، مبلغ USDT معادل طی چند دقیقه به حساب شما واریز خواهد شد.
 									</p>
 								</div>
 							</div>
@@ -409,5 +419,5 @@
 				</div>
 			</div>
 		</PanelPageWrapper>
-	</SellUsdtProvider>
+	</BuyUsdtProvider>
 </GetCurrentUsdtPriceProvider>

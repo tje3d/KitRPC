@@ -38,6 +38,7 @@
 			'credit-card': 'icon-[heroicons--credit-card]',
 			banknotes: 'icon-[heroicons--banknotes]',
 			'arrow-down-tray': 'icon-[heroicons--arrow-down-tray]',
+			'arrow-up-tray': 'icon-[heroicons--arrow-up-tray]',
 			'device-phone-mobile': 'icon-[heroicons--device-phone-mobile]',
 			wallet: 'icon-[heroicons--wallet]',
 			users: 'icon-[heroicons--users]',

@@ -2,6 +2,7 @@ import { CurrencyType, TransactionStatus, TransactionType } from '@prisma/client
 import { prisma as defaultPrisma } from '../prisma';
 import { updateUserBalance } from './balance.service';
 import { validateAmount, validateTransactionHash } from './validation.utils';
+import { formatNumberAdvanced } from '$lib/helpers/formatNumber.helper';
 
 // Create a type for our prisma client instance
 type PrismaClientType = typeof defaultPrisma;
@@ -186,6 +187,8 @@ export const processBuyUsdt = async (
 	amountUsdt: number, // Amount of USDT to buy
 	description?: string
 ) => {
+	amountUsdt = +formatNumberAdvanced(amountUsdt, { decimals: 2, separator: false });
+
 	// Validate amount
 	if (!validateAmount(amountUsdt, CurrencyType.USDT)) {
 		throw new Error('مبلغ USDT نامعتبر');
@@ -203,7 +206,10 @@ export const processBuyUsdt = async (
 	}
 
 	// Calculate IRT amount needed
-	const amountIrt = amountUsdt * currentPrice.buyPrice;
+	const amountIrt = +formatNumberAdvanced(amountUsdt * currentPrice.buyPrice, {
+		decimals: 0,
+		separator: false
+	});
 
 	// Check if the user has sufficient IRT balance
 	const user = await defaultPrisma.user.findUnique({
@@ -257,6 +263,8 @@ export const processSellUsdt = async (
 	amountUsdt: number, // Amount of USDT to sell
 	description?: string
 ) => {
+	amountUsdt = +formatNumberAdvanced(amountUsdt, { decimals: 2, separator: false });
+
 	// Validate amount
 	if (!validateAmount(amountUsdt, CurrencyType.USDT)) {
 		throw new Error('مبلغ USDT نامعتبر');
@@ -274,7 +282,10 @@ export const processSellUsdt = async (
 	}
 
 	// Calculate IRT amount to receive
-	const amountIrt = amountUsdt * currentPrice.sellPrice;
+	const amountIrt = +formatNumberAdvanced(amountUsdt * currentPrice.sellPrice, {
+		decimals: 0,
+		separator: false
+	});
 
 	// Check if the user has sufficient USDT balance
 	const user = await defaultPrisma.user.findUnique({

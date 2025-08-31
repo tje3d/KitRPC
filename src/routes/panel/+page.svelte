@@ -40,10 +40,10 @@
 			href: `${base}/panel/sell-usdt`
 		},
 		{
-			title: 'کارت‌ها',
-			description: 'مدیریت کارت‌های بانکی',
-			icon: 'icon-[heroicons--credit-card]',
-			href: `${base}/panel/cards`
+			title: 'خدمات ارز دیجیتال',
+			description: 'فروش تتر به شما',
+			icon: 'icon-[heroicons--currency-dollar]',
+			href: `${base}/panel/buy-usdt`
 		}
 	];
 </script>
